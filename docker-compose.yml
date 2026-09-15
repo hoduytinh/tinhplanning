@@ -1,0 +1,37 @@
+services:
+  backend:
+    build: ./backend
+    container_name: leadboard-backend
+    ports:
+      - "8000:8000"
+    environment:
+      # SQLite file lives in the mounted volume so it survives rebuilds.
+      DATABASE_URL: "sqlite:////data/leadboard.db"
+      CORS_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173"
+      APP_ENV: "development"
+      LOG_LEVEL: "INFO"
+    volumes:
+      # Source mounted for hot reload (uvicorn --reload).
+      - ./backend:/app
+      # Persistent data volume — NEVER wiped on rebuild.
+      - leadboard_data:/data
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: leadboard-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: "http://localhost:8000"
+    volumes:
+      # Source mounted for hot reload; node_modules kept inside container.
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  leadboard_data:
+    driver: local
