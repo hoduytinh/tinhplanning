@@ -123,8 +123,10 @@ def upgrade() -> None:
         )
 
     # Đánh dấu các milestone chuẩn Marvell đã tồn tại (type != custom).
+    # Dùng literal TRUE (không phải 1) để chạy được trên cả SQLite (>=3.23)
+    # lẫn PostgreSQL — PostgreSQL từ chối gán integer vào cột boolean.
     op.execute(
-        "UPDATE project_milestones SET is_marvell_standard = 1 "
+        "UPDATE project_milestones SET is_marvell_standard = TRUE "
         "WHERE milestone_type IS NOT NULL AND milestone_type != 'custom'"
     )
 
