@@ -20,6 +20,7 @@ from modules.meetings.template_router import router as meeting_templates_router
 from modules.weekly_review.router import router as weekly_review_router
 from modules.auth.router import router as auth_router
 from modules.users.router import router as users_router
+from modules.ai.router import router as ai_router
 
 configure_logging()
 logger = logging.getLogger("leadboard")
@@ -114,6 +115,7 @@ app.include_router(dashboard_router, dependencies=_auth)
 app.include_router(meetings_router, dependencies=_auth)
 app.include_router(meeting_templates_router, dependencies=_auth)
 app.include_router(weekly_review_router, dependencies=_auth)
+app.include_router(ai_router, dependencies=_auth)
 
 
 @app.on_event("startup")
