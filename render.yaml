@@ -2,14 +2,15 @@
 # Trong Render dashboard: New → Blueprint → chọn repo này, Render sẽ đọc file này.
 #
 # Ghi chú:
-# - `disk` tạo persistent disk (free tier 1GB), mount vào /var/data.
-#   File SQLite tại /var/data/leadboard.db KHÔNG bị xóa khi redeploy.
-# - `alembic upgrade head` chạy trước khi start → tự động migrate schema mới.
+# - Production dùng PostgreSQL (Supabase), KHÔNG dùng SQLite/disk nữa.
+#   DATABASE_URL trỏ tới connection string Supabase, set thủ công trên
+#   Render dashboard (đánh dấu sync: false bên dưới — không lưu giá trị
+#   thật trong file này).
+# - `alembic upgrade head` chạy trước khi start → tự động migrate schema mới
+#   (Alembic đọc DATABASE_URL từ env, chạy được trên cả SQLite lẫn PostgreSQL).
 # - `python seed.py` chạy sau migrate: seed sample data (idempotent) khi
 #   APP_ENV != production; trên production tự skip (admin được seed idempotent
 #   riêng lúc app startup trong main.py) — vô hại khi chạy lại.
-# - Biến đánh dấu `sync: false` PHẢI set thủ công trên Render dashboard
-#   (Environment tab) — không lưu giá trị thật trong file này.
 # - healthCheckPath dùng để Render kiểm tra app sống, đồng thời là URL cho
 #   UptimeRobot ping để giữ free instance không bị sleep.
 
@@ -31,6 +32,8 @@ services:
         value: 1.0.0
       - key: DEBUG
         value: false
+      - key: DATABASE_URL
+        sync: false
       - key: SECRET_KEY
         sync: false
       - key: ADMIN_USERNAME
@@ -39,11 +42,3 @@ services:
         sync: false
       - key: CORS_ORIGINS
         sync: false
-      - key: DATA_DIR
-        value: /var/data
-      - key: DATABASE_URL
-        value: sqlite:////var/data/leadboard.db
-    disk:
-      name: leadboard-data
-      mountPath: /var/data
-      sizeGB: 1

@@ -13,11 +13,10 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    # Database — SQLite file lives in a mounted persistent disk so it survives
-    # redeploys. DATA_DIR points at that mount path:
-    #   - Local (Docker Compose): /data
-    #   - Render (persistent disk): /var/data
-    # DATABASE_URL, if left empty, is derived from DATA_DIR below.
+    # Database
+    # - Local (Docker Compose): SQLite file under DATA_DIR (unchanged).
+    # - Production (Render): DATABASE_URL is a PostgreSQL URL (Supabase),
+    #   set directly as an env var — DATA_DIR/SQLite derivation is unused then.
     DATA_DIR: str = "/data"
     DATABASE_URL: str = ""
 
@@ -51,6 +50,10 @@ class Settings(BaseSettings):
         # (identical to the previous default), so existing behaviour is preserved.
         if not self.DATABASE_URL:
             self.DATABASE_URL = f"sqlite:///{self.DATA_DIR}/leadboard.db"
+        # Render/Supabase hand out "postgres://" URLs; SQLAlchemy's psycopg2
+        # dialect requires the "postgresql://" scheme.
+        elif self.DATABASE_URL.startswith("postgres://"):
+            self.DATABASE_URL = self.DATABASE_URL.replace("postgres://", "postgresql://", 1)
         return self
 
 
