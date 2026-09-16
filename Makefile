@@ -37,12 +37,12 @@ revision: ## Tạo migration mới:  make revision m="mô tả"
 shell-backend: ## Mở shell trong container backend
 	$(COMPOSE) exec backend bash
 
-deploy: ## Push lên main — Vercel + Railway tự động deploy
+deploy: ## Push lên main — Vercel + Render tự động deploy
 	git push origin main
-	@echo "✓ Đã push — Vercel + Railway đang auto-deploy..."
+	@echo "✓ Đã push — Vercel + Render đang auto-deploy..."
 
-health: ## Kiểm tra health backend production:  make health RAILWAY_URL=https://...
-	@curl -s $${RAILWAY_URL}/health | python -m json.tool
+health: ## Kiểm tra health backend production:  make health RENDER_URL=https://...
+	@curl -s $${RENDER_URL}/health | python -m json.tool
 
 clean: ## Dừng và xóa container (GIỮ NGUYÊN volume dữ liệu)
 	$(COMPOSE) down --remove-orphans

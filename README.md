@@ -61,7 +61,7 @@ leadboard/
 ├── Makefile               # make dev / build / logs / seed / migrate
 ├── .env.example           # mẫu biến môi trường
 ├── vercel.json            # deploy frontend (Vercel, root = frontend)
-├── railway.toml           # deploy backend (Railway, root = backend)
+├── render.yaml            # deploy backend (Render, root = backend)
 ├── backend/
 │   ├── core/              # config, database, logging
 │   ├── modules/tasks/     # Module 1 (router/models/schemas/service)
@@ -95,12 +95,15 @@ leadboard/
 ### Frontend → Vercel
 1. Import GitHub repo vào Vercel.
 2. Root Directory: `frontend` (đã cấu hình trong `vercel.json`).
-3. Thêm env `VITE_API_URL` = URL backend Railway.
+3. Thêm env `VITE_API_URL` = URL backend Render (vd `https://leadboard-backend.onrender.com`).
 
-### Backend → Railway
-1. Import GitHub repo, Root Directory: `backend`.
-2. Tạo **Volume** mount vào `/data` để giữ file SQLite.
-3. Set env `DATABASE_URL`, `CORS_ORIGINS` (thêm domain Vercel).
+### Backend → Render
+1. New → Blueprint, chọn GitHub repo (Render đọc `render.yaml` ở root).
+2. Render tự tạo **persistent disk** mount vào `/var/data` để giữ file SQLite.
+3. Set thủ công (dashboard) các biến đánh dấu `sync: false`: `SECRET_KEY`,
+   `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `CORS_ORIGINS` (thêm domain Vercel).
+4. (Free tier) Thêm URL `.../health` vào UptimeRobot (ping mỗi 5 phút) để
+   instance không bị sleep.
 
 ---
 

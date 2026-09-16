@@ -13,8 +13,10 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    # Database — SQLite file lives in a mounted volume so it survives rebuilds.
-    # DATA_DIR points at that volume (Docker: /data, Railway: your mount path).
+    # Database — SQLite file lives in a mounted persistent disk so it survives
+    # redeploys. DATA_DIR points at that mount path:
+    #   - Local (Docker Compose): /data
+    #   - Render (persistent disk): /var/data
     # DATABASE_URL, if left empty, is derived from DATA_DIR below.
     DATA_DIR: str = "/data"
     DATABASE_URL: str = ""

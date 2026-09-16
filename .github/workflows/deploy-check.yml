@@ -32,5 +32,5 @@ jobs:
         run: |
           cd frontend
           npm install
-          VITE_API_URL=https://placeholder.railway.app npm run build
+          VITE_API_URL=https://placeholder.onrender.com npm run build
           echo "✓ Frontend OK"

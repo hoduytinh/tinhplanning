@@ -1,0 +1,49 @@
+# Render deploy config — backend (native Python runtime, không dùng Dockerfile).
+# Trong Render dashboard: New → Blueprint → chọn repo này, Render sẽ đọc file này.
+#
+# Ghi chú:
+# - `disk` tạo persistent disk (free tier 1GB), mount vào /var/data.
+#   File SQLite tại /var/data/leadboard.db KHÔNG bị xóa khi redeploy.
+# - `alembic upgrade head` chạy trước khi start → tự động migrate schema mới.
+# - `python seed.py` chạy sau migrate: seed sample data (idempotent) khi
+#   APP_ENV != production; trên production tự skip (admin được seed idempotent
+#   riêng lúc app startup trong main.py) — vô hại khi chạy lại.
+# - Biến đánh dấu `sync: false` PHẢI set thủ công trên Render dashboard
+#   (Environment tab) — không lưu giá trị thật trong file này.
+# - healthCheckPath dùng để Render kiểm tra app sống, đồng thời là URL cho
+#   UptimeRobot ping để giữ free instance không bị sleep.
+
+services:
+  - type: web
+    name: leadboard-backend
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: alembic upgrade head && python seed.py && uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: APP_ENV
+        value: production
+      - key: APP_VERSION
+        value: 1.0.0
+      - key: DEBUG
+        value: false
+      - key: SECRET_KEY
+        sync: false
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: DATA_DIR
+        value: /var/data
+      - key: DATABASE_URL
+        value: sqlite:////var/data/leadboard.db
+    disk:
+      name: leadboard-data
+      mountPath: /var/data
+      sizeGB: 1
