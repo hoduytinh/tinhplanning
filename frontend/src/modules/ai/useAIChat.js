@@ -23,7 +23,9 @@ export function useAIChat() {
         setPendingAction(response.action);
       }
     } catch (error) {
-      const detail = error?.response?.data?.detail;
+      // api.js interceptor đã chuẩn hoá lỗi thành Error(detail) thuần,
+      // nên đọc error.message thay vì error.response.data.detail.
+      const detail = error?.message;
       setMessages((prev) => [
         ...prev,
         {
