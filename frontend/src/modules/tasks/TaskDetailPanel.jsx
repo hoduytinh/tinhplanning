@@ -476,6 +476,18 @@ export default function TaskDetailPanel({
             <div className="flex-1">
               <div className="divide-y divide-slate-100 border-y border-slate-100">
                 <div className={row}>
+                  <span className={fieldLabel}>Created by</span>
+                  <span className="text-sm text-slate-600">
+                    {(() => {
+                      const creator = directory.find(
+                        (u) => u.id === task.created_by
+                      );
+                      if (creator) return creator.full_name || creator.username;
+                      return task.created_by ? `User #${task.created_by}` : "—";
+                    })()}
+                  </span>
+                </div>
+                <div className={row}>
                   <span className={fieldLabel}>Status</span>
                   <StatusSelect
                     ariaLabel="Status"
