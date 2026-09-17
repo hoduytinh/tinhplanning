@@ -36,6 +36,8 @@ def list_tasks(
     due_after: datetime | None = None,
     sort_by: str = "created_at",
     order: str = "desc",
+    current_user=None,
+    ownership: str = "all",
 ) -> list[Task]:
     stmt = select(Task)
 
@@ -51,6 +53,26 @@ def list_tasks(
         stmt = stmt.where(Task.due_date <= due_before)
     if due_after is not None:
         stmt = stmt.where(Task.due_date >= due_after)
+
+    # --- Ownership & Visibility layer ---
+    if current_user is not None:
+        from core.visibility import get_watching_ids, task_visibility_condition
+
+        # Bước 1: lọc theo quyền xem (role + membership/owner/assigned/share).
+        vis = task_visibility_condition(db, current_user, Task)
+        if vis is not None:
+            stmt = stmt.where(vis)
+
+        # Bước 2: lọc theo tab ownership người dùng chọn.
+        if ownership == "my":
+            stmt = stmt.where(Task.created_by == current_user.id)
+        elif ownership == "assigned":
+            stmt = stmt.where(Task.assigned_to == current_user.id)
+        elif ownership == "watching":
+            watching = get_watching_ids(db, current_user.id, "task")
+            stmt = stmt.where(Task.id.in_(watching) if watching else False)
+        elif ownership == "shared":
+            stmt = stmt.where(Task.is_shared.is_(True))
 
     tasks = list(db.execute(stmt).scalars().all())
 
@@ -76,7 +98,7 @@ def get_task(db: Session, task_id: int) -> Task:
     return task
 
 
-def create_task(db: Session, payload: TaskCreate) -> Task:
+def create_task(db: Session, payload: TaskCreate, current_user_id: int | None = None) -> Task:
     task = Task(
         title=payload.title,
         short_description=payload.short_description,
@@ -88,6 +110,9 @@ def create_task(db: Session, payload: TaskCreate) -> Task:
         project_id=payload.project_id,
         subblock_id=payload.subblock_id,
         tags=_tags_to_str(payload.tags),
+        created_by=current_user_id,
+        assigned_to=payload.assigned_to,
+        is_shared=payload.is_shared,
     )
     db.add(task)
     db.commit()

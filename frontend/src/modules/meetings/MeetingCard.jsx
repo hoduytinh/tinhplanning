@@ -33,7 +33,7 @@ export default function MeetingCard({ meeting, onOpen }) {
           <Users size={13} /> {meeting.attendee_count}
         </span>
         <span className="flex items-center gap-1">
-          <ListChecks size={13} /> {meeting.open_action_count}/{meeting.action_count} mở
+          <ListChecks size={13} /> {meeting.open_action_count}/{meeting.action_count} open
         </span>
       </div>
 

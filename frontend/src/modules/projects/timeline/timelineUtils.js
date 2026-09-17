@@ -123,8 +123,8 @@ export function fmtMonthYear(d) {
   const dt = parseDate(d);
   if (!dt) return "";
   const months = [
-    "Th1", "Th2", "Th3", "Th4", "Th5", "Th6",
-    "Th7", "Th8", "Th9", "Th10", "Th11", "Th12",
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
   ];
   return `${months[dt.getMonth()]} ${dt.getFullYear()}`;
 }

@@ -37,7 +37,7 @@ const SlashCommandList = forwardRef(function SlashCommandList(
   if (items.length === 0) {
     return (
       <div className="w-64 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-400 shadow-lg">
-        Không có kết quả
+        No results
       </div>
     );
   }

@@ -224,16 +224,16 @@ def generate_cft_report(db: Session, review) -> str:
     lines.append(f"({review.week_start} → {review.week_end})")
     lines.append("")
 
-    lines.append("1. TÓM TẮT SỐ LIỆU")
-    lines.append(f"   - Task hoàn thành: {t['completed_count']}")
-    lines.append(f"   - Task tạo mới: {t['created_count']}")
-    lines.append(f"   - Task blocked: {t['blocked_count']} | quá hạn: {t['overdue_count']}")
+    lines.append("1. METRICS SUMMARY")
+    lines.append(f"   - Tasks completed: {t['completed_count']}")
+    lines.append(f"   - Tasks created: {t['created_count']}")
+    lines.append(f"   - Tasks blocked: {t['blocked_count']} | overdue: {t['overdue_count']}")
     lines.append(
-        f"   - Cuộc họp: {m['count']} | action items: "
-        f"{m['action_items_total']} (còn mở {m['action_items_open']})"
+        f"   - Meetings: {m['count']} | action items: "
+        f"{m['action_items_total']} (still open {m['action_items_open']})"
     )
     lines.append(
-        f"   - Bug: đóng {b['closed_count']} | mới {b['new_count']} | đang mở {b['open_count']}"
+        f"   - Bugs: closed {b['closed_count']} | new {b['new_count']} | open {b['open_count']}"
     )
     if summary["coverage_deltas"]:
         lines.append("   - Coverage / pass-rate:")
@@ -247,20 +247,20 @@ def generate_cft_report(db: Session, review) -> str:
 
     highlights = _strip_html(review.highlights)
     if highlights:
-        lines.append("2. ĐIỂM NỔI BẬT")
+        lines.append("2. HIGHLIGHTS")
         lines.append(f"   {highlights}")
         lines.append("")
 
     challenges = _strip_html(review.challenges)
     if challenges:
-        lines.append("3. KHÓ KHĂN")
+        lines.append("3. CHALLENGES")
         lines.append(f"   {challenges}")
         lines.append("")
 
     focus = _strip_html(review.focus_next_week)
     top_focus = review.top_focus or []
     if focus or top_focus:
-        lines.append("4. KẾ HOẠCH TUẦN TỚI")
+        lines.append("4. PLAN FOR NEXT WEEK")
         for item in top_focus:
             if isinstance(item, dict) and item.get("text"):
                 prio = f" ({item['priority']})" if item.get("priority") else ""
@@ -271,11 +271,11 @@ def generate_cft_report(db: Session, review) -> str:
 
     risks = _strip_html(review.risks_next_week)
     if risks:
-        lines.append("5. RỦI RO / PHỤ THUỘC")
+        lines.append("5. RISKS / DEPENDENCIES")
         lines.append(f"   {risks}")
         deps = _strip_html(review.dependencies_next_week)
         if deps:
-            lines.append(f"   Phụ thuộc: {deps}")
+            lines.append(f"   Dependencies: {deps}")
         lines.append("")
 
     return "\n".join(lines).strip()

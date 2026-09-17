@@ -125,7 +125,7 @@ def update_track(
     data = payload.model_dump(exclude_unset=True)
     if "parent_id" in data and data["parent_id"] is not None:
         if data["parent_id"] == track_id:
-            raise TimelineValidationError("Track không thể là cha của chính nó.")
+            raise TimelineValidationError("A track cannot be its own parent.")
         get_track(db, project_id, data["parent_id"])
     for field, value in data.items():
         setattr(track, field, value)
@@ -320,9 +320,9 @@ def _validate_bar_milestone_date(bar: TimelineBar, d: date | None) -> None:
     if d is None:
         return
     if bar.start_date is not None and d < bar.start_date:
-        raise TimelineValidationError("Ngày phải nằm trong khoảng bar.")
+        raise TimelineValidationError("Date must fall within the bar's range.")
     if bar.end_date is not None and d > bar.end_date:
-        raise TimelineValidationError("Ngày phải nằm trong khoảng bar.")
+        raise TimelineValidationError("Date must fall within the bar's range.")
 
 
 def list_bar_milestones(

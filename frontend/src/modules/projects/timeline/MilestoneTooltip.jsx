@@ -9,9 +9,9 @@ const STATUS_TONE = {
 };
 
 const STATUS_LABEL = {
-  done: "Hoàn thành",
-  upcoming: "Sắp tới",
-  at_risk: "Có nguy cơ trễ",
+  done: "Done",
+  upcoming: "Upcoming",
+  at_risk: "At risk",
 };
 
 // Popover chi tiết milestone: exit criteria + liên kết tới Signoff Checklist.
@@ -54,7 +54,7 @@ export default function MilestoneTooltip({ milestone, open, onClose, onGotoSigno
             onClick={() => onGotoSignoff?.(milestone)}
             className="text-sm font-medium text-brand hover:underline"
           >
-            Xem trong Signoff Checklist →
+            View in Signoff Checklist →
           </button>
         )}
       </div>

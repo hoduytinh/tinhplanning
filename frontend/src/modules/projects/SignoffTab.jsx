@@ -57,7 +57,7 @@ export default function SignoffTab({ projectId }) {
     try {
       setItems(await fetchSignoff(projectId, milestone));
     } catch (err) {
-      setError(err.message || "Không thể tải signoff checklist.");
+      setError(err.message || "Failed to load signoff checklist.");
     } finally {
       setLoading(false);
     }
@@ -74,7 +74,7 @@ export default function SignoffTab({ projectId }) {
       const list = await initSignoff(projectId, milestone);
       setItems(list);
     } catch (err) {
-      setError(err.message || "Không thể tạo checklist.");
+      setError(err.message || "Failed to create checklist.");
     } finally {
       setBusy(false);
     }
@@ -88,18 +88,18 @@ export default function SignoffTab({ projectId }) {
       const updated = await updateSignoff(projectId, item.id, patch);
       setItems((prev) => prev.map((i) => (i.id === item.id ? updated : i)));
     } catch (err) {
-      setError(err.message || "Không thể cập nhật item.");
+      setError(err.message || "Failed to update item.");
       await load();
     }
   };
 
   const handleDelete = async (item) => {
-    if (!window.confirm("Xóa item này?")) return;
+    if (!window.confirm("Delete this item?")) return;
     try {
       await deleteSignoff(projectId, item.id);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể xóa item.");
+      setError(err.message || "Failed to delete item.");
     }
   };
 
@@ -181,12 +181,13 @@ export default function SignoffTab({ projectId }) {
       {!loading && total === 0 && !error && (
         <Card className="space-y-3 p-8 text-center">
           <p className="text-sm text-slate-500">
-            Chưa có checklist cho {mLabel}. Tạo checklist chuẩn Marvell tự động.
+            No checklist for {mLabel} yet. Automatically create a standard
+            Marvell checklist.
           </p>
           {hasPermission(role, "projects", "update") && (
             <Button onClick={handleInit} disabled={busy}>
               <Sparkles size={15} />
-              {busy ? "Đang tạo..." : "Auto-populate checklist"}
+              {busy ? "Creating..." : "Auto-populate checklist"}
             </Button>
           )}
         </Card>
@@ -232,7 +233,7 @@ export default function SignoffTab({ projectId }) {
         <div className="flex justify-end">
           <Button variant="secondary" size="sm" onClick={handleInit} disabled={busy}>
             <Sparkles size={14} />
-            Bổ sung item chuẩn còn thiếu
+            Add missing standard items
           </Button>
         </div>
       )}
@@ -266,7 +267,7 @@ function SignoffRow({ item, role, onPatch, onDelete }) {
   return (
     <div className="px-4 py-2.5">
       <div className="flex items-center gap-3">
-        <button onClick={cycle} aria-label="Đổi trạng thái" className="shrink-0">
+        <button onClick={cycle} aria-label="Change status" className="shrink-0">
           <StatusIcon status={item.status} />
         </button>
         <button
@@ -286,7 +287,7 @@ function SignoffRow({ item, role, onPatch, onDelete }) {
           <button
             onClick={onDelete}
             className="shrink-0 rounded p-1 text-slate-300 hover:bg-red-50 hover:text-red-500"
-            aria-label="Xóa"
+            aria-label="Delete"
           >
             <Trash2 size={13} />
           </button>
@@ -315,12 +316,12 @@ function SignoffRow({ item, role, onPatch, onDelete }) {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             onBlur={saveNotes}
-            placeholder="Ghi chú..."
+            placeholder="Notes..."
             className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
           />
           {item.completed_date && (
             <p className="text-xs text-slate-400">
-              Hoàn thành: {formatShortDate(item.completed_date)}
+              Completed: {formatShortDate(item.completed_date)}
             </p>
           )}
         </div>

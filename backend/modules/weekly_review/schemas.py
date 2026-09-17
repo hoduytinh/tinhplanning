@@ -82,6 +82,11 @@ class WeeklyReviewBase(BaseModel):
 
 class WeeklyReviewCreate(BaseModel):
     week_start: date | None = None  # nếu None -> tuần hiện tại
+    # Multi-context: personal / project / team
+    name: str = Field(default="Personal", max_length=255)
+    context_type: str = Field(default="personal", pattern="^(personal|project|team)$")
+    project_ids: list[int] | None = None
+    team_members: list[int] | None = None
 
 
 class WeeklyReviewUpdate(WeeklyReviewBase):
@@ -100,6 +105,11 @@ class WeeklyReviewListItem(BaseModel):
     status: ReviewStatus
     created_at: datetime
     updated_at: datetime
+    # Multi-context + ownership
+    name: str = "Personal"
+    context_type: str = "personal"
+    created_by: int | None = None
+    is_shared: bool = False
 
 
 class WeeklyReviewRead(WeeklyReviewBase):
@@ -114,6 +124,13 @@ class WeeklyReviewRead(WeeklyReviewBase):
     status: ReviewStatus
     created_at: datetime
     updated_at: datetime
+    # Multi-context + ownership
+    name: str = "Personal"
+    context_type: str = "personal"
+    project_ids: list[int] | None = None
+    team_members: list[int] | None = None
+    created_by: int | None = None
+    is_shared: bool = False
     shoutouts: list[ShoutoutRead] = []
     snapshot: SnapshotRead | None = None
 

@@ -6,7 +6,7 @@ export default function ActionConfirm({ action, onConfirm, onReject }) {
 
   return (
     <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-3 text-sm">
-      <p className="mb-2 font-medium text-indigo-700">✨ AI muốn tạo task này:</p>
+      <p className="mb-2 font-medium text-indigo-700">✨ AI wants to create this task:</p>
 
       <div className="space-y-1 text-slate-700">
         <p>
@@ -36,13 +36,13 @@ export default function ActionConfirm({ action, onConfirm, onReject }) {
           onClick={onConfirm}
           className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700"
         >
-          <CheckCircle size={14} /> Tạo task
+          <CheckCircle size={14} /> Create task
         </button>
         <button
           onClick={onReject}
           className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
         >
-          <XCircle size={14} /> Bỏ qua
+          <XCircle size={14} /> Dismiss
         </button>
       </div>
     </div>

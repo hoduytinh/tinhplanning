@@ -52,7 +52,7 @@ export default function SubblockTreeManager({ projectId }) {
       const data = await fetchSubblocks(projectId);
       setTree(data);
     } catch (err) {
-      setError(err.message || "Không thể tải sub-block.");
+      setError(err.message || "Failed to load sub-blocks.");
     } finally {
       setLoading(false);
     }
@@ -85,7 +85,7 @@ export default function SubblockTreeManager({ projectId }) {
       setNewName("");
       await load();
     } catch (err) {
-      setError(err.message || "Không thể thêm sub-block.");
+      setError(err.message || "Failed to add sub-block.");
     }
   };
 
@@ -105,14 +105,14 @@ export default function SubblockTreeManager({ projectId }) {
       setEditingId(null);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể đổi tên.");
+      setError(err.message || "Failed to rename.");
     }
   };
 
   const handleDelete = async (node) => {
     if (
       !window.confirm(
-        `Xóa "${node.name}" và toàn bộ children? Task đang gán sẽ mất sub-block.`
+        `Delete "${node.name}" and all its children? Tasks assigned to it will lose their sub-block.`
       )
     )
       return;
@@ -120,7 +120,7 @@ export default function SubblockTreeManager({ projectId }) {
       await deleteSubblock(projectId, node.id);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể xóa sub-block.");
+      setError(err.message || "Failed to delete sub-block.");
     }
   };
 
@@ -134,12 +134,12 @@ export default function SubblockTreeManager({ projectId }) {
       );
       await load();
     } catch (err) {
-      setError(err.message || "Không thể sắp xếp.");
+      setError(err.message || "Failed to reorder.");
     }
   };
 
   if (loading) {
-    return <p className="text-sm text-slate-400">Đang tải sub-block...</p>;
+    return <p className="text-sm text-slate-400">Loading sub-blocks...</p>;
   }
 
   return (
@@ -152,11 +152,11 @@ export default function SubblockTreeManager({ projectId }) {
 
       <div className="flex items-center justify-between">
         <p className="text-sm text-slate-500">
-          Chia project thành các sub-block (module/feature) để gán task và sinh
-          auto-tag.
+          Break the project into sub-blocks (modules/features) to assign tasks
+          and generate auto-tags.
         </p>
         <Button size="sm" variant="secondary" onClick={() => startAdd(null)}>
-          <Plus size={14} /> Node root
+          <Plus size={14} /> Root node
         </Button>
       </div>
 
@@ -184,7 +184,7 @@ export default function SubblockTreeManager({ projectId }) {
 
       {tree.length === 0 && addingParent === undefined && (
         <p className="rounded-lg border border-dashed border-slate-200 px-3 py-6 text-center text-sm italic text-slate-400">
-          Chưa có sub-block. Bấm "Node root" để bắt đầu.
+          No sub-blocks yet. Click "Root node" to get started.
         </p>
       )}
 
@@ -318,7 +318,7 @@ function SubblockNodeRow({
         <button
           type="button"
           className="cursor-grab touch-none text-slate-300 hover:text-slate-500 active:cursor-grabbing"
-          aria-label="Kéo để sắp xếp"
+          aria-label="Drag to reorder"
           {...attributes}
           {...listeners}
         >
@@ -330,7 +330,7 @@ function SubblockNodeRow({
             type="button"
             onClick={() => toggle(node.id)}
             className="flex h-5 w-5 items-center justify-center text-slate-400 hover:text-slate-600"
-            aria-label={isOpen ? "Thu gọn" : "Mở rộng"}
+            aria-label={isOpen ? "Collapse" : "Expand"}
           >
             {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
           </button>
@@ -364,7 +364,7 @@ function SubblockNodeRow({
             type="button"
             onClick={() => startAdd(node.id)}
             className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-brand"
-            title="Thêm node con"
+            title="Add child node"
           >
             <Plus size={14} />
           </button>
@@ -372,7 +372,7 @@ function SubblockNodeRow({
             type="button"
             onClick={() => startEdit(node)}
             className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-            title="Đổi tên"
+            title="Rename"
           >
             <Pencil size={13} />
           </button>
@@ -380,7 +380,7 @@ function SubblockNodeRow({
             type="button"
             onClick={() => onDelete(node)}
             className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-red-500"
-            title="Xóa"
+            title="Delete"
           >
             <Trash2 size={13} />
           </button>
@@ -438,7 +438,7 @@ function AddInput({ value, onChange, onSubmit, onCancel, depth }) {
           if (e.key === "Enter") onSubmit();
           if (e.key === "Escape") onCancel();
         }}
-        placeholder="Tên sub-block..."
+        placeholder="Sub-block name..."
         className="w-56 rounded border border-brand px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
       />
       <button
@@ -446,14 +446,14 @@ function AddInput({ value, onChange, onSubmit, onCancel, depth }) {
         onClick={onSubmit}
         className="rounded-md bg-brand px-2 py-1 text-xs font-medium text-white hover:bg-brand-dark"
       >
-        Thêm
+        Add
       </button>
       <button
         type="button"
         onClick={onCancel}
         className="text-xs text-slate-400 hover:text-slate-600"
       >
-        Hủy
+        Cancel
       </button>
     </div>
   );

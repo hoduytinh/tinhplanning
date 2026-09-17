@@ -9,77 +9,77 @@ function buildItems({ query, editor }) {
   const all = [
     {
       title: "Heading 1",
-      description: "Tiêu đề lớn",
+      description: "Large heading",
       icon: "H1",
       command: ({ editor, range }) =>
         editor.chain().focus().deleteRange(range).setNode("heading", { level: 1 }).run(),
     },
     {
       title: "Heading 2",
-      description: "Tiêu đề vừa",
+      description: "Medium heading",
       icon: "H2",
       command: ({ editor, range }) =>
         editor.chain().focus().deleteRange(range).setNode("heading", { level: 2 }).run(),
     },
     {
       title: "Heading 3",
-      description: "Tiêu đề nhỏ",
+      description: "Small heading",
       icon: "H3",
       command: ({ editor, range }) =>
         editor.chain().focus().deleteRange(range).setNode("heading", { level: 3 }).run(),
     },
     {
       title: "Bullet List",
-      description: "Danh sách gạch đầu dòng",
+      description: "Bulleted list",
       icon: "•",
       command: ({ editor, range }) =>
         editor.chain().focus().deleteRange(range).toggleBulletList().run(),
     },
     {
       title: "Numbered List",
-      description: "Danh sách số thứ tự",
+      description: "Numbered list",
       icon: "1.",
       command: ({ editor, range }) =>
         editor.chain().focus().deleteRange(range).toggleOrderedList().run(),
     },
     {
       title: "Checklist",
-      description: "Danh sách việc cần làm",
+      description: "To-do list",
       icon: "☑",
       command: ({ editor, range }) =>
         editor.chain().focus().deleteRange(range).toggleTaskList().run(),
     },
     {
       title: "Code Block",
-      description: "Khối mã nguồn",
+      description: "Source code block",
       icon: "</>",
       command: ({ editor, range }) =>
         editor.chain().focus().deleteRange(range).toggleCodeBlock().run(),
     },
     {
       title: "Callout — Info",
-      description: "Khối thông tin (xanh)",
+      description: "Info block (blue)",
       icon: "💡",
       command: ({ editor, range }) =>
         editor.chain().focus().deleteRange(range).setCallout("info").run(),
     },
     {
       title: "Callout — Warning",
-      description: "Khối cảnh báo (vàng)",
+      description: "Warning block (yellow)",
       icon: "⚠️",
       command: ({ editor, range }) =>
         editor.chain().focus().deleteRange(range).setCallout("warning").run(),
     },
     {
       title: "Callout — Critical",
-      description: "Khối nghiêm trọng (đỏ)",
+      description: "Critical block (red)",
       icon: "🔴",
       command: ({ editor, range }) =>
         editor.chain().focus().deleteRange(range).setCallout("critical").run(),
     },
     {
       title: "Table",
-      description: "Bảng so sánh / test case",
+      description: "Comparison table / test cases",
       icon: "▦",
       command: ({ editor, range }) =>
         editor
@@ -91,27 +91,27 @@ function buildItems({ query, editor }) {
     },
     {
       title: "Divider",
-      description: "Đường kẻ ngang",
+      description: "Horizontal rule",
       icon: "—",
       command: ({ editor, range }) =>
         editor.chain().focus().deleteRange(range).setHorizontalRule().run(),
     },
     {
       title: "Image",
-      description: "Chèn ảnh từ URL",
+      description: "Insert image from URL",
       icon: "🖼",
       command: ({ editor, range }) => {
-        const url = window.prompt("Dán URL ảnh:");
+        const url = window.prompt("Paste image URL:");
         editor.chain().focus().deleteRange(range).run();
         if (url) editor.chain().focus().setImage({ src: url }).run();
       },
     },
     {
       title: "Link",
-      description: "Chèn liên kết",
+      description: "Insert a link",
       icon: "🔗",
       command: ({ editor, range }) => {
-        const url = window.prompt("Dán URL:");
+        const url = window.prompt("Paste URL:");
         editor.chain().focus().deleteRange(range).run();
         if (url) editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
       },

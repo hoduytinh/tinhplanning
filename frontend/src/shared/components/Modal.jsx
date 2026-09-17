@@ -22,7 +22,7 @@ export default function Modal({ open, onClose, title, children, footer }) {
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600"
-            aria-label="Đóng"
+            aria-label="Close"
           >
             ✕
           </button>

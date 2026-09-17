@@ -14,9 +14,9 @@ export const ROLE_OPTIONS = [
 ];
 
 export const STATUS_META = {
-  pending: { label: "Chờ duyệt", tone: "bg-amber-50 text-amber-700 border-amber-200" },
-  active: { label: "Đã duyệt", tone: "bg-green-50 text-green-700 border-green-200" },
-  rejected: { label: "Đã từ chối", tone: "bg-red-50 text-red-700 border-red-200" },
+  pending: { label: "Pending", tone: "bg-amber-50 text-amber-700 border-amber-200" },
+  active: { label: "Approved", tone: "bg-green-50 text-green-700 border-green-200" },
+  rejected: { label: "Rejected", tone: "bg-red-50 text-red-700 border-red-200" },
 };
 
 export function roleMeta(role) {

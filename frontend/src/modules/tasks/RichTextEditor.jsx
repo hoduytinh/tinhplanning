@@ -52,30 +52,30 @@ import {
 const lowlight = createLowlight(common);
 
 const TEXT_COLORS = [
-  { label: "Mặc định", value: "" },
-  { label: "Đỏ", value: "#dc2626" },
-  { label: "Cam", value: "#d97706" },
-  { label: "Vàng", value: "#ca8a04" },
-  { label: "Xanh lá", value: "#16a34a" },
-  { label: "Ngọc", value: "#0d9488" },
-  { label: "Xanh dương", value: "#2563eb" },
-  { label: "Xanh da trời", value: "#0284c7" },
-  { label: "Tím", value: "#7c3aed" },
-  { label: "Hồng", value: "#db2777" },
-  { label: "Nâu", value: "#92400e" },
-  { label: "Xám", value: "#475569" },
+  { label: "Default", value: "" },
+  { label: "Red", value: "#dc2626" },
+  { label: "Orange", value: "#d97706" },
+  { label: "Yellow", value: "#ca8a04" },
+  { label: "Green", value: "#16a34a" },
+  { label: "Teal", value: "#0d9488" },
+  { label: "Blue", value: "#2563eb" },
+  { label: "Sky Blue", value: "#0284c7" },
+  { label: "Purple", value: "#7c3aed" },
+  { label: "Pink", value: "#db2777" },
+  { label: "Brown", value: "#92400e" },
+  { label: "Gray", value: "#475569" },
 ];
 
 const HIGHLIGHT_COLORS = [
-  { label: "Vàng", value: "#fef08a" },
-  { label: "Cam", value: "#fed7aa" },
-  { label: "Xanh lá", value: "#bbf7d0" },
-  { label: "Ngọc", value: "#99f6e4" },
-  { label: "Xanh dương", value: "#bfdbfe" },
-  { label: "Tím", value: "#e9d5ff" },
-  { label: "Hồng", value: "#fbcfe8" },
-  { label: "Đỏ", value: "#fecaca" },
-  { label: "Xám", value: "#e2e8f0" },
+  { label: "Yellow", value: "#fef08a" },
+  { label: "Orange", value: "#fed7aa" },
+  { label: "Green", value: "#bbf7d0" },
+  { label: "Teal", value: "#99f6e4" },
+  { label: "Blue", value: "#bfdbfe" },
+  { label: "Purple", value: "#e9d5ff" },
+  { label: "Pink", value: "#fbcfe8" },
+  { label: "Red", value: "#fecaca" },
+  { label: "Gray", value: "#e2e8f0" },
 ];
 
 // Bộ ký hiệu/emoji thông dụng để chèn nhanh vào nội dung.
@@ -94,7 +94,7 @@ export default function RichTextEditor({
   content,
   onChange,
   onBlur,
-  placeholder = "Mô tả task... Gõ / để chọn format nhanh",
+  placeholder = "Describe the task... Type / for quick formatting",
   editable = true,
   fillHeight = false,
 }) {
@@ -228,7 +228,7 @@ export default function RichTextEditor({
 
   const setLink = () => {
     const previousUrl = editor.getAttributes("link").href || "";
-    const url = window.prompt("Dán URL:", previousUrl);
+    const url = window.prompt("Paste URL:", previousUrl);
     if (url === null) return;
     if (url === "") {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
@@ -238,7 +238,7 @@ export default function RichTextEditor({
   };
 
   const insertImageByUrl = () => {
-    const url = window.prompt("Dán URL ảnh:");
+    const url = window.prompt("Paste image URL:");
     if (url) editor.chain().focus().setImage({ src: url }).run();
   };
 
@@ -271,28 +271,28 @@ export default function RichTextEditor({
           {/* Nhóm 1 — Heading & Text format */}
           <button
             type="button"
-            title="Tiêu đề 1"
+            title="Heading 1"
             className={btn(editor.isActive("heading", { level: 1 }))}
             onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-            aria-label="Tiêu đề 1"
+            aria-label="Heading 1"
           >
             <Heading1 size={14} />
           </button>
           <button
             type="button"
-            title="Tiêu đề 2"
+            title="Heading 2"
             className={btn(editor.isActive("heading", { level: 2 }))}
             onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-            aria-label="Tiêu đề 2"
+            aria-label="Heading 2"
           >
             <Heading2 size={14} />
           </button>
           <button
             type="button"
-            title="Tiêu đề 3"
+            title="Heading 3"
             className={btn(editor.isActive("heading", { level: 3 }))}
             onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-            aria-label="Tiêu đề 3"
+            aria-label="Heading 3"
           >
             <Heading3 size={14} />
           </button>
@@ -301,37 +301,37 @@ export default function RichTextEditor({
 
           <button
             type="button"
-            title="In đậm (Ctrl+B)"
+            title="Bold (Ctrl+B)"
             className={btn(editor.isActive("bold"))}
             onClick={() => editor.chain().focus().toggleBold().run()}
-            aria-label="In đậm"
+            aria-label="Bold"
           >
             <Bold size={14} />
           </button>
           <button
             type="button"
-            title="In nghiêng (Ctrl+I)"
+            title="Italic (Ctrl+I)"
             className={btn(editor.isActive("italic"))}
             onClick={() => editor.chain().focus().toggleItalic().run()}
-            aria-label="In nghiêng"
+            aria-label="Italic"
           >
             <Italic size={14} />
           </button>
           <button
             type="button"
-            title="Gạch chân (Ctrl+U)"
+            title="Underline (Ctrl+U)"
             className={btn(editor.isActive("underline"))}
             onClick={() => editor.chain().focus().toggleUnderline().run()}
-            aria-label="Gạch chân"
+            aria-label="Underline"
           >
             <UnderlineIcon size={14} />
           </button>
           <button
             type="button"
-            title="Gạch bỏ (Ctrl+Shift+S)"
+            title="Strikethrough (Ctrl+Shift+S)"
             className={btn(editor.isActive("strike"))}
             onClick={() => editor.chain().focus().toggleStrike().run()}
-            aria-label="Gạch bỏ"
+            aria-label="Strikethrough"
           >
             <Strikethrough size={14} />
           </button>
@@ -340,14 +340,14 @@ export default function RichTextEditor({
           <div className="relative">
             <button
               type="button"
-              title="Màu chữ"
+              title="Text color"
               className={btn(colorMenu)}
               onClick={() => {
                 setHighlightMenu(false);
                 setCalloutMenu(false);
                 setColorMenu((v) => !v);
               }}
-              aria-label="Màu chữ"
+              aria-label="Text color"
             >
               <Palette size={14} />
             </button>
@@ -378,7 +378,7 @@ export default function RichTextEditor({
           <div className="relative">
             <button
               type="button"
-              title="Đánh dấu highlight"
+              title="Highlight"
               className={btn(editor.isActive("highlight") || highlightMenu)}
               onClick={() => {
                 setColorMenu(false);
@@ -406,7 +406,7 @@ export default function RichTextEditor({
                 ))}
                 <button
                   type="button"
-                  title="Bỏ highlight"
+                  title="Remove highlight"
                   onClick={() => {
                     editor.chain().focus().unsetHighlight().run();
                     setHighlightMenu(false);
@@ -424,10 +424,10 @@ export default function RichTextEditor({
           {/* Nhóm 2 — Insert */}
           <button
             type="button"
-            title="Code inline (Ctrl+E)"
+            title="Inline code (Ctrl+E)"
             className={btn(editor.isActive("code"))}
             onClick={() => editor.chain().focus().toggleCode().run()}
-            aria-label="Code inline"
+            aria-label="Inline code"
           >
             <Code size={14} />
           </button>
@@ -442,20 +442,20 @@ export default function RichTextEditor({
           </button>
           <button
             type="button"
-            title="Chèn liên kết (Ctrl+K)"
+            title="Insert link (Ctrl+K)"
             className={btn(editor.isActive("link"))}
             onClick={setLink}
-            aria-label="Chèn liên kết"
+            aria-label="Insert link"
           >
             <Link2 size={14} />
           </button>
           <button
             type="button"
-            title="Chèn ảnh (URL hoặc tải lên)"
+            title="Insert image (URL or upload)"
             className={btn(false)}
             onClick={insertImageByUrl}
             onDoubleClick={() => fileInputRef.current?.click()}
-            aria-label="Chèn ảnh"
+            aria-label="Insert image"
           >
             <ImageIcon size={14} />
           </button>
@@ -471,7 +471,7 @@ export default function RichTextEditor({
           <div className="relative">
             <button
               type="button"
-              title="Chèn ký hiệu / emoji"
+              title="Insert symbol / emoji"
               className={btn(symbolMenu)}
               onClick={() => {
                 setColorMenu(false);
@@ -479,7 +479,7 @@ export default function RichTextEditor({
                 setCalloutMenu(false);
                 setSymbolMenu((v) => !v);
               }}
-              aria-label="Chèn ký hiệu"
+              aria-label="Insert symbol"
             >
               <Smile size={14} />
             </button>
@@ -507,19 +507,19 @@ export default function RichTextEditor({
           {/* Nhóm 3 — Structure */}
           <button
             type="button"
-            title="Danh sách gạch đầu dòng"
+            title="Bulleted list"
             className={btn(editor.isActive("bulletList"))}
             onClick={() => editor.chain().focus().toggleBulletList().run()}
-            aria-label="Danh sách gạch đầu dòng"
+            aria-label="Bulleted list"
           >
             <List size={14} />
           </button>
           <button
             type="button"
-            title="Danh sách số thứ tự"
+            title="Numbered list"
             className={btn(editor.isActive("orderedList"))}
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            aria-label="Danh sách số thứ tự"
+            aria-label="Numbered list"
           >
             <ListOrdered size={14} />
           </button>
@@ -534,28 +534,28 @@ export default function RichTextEditor({
           </button>
           <button
             type="button"
-            title="Thụt lề vào (Tab)"
+            title="Indent (Tab)"
             className={btn(false)}
             onClick={indent}
-            aria-label="Thụt lề vào"
+            aria-label="Indent"
           >
             <IndentIncrease size={14} />
           </button>
           <button
             type="button"
-            title="Thụt lề ra (Shift+Tab)"
+            title="Outdent (Shift+Tab)"
             className={btn(false)}
             onClick={outdent}
-            aria-label="Thụt lề ra"
+            aria-label="Outdent"
           >
             <IndentDecrease size={14} />
           </button>
           <button
             type="button"
-            title="Trích dẫn"
+            title="Quote"
             className={btn(editor.isActive("blockquote"))}
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
-            aria-label="Trích dẫn"
+            aria-label="Quote"
           >
             <Quote size={14} />
           </button>
@@ -601,7 +601,7 @@ export default function RichTextEditor({
                     }}
                     className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs text-slate-400 hover:bg-slate-50"
                   >
-                    <Trash2 size={12} /> Bỏ callout
+                    <Trash2 size={12} /> Remove callout
                   </button>
                 )}
               </div>
@@ -610,10 +610,10 @@ export default function RichTextEditor({
 
           <button
             type="button"
-            title="Đường kẻ ngang"
+            title="Horizontal rule"
             className={btn(false)}
             onClick={() => editor.chain().focus().setHorizontalRule().run()}
-            aria-label="Đường kẻ ngang"
+            aria-label="Horizontal rule"
           >
             <SeparatorHorizontal size={14} />
           </button>
@@ -621,7 +621,7 @@ export default function RichTextEditor({
           {/* Table */}
           <button
             type="button"
-            title="Chèn bảng"
+            title="Insert table"
             className={btn(inTable)}
             onClick={() =>
               editor
@@ -630,7 +630,7 @@ export default function RichTextEditor({
                 .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
                 .run()
             }
-            aria-label="Chèn bảng"
+            aria-label="Insert table"
           >
             <Table2 size={14} />
           </button>
@@ -638,28 +638,28 @@ export default function RichTextEditor({
             <>
               <button
                 type="button"
-                title="Thêm dòng"
+                title="Add row"
                 className={btn(false)}
                 onClick={() => editor.chain().focus().addRowAfter().run()}
-                aria-label="Thêm dòng"
+                aria-label="Add row"
               >
                 <Rows3 size={14} />
               </button>
               <button
                 type="button"
-                title="Thêm cột"
+                title="Add column"
                 className={btn(false)}
                 onClick={() => editor.chain().focus().addColumnAfter().run()}
-                aria-label="Thêm cột"
+                aria-label="Add column"
               >
                 <Columns3 size={14} />
               </button>
               <button
                 type="button"
-                title="Xóa bảng"
+                title="Delete table"
                 className={btn(false)}
                 onClick={() => editor.chain().focus().deleteTable().run()}
-                aria-label="Xóa bảng"
+                aria-label="Delete table"
               >
                 <Trash2 size={14} />
               </button>
@@ -672,7 +672,7 @@ export default function RichTextEditor({
       </div>
       {editable && (
         <div className="flex shrink-0 items-center justify-end border-t border-slate-100 bg-slate-50 px-3 py-1 text-xs text-slate-400">
-          {wordCount} từ
+          {wordCount} words
         </div>
       )}
     </div>

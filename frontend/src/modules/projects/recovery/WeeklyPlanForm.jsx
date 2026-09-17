@@ -51,7 +51,7 @@ export default function WeeklyPlanForm({ previousPlan, onSubmit, onCancel }) {
         estimate_cumulative_to: numOrNull(form.estimate_cumulative_to),
       });
     } catch (err) {
-      setError(err.message || "Không thể tạo plan.");
+      setError(err.message || "Failed to create plan.");
     } finally {
       setSaving(false);
     }
@@ -110,21 +110,21 @@ export default function WeeklyPlanForm({ previousPlan, onSubmit, onCancel }) {
               <input
                 value={it.name}
                 onChange={(e) => updateItem(idx, "name", e.target.value)}
-                placeholder="Tên..."
+                placeholder="Name..."
                 className={`${inputCls} w-28`}
               />
               <span className="shrink-0 text-slate-400">→</span>
               <input
                 value={it.task}
                 onChange={(e) => updateItem(idx, "task", e.target.value)}
-                placeholder="Mô tả việc làm tuần này..."
+                placeholder="Describe this week's work..."
                 className={`${inputCls} flex-1`}
               />
               <button
                 type="button"
                 onClick={() => removeItem(idx)}
                 className="text-slate-400 hover:text-red-500"
-                aria-label="Xóa"
+                aria-label="Remove"
               >
                 <X size={14} />
               </button>
@@ -136,7 +136,7 @@ export default function WeeklyPlanForm({ previousPlan, onSubmit, onCancel }) {
           onClick={addItem}
           className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
         >
-          <Plus size={13} /> Thêm người
+          <Plus size={13} /> Add person
         </button>
       </div>
 
@@ -178,10 +178,10 @@ export default function WeeklyPlanForm({ previousPlan, onSubmit, onCancel }) {
 
       <div className="flex justify-end gap-2 pt-1">
         <Button type="button" variant="secondary" size="sm" onClick={onCancel}>
-          Hủy
+          Cancel
         </Button>
         <Button type="submit" size="sm" disabled={saving}>
-          {saving ? "Đang lưu..." : "Tạo plan"}
+          {saving ? "Saving..." : "Create plan"}
         </Button>
       </div>
     </form>

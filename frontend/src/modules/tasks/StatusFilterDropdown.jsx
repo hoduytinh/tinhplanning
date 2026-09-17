@@ -49,7 +49,7 @@ export default function StatusFilterDropdown({ selected, onChange, className = "
     else onChange([...selected, value]);
   };
 
-  const label = "Trạng thái";
+  const label = "Status";
 
   return (
     <div className={`relative inline-block ${className}`}>
@@ -81,14 +81,14 @@ export default function StatusFilterDropdown({ selected, onChange, className = "
                 className="text-xs font-medium text-brand hover:underline"
                 onClick={() => onChange(STATUSES.map((s) => s.value))}
               >
-                Chọn tất cả
+                Select all
               </button>
               <button
                 type="button"
                 className="text-xs font-medium text-slate-400 hover:underline"
                 onClick={() => onChange([])}
               >
-                Bỏ chọn
+                Clear
               </button>
             </div>
             {STATUSES.map((s) => {
@@ -110,10 +110,9 @@ export default function StatusFilterDropdown({ selected, onChange, className = "
                     {checked && <Check size={11} strokeWidth={3} />}
                   </span>
                   <span
-                    style={{ color: s.color }}
-                    className="w-4 shrink-0 text-center font-bold"
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${s.tone}`}
                   >
-                    {s.icon}
+                    <s.icon size={13} strokeWidth={2.5} />
                   </span>
                   <span>{s.label}</span>
                 </button>

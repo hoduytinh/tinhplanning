@@ -56,7 +56,7 @@ const TrackPanel = forwardRef(function TrackPanel(
                 type="button"
                 onClick={() => onEditTrack?.(row.track)}
                 className="text-slate-300 hover:text-brand"
-                title="Sửa track"
+                title="Edit track"
               >
                 <Pencil size={13} />
               </button>
@@ -64,7 +64,7 @@ const TrackPanel = forwardRef(function TrackPanel(
                 type="button"
                 onClick={() => onDeleteTrack?.(row.track)}
                 className="text-slate-300 hover:text-red-500"
-                title="Xóa track"
+                title="Delete track"
               >
                 <Trash2 size={13} />
               </button>

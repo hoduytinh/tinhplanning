@@ -1,18 +1,18 @@
 // Hằng số dùng chung cho module Weekly Review.
 
 export const MOODS = [
-  { value: 1, emoji: "😫", label: "Kiệt sức" },
-  { value: 2, emoji: "😔", label: "Mệt mỏi" },
-  { value: 3, emoji: "😐", label: "Bình thường" },
-  { value: 4, emoji: "😊", label: "Tốt" },
-  { value: 5, emoji: "🚀", label: "Tuyệt vời" },
+  { value: 1, emoji: "😫", label: "Exhausted" },
+  { value: 2, emoji: "😔", label: "Tired" },
+  { value: 3, emoji: "😐", label: "Neutral" },
+  { value: 4, emoji: "😊", label: "Good" },
+  { value: 5, emoji: "🚀", label: "Great" },
 ];
 
 export const WORKLOADS = [
-  { value: "light", label: "Nhẹ nhàng", tone: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  { value: "normal", label: "Bình thường", tone: "bg-sky-50 text-sky-700 border-sky-200" },
-  { value: "heavy", label: "Nặng", tone: "bg-amber-50 text-amber-700 border-amber-200" },
-  { value: "overloaded", label: "Quá tải", tone: "bg-red-50 text-red-700 border-red-200" },
+  { value: "light", label: "Light", tone: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  { value: "normal", label: "Normal", tone: "bg-sky-50 text-sky-700 border-sky-200" },
+  { value: "heavy", label: "Heavy", tone: "bg-amber-50 text-amber-700 border-amber-200" },
+  { value: "overloaded", label: "Overloaded", tone: "bg-red-50 text-red-700 border-red-200" },
 ];
 
 export const PRIORITIES = [

@@ -22,15 +22,29 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.database import Base
+from core.ownership import OwnershipMixin
 
 
-class WeeklyReview(Base):
+class WeeklyReview(OwnershipMixin, Base):
     __tablename__ = "weekly_reviews"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     week_label: Mapped[str] = mapped_column(String(16), nullable=False)
     week_start: Mapped[date] = mapped_column(Date, nullable=False)
     week_end: Mapped[date] = mapped_column(Date, nullable=False)
+
+    # Multi-context (Ownership layer) — mỗi review là 1 context độc lập.
+    name: Mapped[str] = mapped_column(
+        String(255), nullable=False, default="Personal", server_default="Personal"
+    )
+    # personal / project / team / custom
+    context_type: Mapped[str] = mapped_column(
+        String(16), nullable=False, default="personal", server_default="personal"
+    )
+    # Danh sách project id làm data source cho auto-summary.
+    project_ids: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    # Danh sách user id được xem review (ngoài admin/moderator + created_by).
+    team_members: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
     # Reflection (rich text HTML)
     highlights: Mapped[str | None] = mapped_column(Text, nullable=True)

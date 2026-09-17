@@ -45,7 +45,7 @@ export default function PlanTargetsModal({ open, plan, onClose, onSubmit }) {
       );
       await onSubmit(payload);
     } catch (err) {
-      setError(err.message || "Không thể lưu plan targets.");
+      setError(err.message || "Failed to save plan targets.");
     } finally {
       setSaving(false);
     }
@@ -58,14 +58,14 @@ export default function PlanTargetsModal({ open, plan, onClose, onSubmit }) {
     <Modal
       open={open}
       onClose={onClose}
-      title={`Sửa Plan Targets — ${plan?.week_label || ""}`}
+      title={`Edit Plan Targets — ${plan?.week_label || ""}`}
       footer={
         <>
           <Button variant="secondary" size="sm" onClick={onClose}>
-            Hủy
+            Cancel
           </Button>
           <Button size="sm" onClick={submit} disabled={saving}>
-            {saving ? "Đang lưu..." : "Lưu"}
+            {saving ? "Saving..." : "Save"}
           </Button>
         </>
       }

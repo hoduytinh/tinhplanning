@@ -30,7 +30,7 @@ export default function LoginPage() {
         navigate("/pending", { replace: true, state: { username, status: msg } });
         return;
       }
-      setError("Tên đăng nhập hoặc mật khẩu không đúng");
+      setError("Incorrect username or password");
     } finally {
       setLoading(false);
     }
@@ -44,14 +44,14 @@ export default function LoginPage() {
             <Layers size={24} />
           </div>
           <h1 className="text-2xl font-bold text-white">LeadBoard</h1>
-          <p className="text-sm text-slate-400">Đăng nhập để tiếp tục</p>
+          <p className="text-sm text-slate-400">Log in to continue</p>
         </div>
 
         <div className="rounded-2xl bg-white p-8 shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-700">
-                Tên đăng nhập
+                Username
               </label>
               <input
                 type="text"
@@ -66,7 +66,7 @@ export default function LoginPage() {
 
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-700">
-                Mật khẩu
+                Password
               </label>
               <div className="relative">
                 <input
@@ -81,7 +81,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -100,14 +100,14 @@ export default function LoginPage() {
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:opacity-60"
             >
               {loading && <Loader2 size={16} className="animate-spin" />}
-              {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+              {loading ? "Logging in..." : "Log in"}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-slate-500">
-            Chưa có tài khoản?{" "}
+            Don't have an account?{" "}
             <Link to="/register" className="font-medium text-brand hover:underline">
-              Đăng ký
+              Sign up
             </Link>
           </p>
         </div>

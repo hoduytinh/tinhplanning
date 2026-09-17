@@ -15,16 +15,16 @@ export const OPTIONAL_MODULES = [
 
 // Bảng màu preset cho prefix task — mặc định xanh dương (blue).
 export const PREFIX_COLOR_PRESETS = [
-  { value: "#3b82f6", label: "Xanh dương" },
+  { value: "#3b82f6", label: "Blue" },
   { value: "#6366f1", label: "Indigo" },
-  { value: "#a855f7", label: "Tím" },
-  { value: "#ec4899", label: "Hồng" },
-  { value: "#ef4444", label: "Đỏ" },
-  { value: "#f97316", label: "Cam" },
-  { value: "#eab308", label: "Vàng" },
-  { value: "#22c55e", label: "Xanh lá" },
+  { value: "#a855f7", label: "Purple" },
+  { value: "#ec4899", label: "Pink" },
+  { value: "#ef4444", label: "Red" },
+  { value: "#f97316", label: "Orange" },
+  { value: "#eab308", label: "Yellow" },
+  { value: "#22c55e", label: "Green" },
   { value: "#14b8a6", label: "Teal" },
-  { value: "#64748b", label: "Xám" },
+  { value: "#64748b", label: "Gray" },
 ];
 export const DEFAULT_PREFIX_COLOR = "#3b82f6";
 
@@ -175,10 +175,10 @@ export const RISK_SEVERITIES = [
 ];
 
 export const PROJECT_SORT_OPTIONS = [
-  { value: "name", label: "Tên" },
-  { value: "start_date", label: "Ngày bắt đầu" },
-  { value: "end_date", label: "Ngày kết thúc" },
-  { value: "progress", label: "% hoàn thành" },
+  { value: "name", label: "Name" },
+  { value: "start_date", label: "Start date" },
+  { value: "end_date", label: "End date" },
+  { value: "progress", label: "% complete" },
 ];
 
 const _lookup = (list, value) => list.find((x) => x.value === value);

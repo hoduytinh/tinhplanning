@@ -97,7 +97,7 @@ function PlanRow({ plan, expanded, onToggle, onDelete, onFillOutcome }) {
               onClick={() => onDelete(plan)}
               className="inline-flex items-center gap-1 text-xs font-medium text-red-500 hover:underline"
             >
-              <Trash2 size={12} /> Xóa
+              <Trash2 size={12} /> Delete
             </button>
           </div>
 
@@ -137,7 +137,7 @@ export default function WeeklyPlans({ projectId }) {
       setPlans(p);
       setSummary(s);
     } catch (err) {
-      setError(err.message || "Không thể tải danh sách plans.");
+      setError(err.message || "Failed to load plans list.");
     } finally {
       setLoading(false);
     }
@@ -155,12 +155,12 @@ export default function WeeklyPlans({ projectId }) {
   };
 
   const handleDelete = async (plan) => {
-    if (!window.confirm(`Xóa plan "${plan.week_label}"?`)) return;
+    if (!window.confirm(`Delete plan "${plan.week_label}"?`)) return;
     try {
       await deleteRecoveryPlan(projectId, plan.id);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể xóa plan.");
+      setError(err.message || "Failed to delete plan.");
     }
   };
 
@@ -170,7 +170,7 @@ export default function WeeklyPlans({ projectId }) {
   };
 
   if (loading) {
-    return <p className="py-10 text-center text-sm text-slate-400">Đang tải…</p>;
+    return <p className="py-10 text-center text-sm text-slate-400">Loading…</p>;
   }
 
   return (
@@ -180,7 +180,7 @@ export default function WeeklyPlans({ projectId }) {
       {summary && summary.total > 0 && (
         <Card className="flex flex-wrap items-center justify-between gap-2 p-4 text-sm">
           <span className="text-slate-600">
-            Tổng {summary.total} tuần: 🟢 {summary.done} Done 🟡 {summary.partial}{" "}
+            Total {summary.total} weeks: 🟢 {summary.done} Done 🟡 {summary.partial}{" "}
             Partial 🔴 {summary.missed} Missed ⚪ {summary.planned} Planned
           </span>
           {summary.avg_actual_vs_estimate_pct != null && (
@@ -212,7 +212,7 @@ export default function WeeklyPlans({ projectId }) {
 
       {plans.length === 0 && !creating && (
         <Card className="p-10 text-center text-sm text-slate-400">
-          Chưa có plan tuần nào.
+          No weekly plans yet.
         </Card>
       )}
 

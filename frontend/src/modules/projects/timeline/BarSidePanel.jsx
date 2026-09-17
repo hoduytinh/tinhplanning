@@ -91,7 +91,7 @@ export default function BarSidePanel({
     setBmError("");
     if (!newName.trim() || !newDate) return;
     if (!dateInRange(newDate)) {
-      setBmError("Ngày phải nằm trong khoảng bar");
+      setBmError("Date must be within the bar's range");
       return;
     }
     try {
@@ -103,7 +103,7 @@ export default function BarSidePanel({
       setNewDate("");
       await reloadBms();
     } catch (e) {
-      setBmError(e.message || "Không thể thêm milestone.");
+      setBmError(e.message || "Failed to add milestone.");
     }
   };
 
@@ -124,7 +124,7 @@ export default function BarSidePanel({
     setBmError("");
     if (!editName.trim() || !editDate) return;
     if (!dateInRange(editDate)) {
-      setBmError("Ngày phải nằm trong khoảng bar");
+      setBmError("Date must be within the bar's range");
       return;
     }
     try {
@@ -135,7 +135,7 @@ export default function BarSidePanel({
       setEditingId(null);
       await reloadBms();
     } catch (e) {
-      setBmError(e.message || "Không thể cập nhật milestone.");
+      setBmError(e.message || "Failed to update milestone.");
     }
   };
 
@@ -155,14 +155,14 @@ export default function BarSidePanel({
     <Modal
       open={open}
       onClose={onClose}
-      title={`Chỉnh sửa: ${track?.name || "Bar"}`}
+      title={`Edit: ${track?.name || "Bar"}`}
       footer={
         <>
           <Button variant="danger" onClick={() => onDelete?.(bar)}>
-            Xóa
+            Delete
           </Button>
           <Button variant="secondary" onClick={onClose}>
-            Hủy
+            Cancel
           </Button>
           <Button
             onClick={() =>
@@ -173,14 +173,14 @@ export default function BarSidePanel({
               })
             }
           >
-            Lưu
+            Save
           </Button>
         </>
       }
     >
       <div className="space-y-3 text-sm">
         <label className="block">
-          <span className="mb-1 block font-medium text-slate-600">Tên</span>
+          <span className="mb-1 block font-medium text-slate-600">Name</span>
           <input
             className="w-full rounded-lg border border-slate-200 px-3 py-2 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
             value={form.name}
@@ -189,7 +189,7 @@ export default function BarSidePanel({
         </label>
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
-            <span className="mb-1 block font-medium text-slate-600">Bắt đầu</span>
+            <span className="mb-1 block font-medium text-slate-600">Start</span>
             <input
               type="date"
               className="w-full rounded-lg border border-slate-200 px-3 py-2"
@@ -198,7 +198,7 @@ export default function BarSidePanel({
             />
           </label>
           <label className="block">
-            <span className="mb-1 block font-medium text-slate-600">Kết thúc</span>
+            <span className="mb-1 block font-medium text-slate-600">End</span>
             <input
               type="date"
               className="w-full rounded-lg border border-slate-200 px-3 py-2"
@@ -209,7 +209,7 @@ export default function BarSidePanel({
         </div>
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
-            <span className="mb-1 block font-medium text-slate-600">Trạng thái</span>
+            <span className="mb-1 block font-medium text-slate-600">Status</span>
             <Select
               value={form.status}
               onChange={set("status")}
@@ -218,7 +218,7 @@ export default function BarSidePanel({
           </label>
           <label className="block">
             <span className="mb-1 block font-medium text-slate-600">
-              Tiến độ ({form.progress}%)
+              Progress ({form.progress}%)
             </span>
             <input
               type="range"
@@ -231,7 +231,7 @@ export default function BarSidePanel({
           </label>
         </div>
         <label className="block">
-          <span className="mb-1 block font-medium text-slate-600">Màu (tùy chọn)</span>
+          <span className="mb-1 block font-medium text-slate-600">Color (optional)</span>
           <div className="flex gap-1.5">
             {TRACK_COLOR_PRESETS.map((c) => (
               <button
@@ -247,7 +247,7 @@ export default function BarSidePanel({
           </div>
         </label>
         <label className="block">
-          <span className="mb-1 block font-medium text-slate-600">Ghi chú</span>
+          <span className="mb-1 block font-medium text-slate-600">Notes</span>
           <textarea
             rows={2}
             className="w-full rounded-lg border border-slate-200 px-3 py-2"
@@ -259,7 +259,7 @@ export default function BarSidePanel({
         {/* Milestones trong bar */}
         <div className="border-t border-slate-100 pt-3">
           <div className="mb-2 flex items-center justify-between">
-            <span className="font-medium text-slate-600">Milestones trong bar</span>
+            <span className="font-medium text-slate-600">Milestones in bar</span>
             <span className="text-xs text-slate-400">
               {bms.filter((m) => m.status === "done").length}/{bms.length} done
             </span>
@@ -284,7 +284,7 @@ export default function BarSidePanel({
                     type="button"
                     onClick={() => saveEdit(bm)}
                     className="text-green-600 hover:text-green-700"
-                    title="Lưu"
+                    title="Save"
                   >
                     <Check size={16} />
                   </button>
@@ -292,7 +292,7 @@ export default function BarSidePanel({
                     type="button"
                     onClick={() => setEditingId(null)}
                     className="text-slate-400 hover:text-slate-600"
-                    title="Hủy"
+                    title="Cancel"
                   >
                     <X size={16} />
                   </button>
@@ -305,7 +305,7 @@ export default function BarSidePanel({
                   <button
                     type="button"
                     onClick={() => toggleBm(bm)}
-                    title="Đổi trạng thái"
+                    title="Toggle status"
                   >
                     {statusIcon(bm.status)}
                   </button>
@@ -323,7 +323,7 @@ export default function BarSidePanel({
                     type="button"
                     onClick={() => startEdit(bm)}
                     className="text-slate-300 hover:text-slate-600"
-                    title="Sửa"
+                    title="Edit"
                   >
                     <Pencil size={13} />
                   </button>
@@ -331,7 +331,7 @@ export default function BarSidePanel({
                     type="button"
                     onClick={() => removeBm(bm)}
                     className="text-slate-300 hover:text-red-500"
-                    title="Xóa"
+                    title="Delete"
                   >
                     <Trash2 size={13} />
                   </button>
@@ -340,7 +340,7 @@ export default function BarSidePanel({
             )}
             {bms.length === 0 && (
               <p className="px-2 py-1 text-xs text-slate-400">
-                Chưa có milestone nào trong bar.
+                No milestones in this bar yet.
               </p>
             )}
           </div>
@@ -348,7 +348,7 @@ export default function BarSidePanel({
           {/* Inline add form */}
           <div className="mt-2 flex items-center gap-1.5">
             <input
-              placeholder="Tên milestone"
+              placeholder="Milestone name"
               className="min-w-0 flex-1 rounded-lg border border-slate-200 px-2 py-1 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
@@ -367,7 +367,7 @@ export default function BarSidePanel({
               className="inline-flex items-center gap-1 rounded-lg bg-brand px-2.5 py-1 text-sm font-medium text-white hover:bg-brand-dark"
             >
               <Plus size={14} />
-              Thêm
+              Add
             </button>
           </div>
           {bmError && (

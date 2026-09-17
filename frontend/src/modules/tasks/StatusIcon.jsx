@@ -64,14 +64,14 @@ export default function StatusIcon({ status, onChange, size = 18 }) {
           e.stopPropagation();
           setOpen((o) => !o);
         }}
-        className="flex items-center justify-center rounded-md p-0.5 transition hover:bg-slate-100"
-        aria-label={`Trạng thái: ${meta.label}`}
+        className="flex items-center justify-center rounded-full p-0.5 transition hover:brightness-95"
+        aria-label={`Status: ${meta.label}`}
       >
         <span
-          style={{ color: meta.color, fontSize: size, lineHeight: 1 }}
-          className="font-bold"
+          className={`flex items-center justify-center rounded-full border ${meta.tone}`}
+          style={{ width: size + 8, height: size + 8 }}
         >
-          {meta.icon}
+          <meta.icon size={Math.round(size * 0.6)} strokeWidth={2.5} />
         </span>
       </button>
 
@@ -101,10 +101,9 @@ export default function StatusIcon({ status, onChange, size = 18 }) {
                   }`}
                 >
                   <span
-                    style={{ color: s.color }}
-                    className="w-4 shrink-0 text-center font-bold"
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${s.tone}`}
                   >
-                    {s.icon}
+                    <s.icon size={13} strokeWidth={2.5} />
                   </span>
                   <span className="flex flex-col">
                     <span>{s.label}</span>

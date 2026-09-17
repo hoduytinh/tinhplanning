@@ -29,10 +29,10 @@ function Inner() {
   }, [load]);
 
   const handleDelete = async (t) => {
-    if (!window.confirm(`Xóa template "${t.name}"?`)) return;
+    if (!window.confirm(`Delete template "${t.name}"?`)) return;
     try {
       await deleteTemplate(t.id);
-      toast("Đã xóa template.");
+      toast("Template deleted.");
       load();
     } catch (err) {
       toast(err.message, "error");
@@ -48,32 +48,32 @@ function Inner() {
         onClick={() => navigate("/meetings")}
         className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700"
       >
-        <ArrowLeft size={16} /> Cuộc họp
+        <ArrowLeft size={16} /> Meetings
       </button>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-900">
-            <BookTemplate size={24} /> Templates cuộc họp
+            <BookTemplate size={24} /> Meeting Templates
           </h1>
           <p className="text-sm text-slate-500">
-            Mẫu cấu hình sẵn cho từng loại cuộc họp.
+            Predefined configurations for each meeting type.
           </p>
         </div>
         <RoleGuard resource="meeting_templates" action="create">
           <Button onClick={() => navigate("/meeting-templates/new")}>
-            <Plus size={16} /> Tạo template
+            <Plus size={16} /> Create Template
           </Button>
         </RoleGuard>
       </div>
 
       {loading ? (
-        <p className="text-slate-500">Đang tải...</p>
+        <p className="text-slate-500">Loading...</p>
       ) : (
         <div className="space-y-6">
           <section>
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
-              Hệ thống ({system.length})
+              System ({system.length})
             </h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {system.map((t) => (
@@ -88,10 +88,10 @@ function Inner() {
           </section>
           <section>
             <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
-              Tùy chỉnh ({custom.length})
+              Custom ({custom.length})
             </h2>
             {custom.length === 0 ? (
-              <p className="text-sm text-slate-400">Chưa có template tùy chỉnh.</p>
+              <p className="text-sm text-slate-400">No custom templates yet.</p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {custom.map((t) => (

@@ -11,11 +11,11 @@ import { useAuth } from "../auth/useAuth";
 import { hasPermission } from "../../shared/permissions";
 
 const ACTION_LABELS = {
-  task_created: "đã tạo task",
-  status_changed: "đổi trạng thái",
-  priority_changed: "đổi mức ưu tiên",
-  due_date_changed: "đổi hạn chót",
-  tags_changed: "đổi tags",
+  task_created: "created the task",
+  status_changed: "changed status",
+  priority_changed: "changed priority",
+  due_date_changed: "changed due date",
+  tags_changed: "changed tags",
 };
 
 // Badge nhỏ highlight giá trị (status/priority/tags) cho dễ nhận biết giữa
@@ -119,7 +119,7 @@ export default function ActivityFeed({ taskId }) {
       setActivities(acts);
       setComments(coms);
     } catch (err) {
-      setError(err.message || "Không thể tải hoạt động.");
+      setError(err.message || "Unable to load activity.");
     } finally {
       setLoading(false);
     }
@@ -139,7 +139,7 @@ export default function ActivityFeed({ taskId }) {
       setNewComment("");
       await load();
     } catch (err) {
-      setError(err.message || "Không thể gửi bình luận.");
+      setError(err.message || "Unable to post comment.");
     }
   };
 
@@ -148,7 +148,7 @@ export default function ActivityFeed({ taskId }) {
       await deleteComment(taskId, id);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể xóa bình luận.");
+      setError(err.message || "Unable to delete comment.");
     }
   };
 
@@ -160,13 +160,13 @@ export default function ActivityFeed({ taskId }) {
   return (
     <div>
       <h4 className="mb-2 text-sm font-semibold text-slate-700">
-        Hoạt động &amp; bình luận
+        Activity &amp; Comments
       </h4>
 
       {error && <p className="mb-2 text-xs text-red-600">{error}</p>}
 
       {!loading && timeline.length === 0 && (
-        <p className="text-sm italic text-slate-400">Chưa có hoạt động nào.</p>
+        <p className="text-sm italic text-slate-400">No activity yet.</p>
       )}
 
       <ul className="space-y-3">
@@ -196,7 +196,7 @@ export default function ActivityFeed({ taskId }) {
                       <button
                         onClick={() => handleDeleteComment(item.id)}
                         className="shrink-0 text-amber-400 opacity-0 transition hover:text-red-500 group-hover:opacity-100"
-                        aria-label="Xóa bình luận"
+                        aria-label="Delete comment"
                       >
                         <Trash2 size={13} />
                       </button>
@@ -222,13 +222,13 @@ export default function ActivityFeed({ taskId }) {
           <input
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Viết bình luận..."
+            placeholder="Write a comment..."
             className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
           />
           <button
             type="submit"
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand text-white transition hover:bg-brand-dark disabled:opacity-40"
-            aria-label="Gửi bình luận"
+            aria-label="Send comment"
             disabled={!newComment.trim()}
           >
             <Send size={15} />

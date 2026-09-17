@@ -25,7 +25,7 @@ function TopFocusEditor({ items = [], editable, onChange }) {
 
   return (
     <div>
-      <div className="mb-1 text-xs font-semibold text-slate-600">🎯 Top Focus tuần tới</div>
+      <div className="mb-1 text-xs font-semibold text-slate-600">🎯 Top Focus for Next Week</div>
       <div className="space-y-1.5">
         {(items || []).map((it, idx) => (
           <div
@@ -48,7 +48,7 @@ function TopFocusEditor({ items = [], editable, onChange }) {
                 type="button"
                 onClick={() => remove(idx)}
                 className="text-slate-400 hover:text-red-500"
-                aria-label="Xóa"
+                aria-label="Remove"
               >
                 <X size={14} />
               </button>
@@ -56,7 +56,7 @@ function TopFocusEditor({ items = [], editable, onChange }) {
           </div>
         ))}
         {(items || []).length === 0 && !editable ? (
-          <div className="text-xs text-slate-400">Chưa đặt mục tiêu nào.</div>
+          <div className="text-xs text-slate-400">No goals set yet.</div>
         ) : null}
       </div>
 
@@ -66,7 +66,7 @@ function TopFocusEditor({ items = [], editable, onChange }) {
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && add()}
-            placeholder="Mục tiêu ưu tiên..."
+            placeholder="Priority goal..."
             className="min-w-0 flex-1 rounded-md border border-slate-200 px-2 py-1 text-sm focus:border-brand focus:outline-none"
           />
           <select
@@ -85,7 +85,7 @@ function TopFocusEditor({ items = [], editable, onChange }) {
             onClick={add}
             className="inline-flex items-center gap-1 rounded-md bg-brand px-2 py-1 text-xs font-medium text-white hover:bg-brand-dark"
           >
-            <Plus size={13} /> Thêm
+            <Plus size={13} /> Add
           </button>
         </div>
       ) : null}
@@ -109,18 +109,18 @@ export default function PlanPanel({
         onChange={onTopFocusChange}
       />
       <RichField
-        label="🚧 Rủi ro"
+        label="🚧 Risks"
         value={review.risks_next_week}
         editable={editable}
-        placeholder="Rủi ro có thể xảy ra tuần tới..."
+        placeholder="Potential risks for next week..."
         onChange={(html) => onFieldChange?.("risks_next_week", html)}
         onCommit={(html) => onFieldCommit?.("risks_next_week", html)}
       />
       <RichField
-        label="🔗 Phụ thuộc"
+        label="🔗 Dependencies"
         value={review.dependencies_next_week}
         editable={editable}
-        placeholder="Phụ thuộc vào team/nguồn lực khác..."
+        placeholder="Dependencies on other teams/resources..."
         onChange={(html) => onFieldChange?.("dependencies_next_week", html)}
         onCommit={(html) => onFieldCommit?.("dependencies_next_week", html)}
       />

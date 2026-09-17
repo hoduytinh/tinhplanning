@@ -54,7 +54,7 @@ export default function TrendChart({ projectId }) {
     setError("");
     fetchRecoveryTrend(projectId)
       .then(setData)
-      .catch((err) => setError(err.message || "Không thể tải trend."))
+      .catch((err) => setError(err.message || "Failed to load trend."))
       .finally(() => setLoading(false));
   }, [projectId]);
 
@@ -97,7 +97,7 @@ export default function TrendChart({ projectId }) {
   };
 
   if (loading) {
-    return <p className="py-10 text-center text-sm text-slate-400">Đang tải…</p>;
+    return <p className="py-10 text-center text-sm text-slate-400">Loading…</p>;
   }
   if (error) {
     return <p className="py-10 text-center text-sm text-red-600">{error}</p>;
@@ -105,7 +105,7 @@ export default function TrendChart({ projectId }) {
   if (snapshots.length === 0) {
     return (
       <Card className="p-10 text-center text-sm text-slate-400">
-        Chưa có snapshot coverage nào để vẽ trend.
+        No coverage snapshots available to plot the trend.
       </Card>
     );
   }
@@ -287,19 +287,19 @@ export default function TrendChart({ projectId }) {
       {projections.length > 0 && (
         <Card className="p-4">
           <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
-            📈 Projection (dựa trên avg gần nhất)
+            📈 Projection (based on recent average)
           </h4>
           <div className="space-y-1 text-sm">
             {projections.map((p) => (
               <p key={p.metric} className="text-slate-600">
                 <span className="font-medium text-slate-700">{p.metric}:</span>{" "}
                 {p.weeks_to_target == null
-                  ? "chưa đủ dữ liệu để dự đoán"
+                  ? "not enough data to project"
                   : p.weeks_to_target === 0
-                  ? `đã đạt ${p.target}%`
-                  : `đạt ${p.target}% vào ${p.target_week_label}`}
+                  ? `reached ${p.target}%`
+                  : `will reach ${p.target}% by ${p.target_week_label}`}
                 {p.vs_milestone === "before" && " ✓"}
-                {p.vs_milestone === "after" && " ⚠️ Cần tăng tốc"}
+                {p.vs_milestone === "after" && " ⚠️ Needs acceleration"}
               </p>
             ))}
           </div>

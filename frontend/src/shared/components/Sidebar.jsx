@@ -19,10 +19,10 @@ import { roleMeta, initials } from "../../modules/users/roleMeta";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/tasks", label: "Công việc", icon: CheckSquare },
-  { to: "/projects", label: "Dự án", icon: FolderKanban },
-  { to: "/meetings", label: "Cuộc họp", icon: CalendarDays },
-  { to: "/meeting-templates", label: "Templates họp", icon: BookTemplate },
+  { to: "/tasks", label: "Tasks", icon: CheckSquare },
+  { to: "/projects", label: "Projects", icon: FolderKanban },
+  { to: "/meetings", label: "Meetings", icon: CalendarDays },
+  { to: "/meeting-templates", label: "Meeting Templates", icon: BookTemplate },
   { to: "/weekly-review", label: "Weekly Review", icon: BarChart3 },
 ];
 
@@ -120,7 +120,7 @@ export default function Sidebar({ collapsed }) {
           >
             <MenuItem
               icon={<Settings size={16} />}
-              label="Cài đặt tài khoản"
+              label="Account Settings"
               onClick={() => {
                 setMenuOpen(false);
                 navigate("/settings/profile");
@@ -129,7 +129,7 @@ export default function Sidebar({ collapsed }) {
             {isAdmin && (
               <MenuItem
                 icon={<Users size={16} />}
-                label="Quản lý users"
+                label="Manage Users"
                 badge={pendingCount > 0 ? pendingCount : undefined}
                 onClick={() => {
                   setMenuOpen(false);
@@ -139,7 +139,7 @@ export default function Sidebar({ collapsed }) {
             )}
             <MenuItem
               icon={<LogOut size={16} />}
-              label="Đăng xuất"
+              label="Log Out"
               danger
               onClick={handleLogout}
             />

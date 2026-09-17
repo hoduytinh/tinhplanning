@@ -63,7 +63,7 @@ export default function ProjectPage() {
       setProjects(data);
       loadStats(data);
     } catch (err) {
-      setError(err.message || "Không thể tải danh sách dự án.");
+      setError(err.message || "Failed to load project list.");
     } finally {
       setLoading(false);
     }
@@ -97,12 +97,12 @@ export default function ProjectPage() {
   };
 
   const handleDelete = async (project) => {
-    if (!window.confirm(`Xóa dự án "${project.name}"?`)) return;
+    if (!window.confirm(`Delete project "${project.name}"?`)) return;
     try {
       await deleteProject(project.id);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể xóa dự án.");
+      setError(err.message || "Failed to delete project.");
     }
   };
 
@@ -147,15 +147,15 @@ export default function ProjectPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Dự án</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Projects</h1>
           <p className="mt-0.5 text-sm text-slate-500">
-            {loading ? "Đang tải..." : `${projects.length} dự án`}
+            {loading ? "Loading..." : `${projects.length} projects`}
           </p>
         </div>
         <RoleGuard resource="projects" action="create">
           <Button onClick={openCreate}>
             <Plus size={16} />
-            Dự án mới
+            New Project
           </Button>
         </RoleGuard>
       </div>
@@ -164,30 +164,30 @@ export default function ProjectPage() {
       <Card className="p-4">
         <div className="flex flex-wrap items-center gap-3">
           <Select
-            ariaLabel="Lọc theo trạng thái"
+            ariaLabel="Filter by status"
             value={filters.status}
             onChange={setFilter("status")}
-            placeholder="Mọi trạng thái"
+            placeholder="All statuses"
             options={PROJECT_STATUSES.map((s) => ({
               value: s.value,
               label: s.label,
             }))}
           />
           <Select
-            ariaLabel="Lọc theo ưu tiên"
+            ariaLabel="Filter by priority"
             value={filters.priority}
             onChange={setFilter("priority")}
-            placeholder="Mọi ưu tiên"
+            placeholder="All priorities"
             options={PROJECT_PRIORITIES.map((p) => ({
               value: p.value,
               label: p.label,
             }))}
           />
           <Select
-            ariaLabel="Lọc theo sức khỏe"
+            ariaLabel="Filter by health"
             value={filters.health}
             onChange={setFilter("health")}
-            placeholder="Mọi sức khỏe"
+            placeholder="All health"
             options={PROJECT_HEALTHS.map((h) => ({
               value: h.value,
               label: h.label,
@@ -196,26 +196,26 @@ export default function ProjectPage() {
 
           <div className="ml-auto flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-500">Sắp xếp</span>
+              <span className="text-sm text-slate-500">Sort by</span>
               <Select
-                ariaLabel="Sắp xếp theo"
+                ariaLabel="Sort by"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 options={PROJECT_SORT_OPTIONS}
               />
               <Select
-                ariaLabel="Thứ tự"
+                ariaLabel="Order"
                 value={order}
                 onChange={(e) => setOrder(e.target.value)}
                 options={[
-                  { value: "asc", label: "Tăng dần" },
-                  { value: "desc", label: "Giảm dần" },
+                  { value: "asc", label: "Ascending" },
+                  { value: "desc", label: "Descending" },
                 ]}
               />
             </div>
             <div className="flex items-center gap-1 rounded-lg border border-slate-200 p-1">
-              {viewBtn("grid", LayoutGrid, "Dạng lưới")}
-              {viewBtn("list", ListIcon, "Dạng danh sách")}
+              {viewBtn("grid", LayoutGrid, "Grid view")}
+              {viewBtn("list", ListIcon, "List view")}
             </div>
           </div>
         </div>
@@ -236,15 +236,15 @@ export default function ProjectPage() {
           </div>
           <div>
             <p className="text-base font-semibold text-slate-900">
-              Chưa có dự án nào
+              No projects yet
             </p>
             <p className="mt-1 text-sm text-slate-500">
-              Tạo dự án mới để bắt đầu theo dõi tiến độ.
+              Create a new project to start tracking progress.
             </p>
           </div>
           <Button onClick={openCreate}>
             <Plus size={16} />
-            Tạo dự án đầu tiên
+            Create your first project
           </Button>
         </Card>
       )}
@@ -271,12 +271,12 @@ export default function ProjectPage() {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-500">
-                <th className="px-4 py-3">Sức khỏe</th>
-                <th className="px-4 py-3">Tên dự án</th>
-                <th className="px-4 py-3">Trạng thái</th>
-                <th className="px-4 py-3">Ưu tiên</th>
-                <th className="px-4 py-3">Tiến độ</th>
-                <th className="hidden px-4 py-3 sm:table-cell">Thời gian</th>
+                <th className="px-4 py-3">Health</th>
+                <th className="px-4 py-3">Project name</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Priority</th>
+                <th className="px-4 py-3">Progress</th>
+                <th className="hidden px-4 py-3 sm:table-cell">Timeline</th>
                 <th className="px-4 py-3 text-right"></th>
               </tr>
             </thead>

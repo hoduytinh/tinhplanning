@@ -11,6 +11,7 @@ from modules.users.schemas import (
     RejectRequest,
     ResetPasswordResult,
     UserCreate,
+    UserDirectoryItem,
     UserResponse,
     UserUpdate,
 )
@@ -66,6 +67,16 @@ def reject(
 
 
 # --- List / read (admin + moderator read-only) --- #
+@router.get("/directory", response_model=list[UserDirectoryItem])
+def user_directory(
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    """Danh bạ tối giản (id, username, full_name, avatar) cho mọi user đã đăng
+    nhập — dùng để chọn assignee/watcher/member. Không lộ email/role/status."""
+    return service.list_active_directory(db)
+
+
 @router.get("", response_model=list[UserResponse])
 def list_users(
     status_filter: str | None = Query(default=None, alias="status"),
@@ -122,7 +133,7 @@ def deactivate_user(
     current_user: User = Depends(require_role("admin")),
 ):
     if current_user.id == user_id:
-        raise _bad_request(Exception("Không thể tự vô hiệu hóa chính mình"))
+        raise _bad_request(Exception("You cannot deactivate your own account"))
     try:
         return service.deactivate_user(db, user_id)
     except UserNotFoundError as exc:

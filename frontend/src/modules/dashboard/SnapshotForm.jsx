@@ -84,7 +84,7 @@ export default function SnapshotForm({
       const created = await createCoverage(projectId, payload);
       onSaved?.(created);
     } catch (err) {
-      setError(err.message || "Không thể lưu snapshot.");
+      setError(err.message || "Unable to save snapshot.");
     } finally {
       setSaving(false);
     }
@@ -176,14 +176,14 @@ export default function SnapshotForm({
           onClick={onCancel}
           className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
         >
-          Hủy
+          Cancel
         </button>
         <button
           type="submit"
           disabled={saving || !form.week_label.trim()}
           className="rounded-lg bg-brand px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-dark disabled:opacity-50"
         >
-          Lưu snapshot
+          Save snapshot
         </button>
       </div>
     </form>

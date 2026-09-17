@@ -65,14 +65,24 @@ def list_pending(db: Session) -> list[User]:
     return list_users(db, status="pending")
 
 
+def list_active_directory(db: Session) -> list[User]:
+    """Danh bạ user đang hoạt động (active + is_active) để chọn assignee/watcher."""
+    stmt = (
+        select(User)
+        .where(User.status == "active", User.is_active.is_(True))
+        .order_by(User.full_name.asc().nullslast(), User.username.asc())
+    )
+    return db.execute(stmt).scalars().all()
+
+
 def _ensure_unique(db: Session, username: str, email: str | None, exclude_id: int | None = None) -> None:
     existing = get_user_by_username(db, username)
     if existing and existing.id != exclude_id:
-        raise UsernameTakenError("Username đã tồn tại")
+        raise UsernameTakenError("Username already exists")
     if email:
         existing_email = get_user_by_email(db, email)
         if existing_email and existing_email.id != exclude_id:
-            raise EmailTakenError("Email đã tồn tại")
+            raise EmailTakenError("Email already exists")
 
 
 def create_user(db: Session, payload: UserCreate) -> User:

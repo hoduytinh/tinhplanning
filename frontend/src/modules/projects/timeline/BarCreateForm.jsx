@@ -28,19 +28,19 @@ export default function BarCreateForm({ track, open, onClose, onCreate }) {
     <Modal
       open={open}
       onClose={onClose}
-      title={`Thêm bar vào "${track.name}"`}
+      title={`Add bar to "${track.name}"`}
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
-            Hủy
+            Cancel
           </Button>
-          <Button onClick={submit}>Tạo</Button>
+          <Button onClick={submit}>Create</Button>
         </>
       }
     >
       <div className="space-y-3 text-sm">
         <label className="block">
-          <span className="mb-1 block font-medium text-slate-600">Tên bar</span>
+          <span className="mb-1 block font-medium text-slate-600">Bar name</span>
           <input
             autoFocus
             className="w-full rounded-lg border border-slate-200 px-3 py-2 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
@@ -50,7 +50,7 @@ export default function BarCreateForm({ track, open, onClose, onCreate }) {
         </label>
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
-            <span className="mb-1 block font-medium text-slate-600">Bắt đầu</span>
+            <span className="mb-1 block font-medium text-slate-600">Start</span>
             <input
               type="date"
               className="w-full rounded-lg border border-slate-200 px-3 py-2"
@@ -59,7 +59,7 @@ export default function BarCreateForm({ track, open, onClose, onCreate }) {
             />
           </label>
           <label className="block">
-            <span className="mb-1 block font-medium text-slate-600">Kết thúc</span>
+            <span className="mb-1 block font-medium text-slate-600">End</span>
             <input
               type="date"
               className="w-full rounded-lg border border-slate-200 px-3 py-2"

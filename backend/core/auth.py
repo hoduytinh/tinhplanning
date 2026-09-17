@@ -17,7 +17,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
 
 _CRED_EXC = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Không xác thực được. Vui lòng đăng nhập lại.",
+    detail="Authentication failed. Please log in again.",
     headers={"WWW-Authenticate": "Bearer"},
 )
 
@@ -68,7 +68,7 @@ def get_current_user(
     if user is None or not user.is_active or user.status != "active":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Tài khoản không tồn tại hoặc đã bị vô hiệu hóa.",
+            detail="Account does not exist or has been deactivated.",
         )
     return user
 
@@ -80,7 +80,7 @@ def require_role(*roles: str):
         if current_user.role not in roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Bạn không có quyền thực hiện thao tác này.",
+                detail="You do not have permission to perform this action.",
             )
         return current_user
 
@@ -95,5 +95,5 @@ def require_can_approve(current_user: User = Depends(get_current_user)) -> User:
         return current_user
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
-        detail="Bạn không có quyền duyệt tài khoản.",
+        detail="You do not have permission to approve accounts.",
     )

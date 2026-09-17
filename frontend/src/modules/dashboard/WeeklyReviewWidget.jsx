@@ -56,11 +56,11 @@ export default function WeeklyReviewWidget() {
               {mood ? <span className="text-lg">{mood.emoji}</span> : null}
               {review.status === "completed" ? (
                 <span className="rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700">
-                  Hoàn thành
+                  Completed
                 </span>
               ) : (
                 <span className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[11px] font-medium text-slate-500">
-                  Nháp
+                  Draft
                 </span>
               )}
             </div>
@@ -69,7 +69,7 @@ export default function WeeklyReviewWidget() {
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-lg border border-slate-100 px-2.5 py-1.5">
               <div className="flex items-center gap-1 text-[11px] text-slate-400">
-                <CheckCircle2 size={12} /> Hoàn thành
+                <CheckCircle2 size={12} /> Completed
               </div>
               <div className="text-lg font-bold text-emerald-600">
                 {t?.completed_count ?? "—"}
@@ -90,7 +90,7 @@ export default function WeeklyReviewWidget() {
           </div>
         </div>
       ) : (
-        <div className="mt-3 text-sm text-slate-400">Mở để bắt đầu review tuần này.</div>
+        <div className="mt-3 text-sm text-slate-400">Open to start this week's review.</div>
       )}
     </Card>
   );

@@ -43,7 +43,9 @@ class TaskBase(BaseModel):
 
 
 class TaskCreate(TaskBase):
-    pass
+    # Ownership layer — cho phép gán assignee & bật chia sẻ ngay khi tạo task.
+    assigned_to: int | None = None
+    is_shared: bool = False
 
 
 class TaskUpdate(BaseModel):
@@ -59,6 +61,9 @@ class TaskUpdate(BaseModel):
     project_id: int | None = None
     subblock_id: int | None = None
     tags: list[str] | None = None
+    # Ownership layer
+    assigned_to: int | None = None
+    is_shared: bool | None = None
 
 
 class TaskRead(TaskBase):
@@ -67,6 +72,11 @@ class TaskRead(TaskBase):
     id: int
     created_at: datetime
     updated_at: datetime
+
+    # Ownership layer
+    created_by: int | None = None
+    assigned_to: int | None = None
+    is_shared: bool = False
 
     # Computed (không lưu DB) — router enrich sau khi validate.
     # prefix_display: chuỗi badge "[TigerA0][IHWA][IOD]" hoặc "[Non-Proj]".

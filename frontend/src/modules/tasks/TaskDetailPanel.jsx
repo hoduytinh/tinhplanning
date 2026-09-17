@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Pencil, X, Trash2 } from "lucide-react";
+import { Pencil, X, Trash2, Eye, Globe, Lock } from "lucide-react";
 import Select from "../../shared/components/Select";
 import Button from "../../shared/components/Button";
+import UserCombobox from "../../shared/components/UserCombobox";
 import StatusIcon from "./StatusIcon";
 import StatusSelect from "./StatusSelect";
 import SubblockDropdown from "./SubblockDropdown";
@@ -13,6 +14,13 @@ import ErrorBoundary from "../../shared/components/ErrorBoundary";
 import RoleGuard from "../../shared/RoleGuard";
 import { PRIORITIES, TYPES, formatDate } from "./taskConstants";
 import { fetchProjects } from "../projects/projectApi";
+import { useAuth } from "../auth/useAuth";
+import {
+  addWatcher,
+  fetchUserDirectory,
+  fetchWatchers,
+  removeWatcher,
+} from "../../shared/ownershipApi";
 
 // Debounce auto-save cho mô tả: lưu sau 1s ngừng gõ, không cần bấm nút.
 const DESC_AUTOSAVE_DELAY = 1000;
@@ -60,6 +68,7 @@ export default function TaskDetailPanel({
     due_date: toDateInput(t.due_date),
     project_id: t.project_id ?? null,
     subblock_id: t.subblock_id ?? null,
+    assigned_to: t.assigned_to ?? null,
     tags: [...(t.tags || [])],
   });
 
@@ -79,6 +88,90 @@ export default function TaskDetailPanel({
       active = false;
     };
   }, []);
+
+  // --- Ownership & Visibility layer ---
+  const { user: currentUser } = useAuth();
+  const [directory, setDirectory] = useState([]);
+  const [watchers, setWatchers] = useState([]);
+  const [sharingBusy, setSharingBusy] = useState(false);
+  const [viewerError, setViewerError] = useState("");
+
+  // Danh bạ user để chọn assignee (mọi user đã đăng nhập đều lấy được).
+  useEffect(() => {
+    let active = true;
+    fetchUserDirectory()
+      .then((data) => active && setDirectory(data))
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Watchers của task hiện tại.
+  useEffect(() => {
+    if (!task?.id) {
+      setWatchers([]);
+      return;
+    }
+    let active = true;
+    fetchWatchers("task", task.id)
+      .then((data) => active && setWatchers(data))
+      .catch(() => active && setWatchers([]));
+    return () => {
+      active = false;
+    };
+  }, [task?.id]);
+
+  const myWatcher = watchers.find((w) => w.user_id === currentUser?.id) || null;
+
+  const toggleWatch = async () => {
+    if (!task?.id) return;
+    try {
+      if (myWatcher) {
+        await removeWatcher(myWatcher.id);
+      } else {
+        await addWatcher("task", task.id);
+      }
+      const data = await fetchWatchers("task", task.id);
+      setWatchers(data);
+    } catch {
+      // Watch là thao tác phụ trợ — lỗi không chặn luồng chính.
+    }
+  };
+
+  // Thêm 1 user khác làm viewer (watcher) — backend chỉ cho phép creator,
+  // assignee hoặc admin/moderator của task này thực hiện.
+  const handleAddViewer = async (userId) => {
+    if (!task?.id || !userId) return;
+    setViewerError("");
+    try {
+      await addWatcher("task", task.id, userId);
+      const data = await fetchWatchers("task", task.id);
+      setWatchers(data);
+    } catch (err) {
+      setViewerError(err.message || "Could not add viewer.");
+    }
+  };
+
+  const handleRemoveWatcher = async (watcher) => {
+    setViewerError("");
+    try {
+      await removeWatcher(watcher.id);
+      setWatchers((prev) => prev.filter((w) => w.id !== watcher.id));
+    } catch (err) {
+      setViewerError(err.message || "Could not remove viewer.");
+    }
+  };
+
+  const toggleShare = async () => {
+    if (!task || sharingBusy) return;
+    setSharingBusy(true);
+    try {
+      await onUpdate({ is_shared: !task.is_shared });
+    } finally {
+      setSharingBusy(false);
+    }
+  };
 
   useEffect(() => {
     if (task) {
@@ -196,7 +289,7 @@ export default function TaskDetailPanel({
 
   // Đóng panel — nếu còn thay đổi metadata chưa lưu thì hỏi lại trước khi mất.
   const guardedClose = () => {
-    if (metaDirty && !window.confirm("Bạn có thay đổi chưa lưu. Đóng và bỏ qua?")) {
+    if (metaDirty && !window.confirm("You have unsaved changes. Close and discard them?")) {
       return;
     }
     onClose();
@@ -246,7 +339,7 @@ export default function TaskDetailPanel({
       <aside
         className="fixed right-0 top-0 z-50 flex h-full w-full flex-col bg-white shadow-2xl lg:w-[90%] xl:w-[78%]"
         role="dialog"
-        aria-label="Chi tiết task"
+        aria-label="Task details"
       >
         {/* Header */}
         <div className="flex items-center gap-2 border-b border-slate-200 px-5 py-3">
@@ -256,12 +349,12 @@ export default function TaskDetailPanel({
             size={20}
           />
           <span className="text-sm text-slate-400">
-            Ticket #{task.id} · Chi tiết task
+            Ticket #{task.id} · Task details
           </span>
           <button
             onClick={guardedClose}
             className="ml-auto flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-            aria-label="Đóng"
+            aria-label="Close"
           >
             <X size={18} />
           </button>
@@ -285,7 +378,7 @@ export default function TaskDetailPanel({
               <h2
                 onClick={() => setEditingTitle(true)}
                 className="cursor-text rounded-md px-2 py-1 text-lg font-bold text-slate-900 hover:bg-slate-50"
-                title="Click để sửa"
+                title="Click to edit"
               >
                 {task.prefix_display && (
                   <span
@@ -315,11 +408,11 @@ export default function TaskDetailPanel({
                 <p
                   onClick={() => setEditingShortDesc(true)}
                   className="cursor-text rounded-md py-1 text-sm text-slate-500 hover:bg-slate-50"
-                  title="Click để sửa"
+                  title="Click to edit"
                 >
                   {task.short_description || (
                     <span className="italic text-slate-400">
-                      Thêm short description...
+                      Add a short description...
                     </span>
                   )}
                 </p>
@@ -336,7 +429,7 @@ export default function TaskDetailPanel({
                   onClick={() => setDescModalOpen(true)}
                   className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-brand"
                 >
-                  <Pencil size={12} /> Sửa
+                  <Pencil size={12} /> Edit
                 </button>
               </div>
               <div className="relative mt-1.5">
@@ -353,7 +446,7 @@ export default function TaskDetailPanel({
                     onClick={() => setDescModalOpen(true)}
                     className="w-full rounded-lg border border-dashed border-slate-200 px-3 py-4 text-left text-sm italic text-slate-400 transition hover:border-brand/40 hover:text-brand"
                   >
-                    Chưa có nội dung. Bấm "Sửa" để thêm...
+                    No content yet. Click "Edit" to add...
                   </button>
                 )}
               </div>
@@ -383,17 +476,17 @@ export default function TaskDetailPanel({
             <div className="flex-1">
               <div className="divide-y divide-slate-100 border-y border-slate-100">
                 <div className={row}>
-                  <span className={fieldLabel}>Trạng thái</span>
+                  <span className={fieldLabel}>Status</span>
                   <StatusSelect
-                    ariaLabel="Trạng thái"
+                    ariaLabel="Status"
                     value={metaDraft?.status ?? task.status}
                     onChange={(v) => setMetaDraft((d) => ({ ...d, status: v }))}
                   />
                 </div>
                 <div className={row}>
-                  <span className={fieldLabel}>Ưu tiên</span>
+                  <span className={fieldLabel}>Priority</span>
                   <Select
-                    ariaLabel="Ưu tiên"
+                    ariaLabel="Priority"
                     className="max-w-[112px]"
                     value={metaDraft?.priority ?? task.priority}
                     onChange={(e) =>
@@ -406,9 +499,9 @@ export default function TaskDetailPanel({
                   />
                 </div>
                 <div className={row}>
-                  <span className={fieldLabel}>Loại</span>
+                  <span className={fieldLabel}>Type</span>
                   <Select
-                    ariaLabel="Loại"
+                    ariaLabel="Type"
                     className="max-w-[112px]"
                     value={metaDraft?.type ?? task.type}
                     onChange={(e) =>
@@ -418,7 +511,7 @@ export default function TaskDetailPanel({
                   />
                 </div>
                 <div className={row}>
-                  <span className={fieldLabel}>Hạn chót</span>
+                  <span className={fieldLabel}>Due date</span>
                   <input
                     type="date"
                     value={metaDraft?.due_date ?? toDateInput(task.due_date)}
@@ -429,9 +522,9 @@ export default function TaskDetailPanel({
                   />
                 </div>
                 <div className={row}>
-                  <span className={fieldLabel}>Dự án</span>
+                  <span className={fieldLabel}>Project</span>
                   <Select
-                    ariaLabel="Dự án"
+                    ariaLabel="Project"
                     className="max-w-[112px]"
                     value={
                       metaDraft?.project_id != null
@@ -448,7 +541,7 @@ export default function TaskDetailPanel({
                         subblock_id: null,
                       }))
                     }
-                    placeholder="Không"
+                    placeholder="None"
                     options={projects.map((p) => ({
                       value: String(p.id),
                       label: p.name,
@@ -466,6 +559,18 @@ export default function TaskDetailPanel({
                     }
                   />
                 </div>
+                <div className={row}>
+                  <span className={fieldLabel}>Assignee</span>
+                  <UserCombobox
+                    className="max-w-[172px]"
+                    users={directory}
+                    value={metaDraft?.assigned_to ?? null}
+                    onChange={(id) =>
+                      setMetaDraft((d) => ({ ...d, assigned_to: id }))
+                    }
+                    placeholder="Unassigned"
+                  />
+                </div>
               </div>
 
               {/* Tags */}
@@ -481,7 +586,7 @@ export default function TaskDetailPanel({
                       <button
                         onClick={() => removeTag(tag)}
                         className="text-slate-400 hover:text-red-500"
-                        aria-label={`Xóa tag ${tag}`}
+                        aria-label={`Remove tag ${tag}`}
                       >
                         <X size={12} />
                       </button>
@@ -502,17 +607,98 @@ export default function TaskDetailPanel({
                 </div>
               </div>
 
+              {/* Visibility & Watchers (new feature — English UI) */}
+              <div className="space-y-3 border-t border-slate-100 py-3">
+                <div>
+                  <span className={fieldLabel}>Visibility</span>
+                  <div className="mt-2 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={toggleShare}
+                      disabled={sharingBusy}
+                      className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition disabled:opacity-50 ${
+                        task.is_shared
+                          ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      {task.is_shared ? <Globe size={13} /> : <Lock size={13} />}
+                      {task.is_shared ? "Shared" : "Private"}
+                    </button>
+                    <span className="text-xs text-slate-400">
+                      {task.is_shared
+                        ? "Visible to everyone"
+                        : "Only you, assignee & project members"}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className={fieldLabel}>Viewers</span>
+                    <button
+                      type="button"
+                      onClick={toggleWatch}
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium transition ${
+                        myWatcher
+                          ? "bg-brand/10 text-brand hover:bg-brand/20"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      <Eye size={13} />
+                      {myWatcher ? "Watching" : "Watch"}
+                    </button>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {watchers.length === 0 && (
+                      <span className="text-xs text-slate-400">No viewers yet</span>
+                    )}
+                    {watchers.map((w) => (
+                      <span
+                        key={w.id}
+                        className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600"
+                        title={w.full_name || w.username}
+                      >
+                        {w.full_name || w.username}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveWatcher(w)}
+                          className="text-slate-400 hover:text-red-500"
+                          aria-label={`Remove ${w.full_name || w.username}`}
+                        >
+                          <X size={11} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-2">
+                    <UserCombobox
+                      className="max-w-[220px]"
+                      users={directory}
+                      value={null}
+                      excludeIds={watchers.map((w) => w.user_id)}
+                      onChange={(id) => id && handleAddViewer(id)}
+                      placeholder="+ Add viewer"
+                      allowClear={false}
+                    />
+                  </div>
+                  {viewerError && (
+                    <p className="mt-1.5 text-xs text-red-500">{viewerError}</p>
+                  )}
+                </div>
+              </div>
+
               {/* Save/Cancel — thay đổi metadata chỉ lưu khi bấm nút */}
               {metaDirty && (
                 <div className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
-                  <span className="flex-1">Có thay đổi chưa lưu</span>
+                  <span className="flex-1">You have unsaved changes</span>
                   <button
                     type="button"
                     onClick={handleCancelMeta}
                     disabled={savingMeta}
                     className="rounded-md px-2 py-1 font-medium text-slate-500 transition hover:bg-slate-100 disabled:opacity-50"
                   >
-                    Hủy
+                    Cancel
                   </button>
                   <button
                     type="button"
@@ -520,7 +706,7 @@ export default function TaskDetailPanel({
                     disabled={savingMeta}
                     className="rounded-md bg-brand px-3 py-1 font-medium text-white transition hover:bg-brand-dark disabled:opacity-50"
                   >
-                    {savingMeta ? "Đang lưu..." : "Lưu thay đổi"}
+                    {savingMeta ? "Saving..." : "Save changes"}
                   </button>
                 </div>
               )}
@@ -529,8 +715,8 @@ export default function TaskDetailPanel({
 
               {/* Read-only timestamps */}
               <div className="space-y-1 py-3 text-xs text-slate-400">
-                <p>Tạo lúc: {formatDate(task.created_at)}</p>
-                <p>Cập nhật lúc: {formatDate(task.updated_at)}</p>
+                <p>Created: {formatDate(task.created_at)}</p>
+                <p>Updated: {formatDate(task.updated_at)}</p>
               </div>
             </div>
 
@@ -542,7 +728,7 @@ export default function TaskDetailPanel({
                 onClick={() => onDelete(task)}
               >
                 <Trash2 size={15} />
-                Xóa task
+                Delete task
               </Button>
             </RoleGuard>
           </div>
@@ -560,7 +746,7 @@ export default function TaskDetailPanel({
           }}
           role="dialog"
           aria-modal="true"
-          aria-label="Sửa content task"
+          aria-label="Edit task content"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -578,19 +764,19 @@ export default function TaskDetailPanel({
           >
             <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-2.5">
               <span className="text-sm font-semibold text-slate-700">
-                Sửa content
+                Edit content
               </span>
               <div className="flex items-center gap-3">
                 <span className="text-xs text-slate-400">
-                  {descSaveStatus === "saving" && "Đang lưu..."}
-                  {descSaveStatus === "pending" && "Chưa lưu"}
-                  {descSaveStatus === "saved" && "Đã lưu"}
+                  {descSaveStatus === "saving" && "Saving..."}
+                  {descSaveStatus === "pending" && "Unsaved"}
+                  {descSaveStatus === "saved" && "Saved"}
                 </span>
                 <button
                   type="button"
                   onClick={() => setDescModalOpen(false)}
                   className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-                  aria-label="Đóng popup"
+                  aria-label="Close popup"
                 >
                   <X size={16} />
                 </button>

@@ -33,7 +33,7 @@ def generate_slug(name: str) -> str:
 def _get(db: Session, subblock_id: int) -> ProjectSubblock:
     sb = db.get(ProjectSubblock, subblock_id)
     if sb is None:
-        raise SubblockNotFoundError(f"Sub-block {subblock_id} không tồn tại.")
+        raise SubblockNotFoundError(f"Sub-block {subblock_id} does not exist.")
     return sb
 
 
@@ -112,7 +112,7 @@ def create_subblock(
     if payload.parent_id is not None:
         parent = _get(db, payload.parent_id)
         if parent.project_id != project_id:
-            raise SubblockValidationError("Parent thuộc project khác.")
+            raise SubblockValidationError("Parent belongs to a different project.")
         depth = parent.depth + 1
 
     sb = ProjectSubblock(
@@ -188,12 +188,12 @@ def move_subblock(
 
     if payload.parent_id is not None:
         if payload.parent_id == subblock_id:
-            raise SubblockValidationError("Không thể đặt node làm cha của chính nó.")
+            raise SubblockValidationError("A node cannot be its own parent.")
         if payload.parent_id in _descendant_ids(db, subblock_id):
-            raise SubblockValidationError("Không thể di chuyển vào node con của nó.")
+            raise SubblockValidationError("Cannot move a node into one of its own descendants.")
         parent = _get(db, payload.parent_id)
         if parent.project_id != sb.project_id:
-            raise SubblockValidationError("Parent thuộc project khác.")
+            raise SubblockValidationError("Parent belongs to a different project.")
         sb.parent_id = parent.id
         sb.depth = parent.depth + 1
     else:

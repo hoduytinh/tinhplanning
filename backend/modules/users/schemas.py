@@ -39,6 +39,17 @@ class UserResponse(BaseModel):
     updated_at: datetime
 
 
+class UserDirectoryItem(BaseModel):
+    """Thông tin tối giản dùng để chọn assignee/watcher/member."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    username: str
+    full_name: str | None = None
+    avatar_url: str | None = None
+
+
 class UserCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=64)
     password: str = Field(..., min_length=6, max_length=128)

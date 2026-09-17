@@ -2,7 +2,14 @@ import { MoreHorizontal, Pencil, Trash2, Calendar, Tag } from "lucide-react";
 import Badge from "../../shared/components/Badge";
 import Dropdown from "../../shared/components/Dropdown";
 import StatusIcon from "./StatusIcon";
-import { formatDate, isOverdue, priorityMeta, statusMeta } from "./taskConstants";
+import {
+  formatDate,
+  isOverdue,
+  getUrgency,
+  URGENCY_STYLES,
+  priorityMeta,
+  statusMeta,
+} from "./taskConstants";
 import { useAuth } from "../auth/useAuth";
 import { hasPermission } from "../../shared/permissions";
 
@@ -19,6 +26,8 @@ export default function TaskCard({
   const p = priorityMeta(task.priority);
   const s = statusMeta(task.status);
   const overdue = isOverdue(task);
+  const urgency = getUrgency(task);
+  const urgencyStyle = urgency ? URGENCY_STYLES[urgency] : null;
   const hasProgress = progress && progress.total > 0;
   const pct = hasProgress
     ? Math.round((progress.done / progress.total) * 100)
@@ -26,10 +35,10 @@ export default function TaskCard({
 
   return (
     <div
-      className={`group flex flex-col rounded-xl border bg-white p-5 shadow-card transition-all duration-200 hover:border-brand hover:shadow-cardHover ${
-        overdue
-          ? "border-slate-200 border-l-[3px] border-l-red-600"
-          : "border-slate-200"
+      className={`group flex flex-col rounded-xl border p-5 shadow-card transition-all duration-200 hover:shadow-cardHover ${
+        urgencyStyle
+          ? `${urgencyStyle.card} hover:border-current`
+          : "border-slate-200 bg-white hover:border-brand"
       }`}
     >
       {/* Dòng 1: status icon + title + menu */}
@@ -44,7 +53,7 @@ export default function TaskCard({
           <h3
             onClick={() => onOpen(task)}
             className="line-clamp-2 cursor-pointer text-[15px] font-semibold leading-snug text-slate-900 hover:text-brand"
-            title="Click để xem chi tiết"
+            title="Click to view details"
           >
             {task.prefix_display && (
               <span
@@ -56,6 +65,19 @@ export default function TaskCard({
             )}
             {task.title}
           </h3>
+          {urgencyStyle && (
+            <span
+              className={`mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                urgency === "overdue"
+                  ? "bg-red-600 text-white"
+                  : urgency === "critical"
+                    ? "bg-rose-500 text-white"
+                    : "bg-amber-500 text-white"
+              }`}
+            >
+              {urgencyStyle.label}
+            </span>
+          )}
           {showDescription && task.short_description && (
             <p className="mt-1 line-clamp-1 text-[13px] text-slate-500">
               {task.short_description}
@@ -68,12 +90,12 @@ export default function TaskCard({
             trigger={<MoreHorizontal size={16} />}
             items={[
               hasPermission(role, "tasks", "update") && {
-                label: "Sửa",
+                label: "Edit",
                 icon: <Pencil size={14} />,
                 onClick: () => onEdit(task),
               },
               hasPermission(role, "tasks", "delete") && {
-                label: "Xóa",
+                label: "Delete",
                 icon: <Trash2 size={14} />,
                 danger: true,
                 onClick: () => onDelete(task),
@@ -87,7 +109,8 @@ export default function TaskCard({
       <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 pl-[30px]">
         <Badge tone={p.tone}>{p.label}</Badge>
         <Badge tone={s.tone}>
-          {s.icon} {s.label}
+          <s.icon size={12} />
+          {s.label}
         </Badge>
         <span
           className={`flex items-center gap-1.5 text-xs ${
@@ -133,7 +156,7 @@ export default function TaskCard({
             />
           </div>
           <span className="shrink-0 text-[11px] text-slate-500">
-            {progress.done}/{progress.total} việc xong
+            {progress.done}/{progress.total} done
           </span>
         </div>
       )}

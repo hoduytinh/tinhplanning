@@ -18,29 +18,29 @@ export default function ReflectionPanel({
     <div className="grid gap-5 lg:grid-cols-2">
       <div className="space-y-4">
         <RichField
-          label="✨ Điểm nổi bật"
-          hint="Thành tựu, tiến độ tốt"
+          label="✨ Highlights"
+          hint="Achievements, good progress"
           value={review.highlights}
           editable={editable}
-          placeholder="Tuần này đã làm được gì nổi bật?"
+          placeholder="What stood out this week?"
           onChange={(html) => onFieldChange?.("highlights", html)}
           onCommit={(html) => onFieldCommit?.("highlights", html)}
         />
         <RichField
-          label="⚠️ Khó khăn"
-          hint="Vướng mắc, blocker"
+          label="⚠️ Challenges"
+          hint="Obstacles, blockers"
           value={review.challenges}
           editable={editable}
-          placeholder="Gặp khó khăn / trở ngại gì?"
+          placeholder="What challenges or obstacles did you face?"
           onChange={(html) => onFieldChange?.("challenges", html)}
           onCommit={(html) => onFieldCommit?.("challenges", html)}
         />
         <RichField
-          label="💡 Bài học"
-          hint="Rút ra được gì"
+          label="💡 Lessons Learned"
+          hint="Key takeaways"
           value={review.lessons}
           editable={editable}
-          placeholder="Bài học kinh nghiệm rút ra..."
+          placeholder="Lessons learned..."
           onChange={(html) => onFieldChange?.("lessons", html)}
           onCommit={(html) => onFieldCommit?.("lessons", html)}
         />
@@ -57,10 +57,10 @@ export default function ReflectionPanel({
         </div>
 
         <RichField
-          label="👥 Ghi chú về team"
+          label="👥 Team Notes"
           value={review.team_notes}
           editable={editable}
-          placeholder="Ghi chú về tinh thần, tương tác của team..."
+          placeholder="Notes about team morale and interactions..."
           onChange={(html) => onFieldChange?.("team_notes", html)}
           onCommit={(html) => onFieldCommit?.("team_notes", html)}
         />

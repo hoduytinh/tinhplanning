@@ -22,7 +22,7 @@ export default function OutcomeForm({ plan, onSubmit, onCancel }) {
         outcome_note: note.trim() || null,
       });
     } catch (err) {
-      setError(err.message || "Không thể lưu outcome.");
+      setError(err.message || "Failed to save outcome.");
     } finally {
       setSaving(false);
     }
@@ -54,16 +54,16 @@ export default function OutcomeForm({ plan, onSubmit, onCancel }) {
         <input
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Ghi chú ngắn về kết quả tuần này..."
+          placeholder="Short note about this week's outcome..."
           className={`${inputCls} mt-0.5`}
         />
       </label>
       <div className="flex justify-end gap-2 pt-1">
         <Button type="button" variant="secondary" size="sm" onClick={onCancel}>
-          Hủy
+          Cancel
         </Button>
         <Button type="submit" size="sm" disabled={saving}>
-          {saving ? "Đang lưu..." : "Lưu outcome"}
+          {saving ? "Saving..." : "Save outcome"}
         </Button>
       </div>
     </form>

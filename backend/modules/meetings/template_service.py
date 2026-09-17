@@ -94,7 +94,7 @@ def update_template(
 ) -> MeetingTemplate:
     tpl = get_template(db, template_id)
     if tpl.is_system:
-        raise SystemTemplateError("Không thể sửa template hệ thống.")
+        raise SystemTemplateError("Cannot edit a system template.")
     data = payload.model_dump(exclude_unset=True)
     for field, value in data.items():
         if field == "type" and value is not None:
@@ -109,6 +109,6 @@ def update_template(
 def delete_template(db: Session, template_id: int) -> None:
     tpl = get_template(db, template_id)
     if tpl.is_system:
-        raise SystemTemplateError("Không thể xóa template hệ thống.")
+        raise SystemTemplateError("Cannot delete a system template.")
     db.delete(tpl)
     db.commit()

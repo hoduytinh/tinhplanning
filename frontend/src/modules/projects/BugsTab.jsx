@@ -73,7 +73,7 @@ export default function BugsTab({ projectId }) {
       setBugs(list);
       setStats(s);
     } catch (err) {
-      setError(err.message || "Không thể tải bug.");
+      setError(err.message || "Failed to load bugs.");
     } finally {
       setLoading(false);
     }
@@ -95,12 +95,12 @@ export default function BugsTab({ projectId }) {
   };
 
   const handleDelete = async (bug) => {
-    if (!window.confirm(`Xóa bug "${bug.bug_id}"?`)) return;
+    if (!window.confirm(`Delete bug "${bug.bug_id}"?`)) return;
     try {
       await deleteBug(projectId, bug.id);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể xóa bug.");
+      setError(err.message || "Failed to delete bug.");
     }
   };
 
@@ -171,27 +171,27 @@ export default function BugsTab({ projectId }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <Select
-            ariaLabel="Lọc severity"
+            ariaLabel="Filter severity"
             value={sevFilter}
             onChange={(e) => setSevFilter(e.target.value)}
-            placeholder="Tất cả severity"
+            placeholder="All severities"
             options={BUG_SEVERITIES.map((s) => ({
               value: s.value,
               label: `${s.dot} ${s.label}`,
             }))}
           />
           <Select
-            ariaLabel="Lọc status"
+            ariaLabel="Filter status"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            placeholder="Tất cả status"
+            placeholder="All statuses"
             options={BUG_STATUSES.map((s) => ({
               value: s.value,
               label: s.label,
             }))}
           />
           <Select
-            ariaLabel="Sắp xếp"
+            ariaLabel="Sort"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             options={[
@@ -204,7 +204,7 @@ export default function BugsTab({ projectId }) {
         {hasPermission(role, "projects", "update") && (
           <Button size="sm" onClick={() => { setEditing(null); setFormOpen(true); }}>
             <Plus size={15} />
-            Thêm Bug
+            Add Bug
           </Button>
         )}
       </div>
@@ -218,7 +218,7 @@ export default function BugsTab({ projectId }) {
 
       {!loading && bugs.length === 0 && !error && (
         <Card className="p-10 text-center text-sm text-slate-500">
-          Chưa có bug nào được ghi nhận.
+          No bugs have been recorded yet.
         </Card>
       )}
 
@@ -285,7 +285,7 @@ function BugRows({ bug, sev, st, isOpen, hasDetail, onToggle, onEdit, onDelete }
             <button
               onClick={onToggle}
               className="text-slate-400 hover:text-slate-700"
-              aria-label="Mở rộng"
+              aria-label="Expand"
             >
               {isOpen ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
             </button>
@@ -330,7 +330,7 @@ function BugRows({ bug, sev, st, isOpen, hasDetail, onToggle, onEdit, onDelete }
               <button
                 onClick={onEdit}
                 className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-                aria-label="Sửa"
+                aria-label="Edit"
               >
                 <Pencil size={14} />
               </button>
@@ -339,7 +339,7 @@ function BugRows({ bug, sev, st, isOpen, hasDetail, onToggle, onEdit, onDelete }
               <button
                 onClick={onDelete}
                 className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500"
-                aria-label="Xóa"
+                aria-label="Delete"
               >
                 <Trash2 size={14} />
               </button>
@@ -354,7 +354,7 @@ function BugRows({ bug, sev, st, isOpen, hasDetail, onToggle, onEdit, onDelete }
             <div className="space-y-2 text-sm text-slate-600">
               {bug.description && (
                 <div>
-                  <span className="font-medium text-slate-700">Mô tả: </span>
+                  <span className="font-medium text-slate-700">Description: </span>
                   {bug.description}
                 </div>
               )}
@@ -366,7 +366,7 @@ function BugRows({ bug, sev, st, isOpen, hasDetail, onToggle, onEdit, onDelete }
               )}
               {bug.notes && (
                 <div>
-                  <span className="font-medium text-slate-700">Ghi chú: </span>
+                  <span className="font-medium text-slate-700">Notes: </span>
                   {bug.notes}
                 </div>
               )}
@@ -419,7 +419,7 @@ function BugForm({ open, initial, onClose, onSubmit }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.bug_id.trim() || !form.title.trim()) {
-      setError("Bug ID và Title không được để trống.");
+      setError("Bug ID and Title cannot be empty.");
       return;
     }
     setSaving(true);
@@ -440,7 +440,7 @@ function BugForm({ open, initial, onClose, onSubmit }) {
         notes: form.notes.trim() || null,
       });
     } catch (err) {
-      setError(err.message || "Không thể lưu bug.");
+      setError(err.message || "Failed to save bug.");
     } finally {
       setSaving(false);
     }
@@ -457,16 +457,16 @@ function BugForm({ open, initial, onClose, onSubmit }) {
       title={
         <span className="flex items-center gap-2">
           <BugIcon size={16} />
-          {initial ? "Sửa bug" : "Thêm bug"}
+          {initial ? "Edit bug" : "Add bug"}
         </span>
       }
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={saving}>
-            Hủy
+            Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={saving}>
-            {saving ? "Đang lưu..." : "Lưu"}
+            {saving ? "Saving..." : "Save"}
           </Button>
         </>
       }
@@ -557,7 +557,7 @@ function BugForm({ open, initial, onClose, onSubmit }) {
           </div>
         </div>
         <div>
-          <label className={label}>Mô tả</label>
+          <label className={label}>Description</label>
           <textarea rows={2} className={field} value={form.description} onChange={set("description")} />
         </div>
         <div>
@@ -565,7 +565,7 @@ function BugForm({ open, initial, onClose, onSubmit }) {
           <textarea rows={2} className={field} value={form.root_cause} onChange={set("root_cause")} />
         </div>
         <div>
-          <label className={label}>Ghi chú</label>
+          <label className={label}>Notes</label>
           <textarea rows={2} className={field} value={form.notes} onChange={set("notes")} />
         </div>
       </form>

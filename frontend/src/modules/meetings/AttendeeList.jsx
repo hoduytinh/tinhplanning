@@ -34,7 +34,7 @@ export default function AttendeeList({ meetingId, attendees, onChanged, onError,
   };
 
   const remove = async (att) => {
-    if (!window.confirm(`Xóa "${att.name}" khỏi danh sách?`)) return;
+    if (!window.confirm(`Remove "${att.name}" from the list?`)) return;
     try {
       await removeAttendee(meetingId, att.id);
       onChanged?.();
@@ -47,7 +47,7 @@ export default function AttendeeList({ meetingId, attendees, onChanged, onError,
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
         {attendees.length === 0 && (
-          <p className="text-sm text-slate-400">Chưa có người tham dự.</p>
+          <p className="text-sm text-slate-400">No attendees yet.</p>
         )}
         {attendees.map((a) => (
           <Badge
@@ -63,7 +63,7 @@ export default function AttendeeList({ meetingId, attendees, onChanged, onError,
               <button
                 onClick={() => remove(a)}
                 className="ml-1 text-slate-300 hover:text-red-500"
-                aria-label="Xóa"
+                aria-label="Remove"
               >
                 <Trash2 size={12} />
               </button>
@@ -78,14 +78,14 @@ export default function AttendeeList({ meetingId, attendees, onChanged, onError,
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && add()}
-            placeholder="Tên"
+            placeholder="Name"
             className="min-w-[120px] flex-1 rounded border border-slate-200 px-2 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/30"
           />
           <input
             value={role}
             onChange={(e) => setRole(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && add()}
-            placeholder="Vai trò"
+            placeholder="Role"
             className="min-w-[100px] flex-1 rounded border border-slate-200 px-2 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/30"
           />
           <label className="flex items-center gap-1 text-xs text-slate-600">
@@ -101,7 +101,7 @@ export default function AttendeeList({ meetingId, attendees, onChanged, onError,
             External
           </label>
           <Button size="sm" onClick={add} disabled={busy || !name.trim()}>
-            <Plus size={15} /> Thêm
+            <Plus size={15} /> Add
           </Button>
         </div>
       )}

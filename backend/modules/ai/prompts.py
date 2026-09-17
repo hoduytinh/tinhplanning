@@ -53,6 +53,13 @@ def build_context_prompt(context_data: dict) -> str:
             f"{t['blocked']} blocked | {t['done_today']} done today"
         )
 
+    if context_data.get("ownership_summary"):
+        o = context_data["ownership_summary"]
+        lines.append(
+            f"MY WORK ({o['user']}): {o['my_tasks']} created by me | "
+            f"{o['assigned_to_me']} assigned to me | {o['watching']} watching"
+        )
+
     if context_data.get("projects"):
         lines.append("PROJECTS:")
         for p in context_data["projects"][:5]:

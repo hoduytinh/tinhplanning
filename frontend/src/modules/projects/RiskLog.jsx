@@ -46,13 +46,13 @@ function RiskItem({ item, onSeverityChange, onDelete, onSaveEdit }) {
             rows={2}
             value={editDesc}
             onChange={(e) => setEditDesc(e.target.value)}
-            placeholder="Mô tả rủi ro..."
+            placeholder="Risk description..."
             className={field}
           />
           <input
             value={editMitigation}
             onChange={(e) => setEditMitigation(e.target.value)}
-            placeholder="Biện pháp giảm thiểu (tùy chọn)"
+            placeholder="Mitigation plan (optional)"
             className={field}
           />
           <div className="flex items-center justify-end gap-2">
@@ -61,14 +61,14 @@ function RiskItem({ item, onSeverityChange, onDelete, onSaveEdit }) {
               onClick={() => setEditing(false)}
               className="rounded-lg px-3 py-1.5 text-sm text-slate-500 hover:bg-slate-100"
             >
-              Hủy
+              Cancel
             </button>
             <button
               type="button"
               onClick={submitEdit}
               className="flex items-center gap-1 rounded-lg bg-brand px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-dark"
             >
-              <Check size={13} /> Lưu
+              <Check size={13} /> Save
             </button>
           </div>
         </div>
@@ -83,7 +83,7 @@ function RiskItem({ item, onSeverityChange, onDelete, onSaveEdit }) {
           <p className="text-sm text-slate-700">{item.description}</p>
           {item.mitigation && (
             <p className="mt-1 text-xs text-slate-500">
-              <span className="font-medium text-slate-600">Giảm thiểu: </span>
+              <span className="font-medium text-slate-600">Mitigation: </span>
               {item.mitigation}
             </p>
           )}
@@ -93,7 +93,7 @@ function RiskItem({ item, onSeverityChange, onDelete, onSaveEdit }) {
             value={item.severity}
             onChange={(e) => onSeverityChange(item, e.target.value)}
             className="rounded-md border border-slate-200 px-1.5 py-0.5 text-xs focus:border-brand focus:outline-none"
-            aria-label="Mức độ nghiêm trọng"
+            aria-label="Severity"
           >
             {RISK_SEVERITIES.map((s) => (
               <option key={s.value} value={s.value}>
@@ -106,7 +106,7 @@ function RiskItem({ item, onSeverityChange, onDelete, onSaveEdit }) {
               type="button"
               onClick={startEdit}
               className="text-slate-300 opacity-0 transition hover:text-brand group-hover:opacity-100"
-              aria-label="Sửa rủi ro"
+              aria-label="Edit risk"
             >
               <Pencil size={13} />
             </button>
@@ -116,7 +116,7 @@ function RiskItem({ item, onSeverityChange, onDelete, onSaveEdit }) {
               type="button"
               onClick={() => onDelete(item)}
               className="text-slate-300 opacity-0 transition hover:text-red-500 group-hover:opacity-100"
-              aria-label="Xóa rủi ro"
+              aria-label="Delete risk"
             >
               <X size={14} />
             </button>
@@ -146,7 +146,7 @@ export default function RiskLog({ projectId }) {
     try {
       setItems(await fetchRisks(projectId));
     } catch (err) {
-      setError(err.message || "Không thể tải rủi ro.");
+      setError(err.message || "Failed to load risks.");
     }
   };
 
@@ -171,7 +171,7 @@ export default function RiskLog({ projectId }) {
       setAdding(false);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể thêm rủi ro.");
+      setError(err.message || "Failed to add risk.");
     }
   };
 
@@ -183,18 +183,18 @@ export default function RiskLog({ projectId }) {
       await updateRisk(projectId, item.id, { severity: value });
       await load();
     } catch (err) {
-      setError(err.message || "Không thể cập nhật rủi ro.");
+      setError(err.message || "Failed to update risk.");
       await load();
     }
   };
 
   const remove = async (item) => {
-    if (!window.confirm("Xóa rủi ro này?")) return;
+    if (!window.confirm("Delete this risk?")) return;
     try {
       await deleteRisk(projectId, item.id);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể xóa rủi ro.");
+      setError(err.message || "Failed to delete risk.");
     }
   };
 
@@ -203,7 +203,7 @@ export default function RiskLog({ projectId }) {
       await updateRisk(projectId, item.id, changes);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể cập nhật rủi ro.");
+      setError(err.message || "Failed to update risk.");
     }
   };
 
@@ -215,7 +215,7 @@ export default function RiskLog({ projectId }) {
       <div className="mb-2 flex items-center justify-between">
         <h4 className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
           <ShieldAlert size={15} className="text-amber-500" />
-          Rủi ro
+          Risks
         </h4>
         {!adding && hasPermission(currentRole, "projects", "update") && (
           <button
@@ -224,7 +224,7 @@ export default function RiskLog({ projectId }) {
             className="flex items-center gap-1 text-xs font-medium text-brand hover:text-brand-dark"
           >
             <Plus size={13} />
-            Thêm
+            Add
           </button>
         )}
       </div>
@@ -232,7 +232,7 @@ export default function RiskLog({ projectId }) {
       {error && <p className="mb-2 text-xs text-red-600">{error}</p>}
 
       {items.length === 0 && !adding && (
-        <p className="text-xs text-slate-400">Chưa có rủi ro nào được ghi nhận.</p>
+        <p className="text-xs text-slate-400">No risks have been recorded yet.</p>
       )}
 
       <ul className="space-y-2">
@@ -253,13 +253,13 @@ export default function RiskLog({ projectId }) {
             rows={2}
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
-            placeholder="Mô tả rủi ro..."
+            placeholder="Risk description..."
             className={field}
           />
           <input
             value={mitigation}
             onChange={(e) => setMitigation(e.target.value)}
-            placeholder="Biện pháp giảm thiểu (tùy chọn)"
+            placeholder="Mitigation plan (optional)"
             className={field}
           />
           <div className="flex items-center gap-2">
@@ -278,7 +278,7 @@ export default function RiskLog({ projectId }) {
               type="submit"
               className="rounded-lg bg-brand px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-dark"
             >
-              Lưu
+              Save
             </button>
             <button
               type="button"
@@ -289,7 +289,7 @@ export default function RiskLog({ projectId }) {
               }}
               className="rounded-lg px-3 py-1.5 text-sm text-slate-500 hover:bg-slate-100"
             >
-              Hủy
+              Cancel
             </button>
           </div>
         </form>

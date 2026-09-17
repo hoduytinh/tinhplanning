@@ -9,16 +9,16 @@ import {
 import { formatDateTime } from "./projectConstants";
 
 const ACTION_LABELS = {
-  project_created: "đã tạo dự án",
-  status_changed: "đổi trạng thái",
-  priority_changed: "đổi mức ưu tiên",
-  start_date_changed: "đổi ngày bắt đầu",
-  end_date_changed: "đổi ngày kết thúc",
-  milestone_added: "thêm milestone",
-  milestone_status_changed: "đổi trạng thái milestone",
-  milestone_deleted: "xóa milestone",
-  risk_added: "thêm rủi ro",
-  risk_deleted: "xóa rủi ro",
+  project_created: "created the project",
+  status_changed: "changed status",
+  priority_changed: "changed priority",
+  start_date_changed: "changed start date",
+  end_date_changed: "changed end date",
+  milestone_added: "added a milestone",
+  milestone_status_changed: "changed milestone status",
+  milestone_deleted: "deleted a milestone",
+  risk_added: "added a risk",
+  risk_deleted: "deleted a risk",
 };
 
 function ActivityLine({ item }) {
@@ -64,7 +64,7 @@ export default function ProjectActivityFeed({ projectId }) {
       setActivities(acts);
       setComments(coms);
     } catch (err) {
-      setError(err.message || "Không thể tải hoạt động.");
+      setError(err.message || "Failed to load activity.");
     } finally {
       setLoading(false);
     }
@@ -84,7 +84,7 @@ export default function ProjectActivityFeed({ projectId }) {
       setNewComment("");
       await load();
     } catch (err) {
-      setError(err.message || "Không thể gửi bình luận.");
+      setError(err.message || "Failed to post comment.");
     }
   };
 
@@ -93,7 +93,7 @@ export default function ProjectActivityFeed({ projectId }) {
       await deleteProjectComment(projectId, id);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể xóa bình luận.");
+      setError(err.message || "Failed to delete comment.");
     }
   };
 
@@ -105,13 +105,13 @@ export default function ProjectActivityFeed({ projectId }) {
   return (
     <div>
       <h4 className="mb-2 text-sm font-semibold text-slate-700">
-        Hoạt động &amp; bình luận
+        Activity &amp; comments
       </h4>
 
       {error && <p className="mb-2 text-xs text-red-600">{error}</p>}
 
       {!loading && timeline.length === 0 && (
-        <p className="text-sm italic text-slate-400">Chưa có hoạt động nào.</p>
+        <p className="text-sm italic text-slate-400">No activity yet.</p>
       )}
 
       <ul className="space-y-3">
@@ -140,7 +140,7 @@ export default function ProjectActivityFeed({ projectId }) {
                     <button
                       onClick={() => handleDeleteComment(item.id)}
                       className="shrink-0 text-amber-400 opacity-0 transition hover:text-red-500 group-hover:opacity-100"
-                      aria-label="Xóa bình luận"
+                      aria-label="Delete comment"
                     >
                       <Trash2 size={13} />
                     </button>
@@ -164,13 +164,13 @@ export default function ProjectActivityFeed({ projectId }) {
         <input
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Viết bình luận..."
+          placeholder="Write a comment..."
           className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
         <button
           type="submit"
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand text-white transition hover:bg-brand-dark disabled:opacity-40"
-          aria-label="Gửi bình luận"
+          aria-label="Send comment"
           disabled={!newComment.trim()}
         >
           <Send size={15} />

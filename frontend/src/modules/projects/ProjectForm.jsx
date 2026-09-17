@@ -68,15 +68,15 @@ export default function ProjectForm({ open, initial, onClose, onSubmit }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name.trim()) {
-      setError("Tên dự án không được để trống.");
+      setError("Project name cannot be empty.");
       return;
     }
     if (!form.prefix.trim()) {
-      setError("Prefix không được để trống — dùng để sinh tag/badge cho task.");
+      setError("Prefix cannot be empty — used to generate tags/badges for tasks.");
       return;
     }
     if (form.start_date && form.end_date && form.end_date < form.start_date) {
-      setError("Ngày kết thúc phải sau ngày bắt đầu.");
+      setError("End date must be after start date.");
       return;
     }
     setSaving(true);
@@ -98,7 +98,7 @@ export default function ProjectForm({ open, initial, onClose, onSubmit }) {
       };
       await onSubmit(payload);
     } catch (err) {
-      setError(err.message || "Không thể lưu dự án.");
+      setError(err.message || "Failed to save project.");
     } finally {
       setSaving(false);
     }
@@ -112,14 +112,14 @@ export default function ProjectForm({ open, initial, onClose, onSubmit }) {
     <Modal
       open={open}
       onClose={onClose}
-      title={initial ? "Sửa dự án" : "Tạo dự án mới"}
+      title={initial ? "Edit project" : "Create new project"}
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={saving}>
-            Hủy
+            Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={saving}>
-            {saving ? "Đang lưu..." : "Lưu"}
+            {saving ? "Saving..." : "Save"}
           </Button>
         </>
       }
@@ -132,7 +132,7 @@ export default function ProjectForm({ open, initial, onClose, onSubmit }) {
         )}
 
         <div>
-          <label className={label}>Tên dự án *</label>
+          <label className={label}>Project name *</label>
           <input className={field} value={form.name} onChange={set("name")} />
         </div>
 
@@ -145,7 +145,7 @@ export default function ProjectForm({ open, initial, onClose, onSubmit }) {
             placeholder="TigerA0"
           />
           <p className="mt-1 text-xs text-slate-400">
-            Hiển thị trên badge task &amp; sinh auto-tag{" "}
+            Displayed on task badges &amp; used to generate auto-tags{" "}
             <code className="rounded bg-slate-100 px-1 text-slate-600">
               {"#" + (form.prefix || "prefix").toLowerCase().replace(/\s+/g, "")}
             </code>
@@ -153,7 +153,7 @@ export default function ProjectForm({ open, initial, onClose, onSubmit }) {
         </div>
 
         <div>
-          <label className={label}>Màu prefix</label>
+          <label className={label}>Prefix color</label>
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
             {PREFIX_COLOR_PRESETS.map((c) => (
               <button
@@ -176,23 +176,23 @@ export default function ProjectForm({ open, initial, onClose, onSubmit }) {
                 setForm((f) => ({ ...f, prefix_color: e.target.value }))
               }
               className="h-7 w-9 cursor-pointer rounded border border-slate-200 bg-transparent p-0.5"
-              title="Chọn màu tùy ý"
+              title="Choose custom color"
             />
           </div>
           <p className="mt-1.5 text-xs text-slate-400">
-            Xem trước:{" "}
+            Preview:{" "}
             <span
               className="font-semibold"
               style={{ color: form.prefix_color || DEFAULT_PREFIX_COLOR }}
             >
               [{form.prefix || "Prefix"}]
             </span>{" "}
-            Tên task
+            Task name
           </p>
         </div>
 
         <div>
-          <label className={label}>Mô tả</label>
+          <label className={label}>Description</label>
           <textarea
             rows={3}
             className={field}
@@ -203,7 +203,7 @@ export default function ProjectForm({ open, initial, onClose, onSubmit }) {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={label}>Trạng thái</label>
+            <label className={label}>Status</label>
             <select className={field} value={form.status} onChange={set("status")}>
               {PROJECT_STATUSES.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -213,7 +213,7 @@ export default function ProjectForm({ open, initial, onClose, onSubmit }) {
             </select>
           </div>
           <div>
-            <label className={label}>Độ ưu tiên</label>
+            <label className={label}>Priority</label>
             <select
               className={field}
               value={form.priority}
@@ -230,7 +230,7 @@ export default function ProjectForm({ open, initial, onClose, onSubmit }) {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={label}>Ngày bắt đầu</label>
+            <label className={label}>Start date</label>
             <input
               type="date"
               className={field}
@@ -239,7 +239,7 @@ export default function ProjectForm({ open, initial, onClose, onSubmit }) {
             />
           </div>
           <div>
-            <label className={label}>Ngày kết thúc</label>
+            <label className={label}>End date</label>
             <input
               type="date"
               className={field}
@@ -250,7 +250,7 @@ export default function ProjectForm({ open, initial, onClose, onSubmit }) {
         </div>
 
         <div>
-          <label className={label}>Tags (phân cách bằng dấu phẩy)</label>
+          <label className={label}>Tags (comma-separated)</label>
           <input
             className={field}
             value={form.tags}
@@ -260,10 +260,10 @@ export default function ProjectForm({ open, initial, onClose, onSubmit }) {
         </div>
 
         <div>
-          <label className={label}>Tính năng mở rộng (tab optional)</label>
+          <label className={label}>Optional features (extra tabs)</label>
           <p className="mt-1 text-xs text-slate-400">
-            3 tab Tổng quan/Công việc/Hoạt động luôn hiển thị. Bật thêm tab
-            nào cần dùng cho dự án này.
+            The Overview/Tasks/Activity tabs are always shown. Enable any
+            additional tabs you need for this project.
           </p>
           <div className="mt-2 grid grid-cols-2 gap-2">
             {OPTIONAL_MODULES.map((m) => (

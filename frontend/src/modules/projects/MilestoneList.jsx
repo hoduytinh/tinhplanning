@@ -97,7 +97,7 @@ function MilestoneRow({ item, expanded, onToggleExpand, onCycle, onDelete, onSav
               if (e.key === "Escape") cancelEdit();
             }}
             className="flex-1 rounded border border-slate-200 px-2 py-1 text-sm text-slate-700 focus:border-brand focus:outline-none"
-            placeholder="Tên milestone"
+            placeholder="Milestone name"
           />
           <input
             type="date"
@@ -109,7 +109,7 @@ function MilestoneRow({ item, expanded, onToggleExpand, onCycle, onDelete, onSav
             type="button"
             onClick={submitEdit}
             className="text-green-500 transition hover:text-green-600"
-            aria-label="Lưu"
+            aria-label="Save"
           >
             <Check size={15} />
           </button>
@@ -117,7 +117,7 @@ function MilestoneRow({ item, expanded, onToggleExpand, onCycle, onDelete, onSav
             type="button"
             onClick={cancelEdit}
             className="text-slate-400 transition hover:text-slate-600"
-            aria-label="Hủy"
+            aria-label="Cancel"
           >
             <X size={15} />
           </button>
@@ -132,7 +132,7 @@ function MilestoneRow({ item, expanded, onToggleExpand, onCycle, onDelete, onSav
         <button
           type="button"
           className="cursor-grab touch-none text-slate-300 hover:text-slate-500 active:cursor-grabbing"
-          aria-label="Kéo để sắp xếp"
+          aria-label="Drag to reorder"
           {...attributes}
           {...listeners}
         >
@@ -145,7 +145,7 @@ function MilestoneRow({ item, expanded, onToggleExpand, onCycle, onDelete, onSav
           className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-sm font-bold"
           style={{ color: meta.color }}
           title={meta.label}
-          aria-label={`Trạng thái: ${meta.label}`}
+          aria-label={`Status: ${meta.label}`}
         >
           {meta.icon}
         </button>
@@ -177,7 +177,7 @@ function MilestoneRow({ item, expanded, onToggleExpand, onCycle, onDelete, onSav
             type="button"
             onClick={() => onToggleExpand(item.id)}
             className="text-slate-300 transition hover:text-slate-600"
-            aria-label={expanded ? "Thu gọn" : "Xem exit criteria"}
+            aria-label={expanded ? "Collapse" : "View exit criteria"}
             aria-expanded={expanded}
           >
             {expanded ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
@@ -189,7 +189,7 @@ function MilestoneRow({ item, expanded, onToggleExpand, onCycle, onDelete, onSav
             type="button"
             onClick={startEdit}
             className="text-slate-300 opacity-0 transition hover:text-brand group-hover:opacity-100"
-            aria-label="Sửa milestone"
+            aria-label="Edit milestone"
           >
             <Pencil size={13} />
           </button>
@@ -200,7 +200,7 @@ function MilestoneRow({ item, expanded, onToggleExpand, onCycle, onDelete, onSav
             type="button"
             onClick={() => onDelete(item)}
             className="text-slate-300 opacity-0 transition hover:text-red-500 group-hover:opacity-100"
-            aria-label="Xóa milestone"
+            aria-label="Delete milestone"
           >
             <X size={14} />
           </button>
@@ -246,7 +246,7 @@ export default function MilestoneList({ projectId, onChange }) {
       setItems(data);
       onChange?.(data);
     } catch (err) {
-      setError(err.message || "Không thể tải milestone.");
+      setError(err.message || "Failed to load milestones.");
     }
   };
 
@@ -276,7 +276,7 @@ export default function MilestoneList({ projectId, onChange }) {
       setNewDate("");
       await load();
     } catch (err) {
-      setError(err.message || "Không thể thêm milestone.");
+      setError(err.message || "Failed to add milestone.");
     }
   };
 
@@ -287,7 +287,7 @@ export default function MilestoneList({ projectId, onChange }) {
       await load();
       onChange?.();
     } catch (err) {
-      setError(err.message || "Không thể tạo milestone chuẩn.");
+      setError(err.message || "Failed to create standard milestones.");
     } finally {
       setPopulating(false);
     }
@@ -302,18 +302,18 @@ export default function MilestoneList({ projectId, onChange }) {
       await updateMilestone(projectId, item.id, { status });
       onChange?.();
     } catch (err) {
-      setError(err.message || "Không thể cập nhật milestone.");
+      setError(err.message || "Failed to update milestone.");
       await load();
     }
   };
 
   const remove = async (item) => {
-    if (!window.confirm(`Xóa milestone "${item.title}"?`)) return;
+    if (!window.confirm(`Delete milestone "${item.title}"?`)) return;
     try {
       await deleteMilestone(projectId, item.id);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể xóa milestone.");
+      setError(err.message || "Failed to delete milestone.");
     }
   };
 
@@ -323,7 +323,7 @@ export default function MilestoneList({ projectId, onChange }) {
       await load();
       onChange?.();
     } catch (err) {
-      setError(err.message || "Không thể cập nhật milestone.");
+      setError(err.message || "Failed to update milestone.");
     }
   };
 
@@ -340,7 +340,7 @@ export default function MilestoneList({ projectId, onChange }) {
         reordered.map((i) => i.id)
       );
     } catch (err) {
-      setError(err.message || "Không thể sắp xếp milestone.");
+      setError(err.message || "Failed to reorder milestones.");
       await load();
     }
   };
@@ -355,7 +355,7 @@ export default function MilestoneList({ projectId, onChange }) {
         <div className="flex items-center gap-3">
           {items.length > 0 && (
             <span className="text-xs text-slate-500">
-              {doneCount}/{items.length} hoàn thành
+              {doneCount}/{items.length} completed
             </span>
           )}
           <button
@@ -363,7 +363,7 @@ export default function MilestoneList({ projectId, onChange }) {
             onClick={applyStandard}
             disabled={populating}
             className="flex items-center gap-1 text-xs font-medium text-brand hover:text-brand-dark disabled:opacity-50"
-            title="Thêm 7 milestone chuẩn Marvell"
+            title="Add 7 standard Marvell milestones"
           >
             <Sparkles size={13} />
             Marvell Standard
@@ -379,7 +379,7 @@ export default function MilestoneList({ projectId, onChange }) {
           <div className="flex items-center gap-2 text-sm text-slate-700">
             <Sparkles size={16} className="shrink-0 text-brand" />
             <span>
-              Dùng <strong>Marvell Standard Milestones</strong>? (POR → iRTL →
+              Use <strong>Marvell Standard Milestones</strong>? (POR → iRTL →
               CC → FPF → RTLF → FDR → Tapeout)
             </span>
           </div>
@@ -390,14 +390,14 @@ export default function MilestoneList({ projectId, onChange }) {
               disabled={populating}
               className="rounded-lg bg-brand px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-dark disabled:opacity-50"
             >
-              {populating ? "Đang tạo..." : "Có"}
+              {populating ? "Creating..." : "Yes"}
             </button>
             <button
               type="button"
               onClick={() => setDismissedPrompt(true)}
               className="rounded-lg px-3 py-1.5 text-sm text-slate-500 hover:bg-slate-100"
             >
-              Không
+              No
             </button>
           </div>
         </div>
@@ -434,7 +434,7 @@ export default function MilestoneList({ projectId, onChange }) {
         <input
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
-          placeholder="Thêm milestone..."
+          placeholder="Add milestone..."
           className="flex-1 border-0 bg-transparent p-0 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-0"
         />
         <input

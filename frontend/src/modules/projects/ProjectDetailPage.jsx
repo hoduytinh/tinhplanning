@@ -26,6 +26,7 @@ import SignoffTab from "./SignoffTab";
 import SubblockTreeManager from "./SubblockTreeManager";
 import RecoveryTab from "./recovery/RecoveryTab";
 import TimelineTab from "./timeline/TimelineTab";
+import MembersTab from "./MembersTab";
 import {
   COVERAGE_METRICS,
   OPTIONAL_MODULES,
@@ -48,10 +49,11 @@ import {
 // 3 tab luôn có sẵn khi tạo/sửa dự án; các tab khác (OPTIONAL_MODULES) chỉ
 // hiện khi được bật trong project.enabled_modules.
 const BASE_TABS = [
-  { key: "overview", label: "Tổng quan" },
-  { key: "tasks", label: "Công việc" },
+  { key: "overview", label: "Overview" },
+  { key: "tasks", label: "Tasks" },
   { key: "timeline", label: "Timeline" },
-  { key: "activity", label: "Hoạt động" },
+  { key: "members", label: "Members" },
+  { key: "activity", label: "Activity" },
 ];
 const ALL_TABS = [...BASE_TABS, ...OPTIONAL_MODULES];
 
@@ -81,7 +83,7 @@ export default function ProjectDetailPage() {
     try {
       setProject(await fetchProject(id));
     } catch (err) {
-      setError(err.message || "Không thể tải dự án.");
+      setError(err.message || "Failed to load project.");
     } finally {
       setLoading(false);
     }
@@ -117,12 +119,12 @@ export default function ProjectDetailPage() {
 
   const handleDelete = async () => {
     if (!project) return;
-    if (!window.confirm(`Xóa dự án "${project.name}"?`)) return;
+    if (!window.confirm(`Delete project "${project.name}"?`)) return;
     try {
       await deleteProject(id);
       navigate("/projects");
     } catch (err) {
-      setError(err.message || "Không thể xóa dự án.");
+      setError(err.message || "Failed to delete project.");
     }
   };
 
@@ -147,12 +149,12 @@ export default function ProjectDetailPage() {
       setProject((p) => ({ ...p, description: updated.description }));
       setEditingDesc(false);
     } catch (err) {
-      setError(err.message || "Không thể lưu mô tả.");
+      setError(err.message || "Failed to save description.");
     }
   };
 
   if (loading) {
-    return <p className="text-sm text-slate-500">Đang tải...</p>;
+    return <p className="text-sm text-slate-500">Loading...</p>;
   }
 
   if (error && !project) {
@@ -164,7 +166,7 @@ export default function ProjectDetailPage() {
         </div>
         <Button variant="secondary" onClick={() => navigate("/projects")}>
           <ArrowLeft size={16} />
-          Về danh sách
+          Back to list
         </Button>
       </div>
     );
@@ -190,7 +192,7 @@ export default function ProjectDetailPage() {
           className="mb-3 flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700"
         >
           <ArrowLeft size={15} />
-          Dự án
+          Projects
         </button>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
@@ -217,13 +219,13 @@ export default function ProjectDetailPage() {
             <RoleGuard resource="projects" action="update">
               <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
                 <Pencil size={15} />
-                Sửa
+                Edit
               </Button>
             </RoleGuard>
             <RoleGuard resource="projects" action="delete">
               <Button variant="danger" size="sm" onClick={handleDelete}>
                 <Trash2 size={15} />
-                Xóa
+                Delete
               </Button>
             </RoleGuard>
           </div>
@@ -261,7 +263,7 @@ export default function ProjectDetailPage() {
             <Card className="space-y-4 p-5">
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                  Sức khỏe
+                  Health
                 </p>
                 <div className="mt-1.5">
                   <HealthBadge health={project.health} />
@@ -270,7 +272,7 @@ export default function ProjectDetailPage() {
 
               <div>
                 <p className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-400">
-                  Thống kê
+                  Stats
                 </p>
                 <ProjectStats stats={project.stats} />
               </div>
@@ -278,7 +280,7 @@ export default function ProjectDetailPage() {
               <div>
                 <p className="mb-1.5 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-400">
                   <Calendar size={13} />
-                  Thời gian
+                  Timeline
                 </p>
                 <p className="text-sm text-slate-600">
                   {formatShortDate(project.start_date)} →{" "}
@@ -287,12 +289,12 @@ export default function ProjectDetailPage() {
                 {/* Timeline: thời gian trôi vs tiến độ */}
                 <div className="mt-3 space-y-2">
                   <TimelineBar
-                    label="Thời gian đã trôi"
+                    label="Time elapsed"
                     pct={timeline.time_elapsed_pct}
                     barClass="bg-slate-400"
                   />
                   <TimelineBar
-                    label="Tiến độ"
+                    label="Progress"
                     pct={timeline.progress_pct}
                     barClass={health.bar}
                   />
@@ -312,14 +314,14 @@ export default function ProjectDetailPage() {
           <div className="space-y-6">
             <Card className="p-5">
               <div className="mb-2 flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-slate-700">Mô tả</h4>
+                <h4 className="text-sm font-semibold text-slate-700">Description</h4>
                 {!editingDesc && (
                   <button
                     type="button"
                     onClick={startEditDesc}
                     className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-brand"
                   >
-                    <Pencil size={12} /> Sửa
+                    <Pencil size={12} /> Edit
                   </button>
                 )}
               </div>
@@ -329,15 +331,15 @@ export default function ProjectDetailPage() {
                     <RichTextEditor
                       content={project.description || ""}
                       onChange={setDescDraft}
-                      placeholder="Mô tả dự án... Gõ / để chọn format nhanh"
+                      placeholder="Project description... Type / for quick formatting"
                     />
                   </div>
                   <div className="mt-3 flex items-center justify-end gap-2">
                     <Button variant="secondary" size="sm" onClick={cancelEditDesc}>
-                      Hủy
+                      Cancel
                     </Button>
                     <Button size="sm" onClick={saveEditDesc}>
-                      Lưu
+                      Save
                     </Button>
                   </div>
                 </>
@@ -348,7 +350,7 @@ export default function ProjectDetailPage() {
                 />
               ) : (
                 <p className="text-sm italic text-slate-400">
-                  Chưa có mô tả. Bấm “Sửa” để thêm.
+                  No description yet. Click “Edit” to add one.
                 </p>
               )}
             </Card>
@@ -383,6 +385,8 @@ export default function ProjectDetailPage() {
           <ProjectActivityFeed projectId={id} />
         </Card>
       )}
+
+      {tab === "members" && <MembersTab projectId={id} />}
 
       {tab === "coverage" && <CoverageTab projectId={id} />}
 

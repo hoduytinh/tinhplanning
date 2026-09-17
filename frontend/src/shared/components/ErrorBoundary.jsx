@@ -24,7 +24,7 @@ export default class ErrorBoundary extends Component {
           <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             <AlertTriangle size={16} className="shrink-0" />
             <span>
-              Đã có lỗi xảy ra khi hiển thị phần này.{" "}
+              Something went wrong while displaying this section.{" "}
               {this.state.error?.message}
             </span>
           </div>

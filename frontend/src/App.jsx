@@ -16,6 +16,7 @@ import RegisterPage from "./modules/auth/RegisterPage";
 import PendingPage from "./modules/auth/PendingPage";
 import UserManagementPage from "./modules/users/UserManagementPage";
 import ProfilePage from "./modules/users/ProfilePage";
+import AIChatWidget from "./modules/ai/AIChatWidget";
 
 export default function App() {
   return (
@@ -31,6 +32,9 @@ export default function App() {
         element={
           <ProtectedRoute>
             <Layout>
+              {/* AI Assistant — widget nổi, persistent, mount 1 lần duy nhất
+                  ở đây nên không unmount khi chuyển page trong app. */}
+              <AIChatWidget />
               <Routes>
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/tasks" element={<TaskPage />} />

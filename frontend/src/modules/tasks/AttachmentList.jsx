@@ -23,7 +23,7 @@ export default function AttachmentList({ taskId }) {
     try {
       setItems(await fetchAttachments(taskId));
     } catch (err) {
-      setError(err.message || "Không thể tải attachment.");
+      setError(err.message || "Unable to load attachments.");
     }
   };
 
@@ -42,7 +42,7 @@ export default function AttachmentList({ taskId }) {
       setAdding(false);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể thêm attachment.");
+      setError(err.message || "Unable to add attachment.");
     }
   };
 
@@ -51,7 +51,7 @@ export default function AttachmentList({ taskId }) {
       await deleteAttachment(taskId, id);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể xóa attachment.");
+      setError(err.message || "Unable to delete attachment.");
     }
   };
 
@@ -65,7 +65,7 @@ export default function AttachmentList({ taskId }) {
             onClick={() => setAdding((v) => !v)}
             className="flex items-center gap-1 text-xs text-slate-500 hover:text-brand"
           >
-            <Plus size={13} /> Thêm link
+            <Plus size={13} /> Add link
           </button>
         )}
       </div>
@@ -73,7 +73,7 @@ export default function AttachmentList({ taskId }) {
       {error && <p className="mb-2 text-xs text-red-600">{error}</p>}
 
       {items.length === 0 && !adding && (
-        <p className="text-sm italic text-slate-400">Chưa có attachment nào.</p>
+        <p className="text-sm italic text-slate-400">No attachments yet.</p>
       )}
 
       <ul className="space-y-1.5">
@@ -99,7 +99,7 @@ export default function AttachmentList({ taskId }) {
               <button
                 onClick={() => handleDelete(item.id)}
                 className="shrink-0 text-slate-300 opacity-0 transition hover:text-red-500 group-hover:opacity-100"
-                aria-label="Xóa attachment"
+                aria-label="Delete attachment"
               >
                 <Trash2 size={14} />
               </button>
@@ -123,7 +123,7 @@ export default function AttachmentList({ taskId }) {
           <input
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            placeholder="Nhãn hiển thị (vd: PR #123)"
+            placeholder="Display label (e.g. PR #123)"
             className="w-full rounded-md border border-slate-200 px-2 py-1.5 text-sm text-slate-700 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
           />
           <div className="flex justify-end gap-2">
@@ -132,13 +132,13 @@ export default function AttachmentList({ taskId }) {
               onClick={() => setAdding(false)}
               className="rounded-md px-2.5 py-1 text-xs text-slate-500 hover:bg-slate-100"
             >
-              Hủy
+              Cancel
             </button>
             <button
               type="submit"
               className="rounded-md bg-brand px-2.5 py-1 text-xs font-medium text-white hover:bg-brand-dark"
             >
-              Thêm
+              Add
             </button>
           </div>
         </form>

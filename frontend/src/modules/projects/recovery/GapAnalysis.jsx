@@ -56,7 +56,7 @@ export default function GapAnalysis({ projectId }) {
     try {
       setGap(await fetchRecoveryGap(projectId));
     } catch (err) {
-      setError(err.message || "Không thể tải gap analysis.");
+      setError(err.message || "Failed to load gap analysis.");
     } finally {
       setLoading(false);
     }
@@ -83,7 +83,7 @@ export default function GapAnalysis({ projectId }) {
   };
 
   if (loading) {
-    return <p className="py-10 text-center text-sm text-slate-400">Đang tải…</p>;
+    return <p className="py-10 text-center text-sm text-slate-400">Loading…</p>;
   }
   if (error) {
     return <p className="py-10 text-center text-sm text-red-600">{error}</p>;
@@ -113,7 +113,7 @@ export default function GapAnalysis({ projectId }) {
               </span>{" "}
               — {fmtDate(gap.next_milestone.due_date)}
               {gap.next_milestone.weeks_remaining != null &&
-                ` (còn ${gap.next_milestone.weeks_remaining} tuần)`}
+                ` (${gap.next_milestone.weeks_remaining} weeks left)`}
             </p>
           )}
         </div>
@@ -153,7 +153,7 @@ export default function GapAnalysis({ projectId }) {
                 onClick={() => setCreating(true)}
                 className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
               >
-                <Plus size={13} /> Tạo plan tuần này
+                <Plus size={13} /> Create this week's plan
               </button>
             )
           )}
@@ -175,7 +175,7 @@ export default function GapAnalysis({ projectId }) {
               {plan.week_label} Plan
               {!isCurrentWeek && (
                 <span className="ml-2 text-xs font-normal text-slate-400">
-                  (tuần gần nhất có plan)
+                  (most recent week with a plan)
                 </span>
               )}
             </h3>

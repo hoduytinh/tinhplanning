@@ -1,5 +1,6 @@
 // Shared constants + label/color helpers for the Tasks module.
 // `tone` là chuỗi class Tailwind theo đúng design system (bg/text/border).
+import { Circle, PlayCircle, Ban, Eye, CheckCircle2, XCircle } from "lucide-react";
 
 export const PRIORITIES = [
   {
@@ -11,19 +12,19 @@ export const PRIORITIES = [
   {
     value: "important",
     label: "🟠 Important",
-    description: "Cần xong tuần này",
+    description: "Needs to be done this week",
     tone: "bg-amber-50 text-amber-600 border-amber-200",
   },
   {
     value: "normal",
     label: "🟢 Normal",
-    description: "Việc thường ngày",
+    description: "Everyday work",
     tone: "bg-green-50 text-green-600 border-green-200",
   },
   {
     value: "backlog",
     label: "⚪ Backlog",
-    description: "Để dành, chưa urgent",
+    description: "Saved for later, not urgent",
     tone: "bg-slate-100 text-slate-500 border-slate-200",
   },
 ];
@@ -32,49 +33,49 @@ export const STATUSES = [
   {
     value: "not_started",
     label: "Not Started",
-    icon: "○",
+    icon: Circle,
     color: "#94a3b8",
-    description: "Chưa đụng vào",
+    description: "Not started yet",
     tone: "bg-slate-100 text-slate-600 border-slate-200",
   },
   {
     value: "in_progress",
     label: "In Progress",
-    icon: "◑",
+    icon: PlayCircle,
     color: "#3b82f6",
-    description: "Đang làm",
+    description: "In progress",
     tone: "bg-blue-50 text-blue-600 border-blue-200",
   },
   {
     value: "blocked",
     label: "Blocked",
-    icon: "⊘",
+    icon: Ban,
     color: "#dc2626",
-    description: "Bị chặn — chờ người khác / chờ tool / chờ info",
+    description: "Blocked — waiting on someone / a tool / information",
     tone: "bg-red-50 text-red-600 border-red-200",
   },
   {
     value: "in_review",
     label: "In Review",
-    icon: "◎",
+    icon: Eye,
     color: "#9333ea",
-    description: "Đã làm xong, đang chờ review / approval",
+    description: "Completed, awaiting review / approval",
     tone: "bg-purple-50 text-purple-600 border-purple-200",
   },
   {
     value: "done",
     label: "Done",
-    icon: "✓",
+    icon: CheckCircle2,
     color: "#16a34a",
-    description: "Hoàn thành hoàn toàn",
+    description: "Fully completed",
     tone: "bg-green-50 text-green-700 border-green-200",
   },
   {
     value: "cancelled",
     label: "Cancelled",
-    icon: "✕",
+    icon: XCircle,
     color: "#94a3b8",
-    description: "Không làm nữa, có lý do",
+    description: "No longer being worked on, for a reason",
     tone: "bg-slate-100 text-slate-400 border-slate-200",
   },
 ];
@@ -82,25 +83,25 @@ export const STATUSES = [
 export const TYPES = [
   {
     value: "my_task",
-    label: "Việc của tôi",
+    label: "My Task",
     tone: "bg-indigo-50 text-indigo-600 border-indigo-200",
   },
   {
     value: "delegated",
-    label: "Đã giao",
+    label: "Delegated",
     tone: "bg-blue-50 text-blue-600 border-blue-200",
   },
   {
     value: "waiting_for",
-    label: "Chờ người khác",
+    label: "Waiting for Others",
     tone: "bg-amber-50 text-amber-700 border-amber-200",
   },
 ];
 
 export const SORT_OPTIONS = [
-  { value: "created_at", label: "Ngày tạo" },
-  { value: "priority", label: "Độ ưu tiên" },
-  { value: "due_date", label: "Hạn chót" },
+  { value: "created_at", label: "Created date" },
+  { value: "priority", label: "Priority" },
+  { value: "due_date", label: "Due date" },
 ];
 
 const _lookup = (list, value) => list.find((x) => x.value === value);
@@ -127,7 +128,7 @@ export function htmlToPlainText(html) {
 export function formatDate(iso) {
   if (!iso) return "—";
   const d = new Date(iso);
-  return d.toLocaleDateString("vi-VN", {
+  return d.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -138,6 +139,56 @@ export function isOverdue(task) {
   if (!task.due_date || task.status === "done") return false;
   return new Date(task.due_date) < new Date();
 }
+
+const DUE_SOON_DAYS = 2;
+
+// Sắp tới hạn: còn hạn (chưa overdue) nhưng due_date nằm trong DUE_SOON_DAYS
+// ngày tới, và task chưa xong/không còn bị huỷ.
+export function isDueSoon(task) {
+  if (!task.due_date || task.status === "done" || task.status === "cancelled") {
+    return false;
+  }
+  const due = new Date(task.due_date);
+  const now = new Date();
+  if (due < now) return false; // đã overdue — tính riêng, không tính là due-soon
+  const diffDays = (due - now) / 86400000;
+  return diffDays <= DUE_SOON_DAYS;
+}
+
+// Mức độ khẩn cấp để highlight nền task card/row. Ưu tiên theo thứ tự:
+// quá hạn > priority Critical > sắp tới hạn. Trả về null nếu task bình thường.
+export function getUrgency(task) {
+  if (isOverdue(task)) return "overdue";
+  if (
+    task.priority === "critical" &&
+    task.status !== "done" &&
+    task.status !== "cancelled"
+  ) {
+    return "critical";
+  }
+  if (isDueSoon(task)) return "due_soon";
+  return null;
+}
+
+// Style tương ứng từng mức khẩn cấp — dùng cho nền + viền trái nổi bật của
+// TaskCard/TaskRow, và badge nhỏ đánh dấu mức độ (nếu cần).
+export const URGENCY_STYLES = {
+  overdue: {
+    card: "border-red-300 bg-red-100/90 border-l-[4px] border-l-red-600",
+    row: "bg-red-100/80",
+    label: "Overdue",
+  },
+  critical: {
+    card: "border-rose-300 bg-rose-100/80 border-l-[4px] border-l-rose-500",
+    row: "bg-rose-100/70",
+    label: "Critical",
+  },
+  due_soon: {
+    card: "border-amber-300 bg-amber-100/80 border-l-[4px] border-l-amber-500",
+    row: "bg-amber-100/70",
+    label: "Due soon",
+  },
+};
 
 // --- Prefix & Auto-tagging (client-side preview) --------------------------
 // Backend là nguồn chân lý cho prefix_display/project_tag/sub_tag của task đã

@@ -2,6 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from core.auth import get_current_user
 from core.database import get_db
 from modules.ai.schemas import ChatRequest, ChatResponse
 from modules.ai.service import AINotConfiguredError, chat_with_ai
@@ -10,12 +11,17 @@ router = APIRouter(prefix="/api/ai", tags=["ai"])
 
 
 @router.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest, db: Session = Depends(get_db)):
+async def chat(
+    request: ChatRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
     try:
         result = await chat_with_ai(
             message=request.message,
             history=[m.model_dump() for m in request.history],
             db=db,
+            current_user=current_user,
         )
     except AINotConfiguredError as exc:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc))

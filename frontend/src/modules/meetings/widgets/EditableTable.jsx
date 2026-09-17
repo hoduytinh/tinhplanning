@@ -9,7 +9,7 @@ export default function EditableTable({ columns = [], rows = [], onChange, readO
     Object.fromEntries(columns.map((c) => [c, ""]))
   );
 
-  const cols = columns.length ? columns : ["Nội dung"];
+  const cols = columns.length ? columns : ["Content"];
 
   const updateCell = (rowIdx, col, val) => {
     const next = rows.map((r, i) => (i === rowIdx ? { ...r, [col]: val } : r));
@@ -44,7 +44,7 @@ export default function EditableTable({ columns = [], rows = [], onChange, readO
           {rows.length === 0 && (
             <tr>
               <td colSpan={cols.length + 1} className="px-2 py-3 text-center text-slate-400">
-                Chưa có dữ liệu
+                No data yet
               </td>
             </tr>
           )}
@@ -68,7 +68,7 @@ export default function EditableTable({ columns = [], rows = [], onChange, readO
                   <button
                     onClick={() => removeRow(rowIdx)}
                     className="text-slate-400 hover:text-red-500"
-                    aria-label="Xóa dòng"
+                    aria-label="Delete row"
                   >
                     <Trash2 size={15} />
                   </button>
@@ -90,7 +90,7 @@ export default function EditableTable({ columns = [], rows = [], onChange, readO
                 </td>
               ))}
               <td className="px-1 py-1 text-right">
-                <Button size="sm" variant="ghost" onClick={addRow} aria-label="Thêm dòng">
+                <Button size="sm" variant="ghost" onClick={addRow} aria-label="Add row">
                   <Plus size={15} />
                 </Button>
               </td>

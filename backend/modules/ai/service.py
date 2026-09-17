@@ -35,7 +35,7 @@ def _project_prefix(projects_by_id: dict, project_id: int | None) -> str:
     return "[Non-Proj]"
 
 
-def get_context_data(db: Session) -> dict:
+def get_context_data(db: Session, current_user=None) -> dict:
     """Lấy data thực tế từ DB để inject vào context prompt."""
     from modules.projects.models import Project, ProjectCoverageSnapshot, ProjectMilestone
     from modules.tasks.models import Task
@@ -110,7 +110,23 @@ def get_context_data(db: Session) -> dict:
         if m:
             next_milestones[p.id] = f"{m.title}" + (f" ({m.due_date.isoformat()})" if m.due_date else "")
 
-    return {
+    # --- Ownership context (theo current_user) ---
+    ownership_summary: dict | None = None
+    if current_user is not None:
+        from core.visibility import get_watching_ids
+
+        my_tasks = [t for t in active_tasks if t.created_by == current_user.id]
+        assigned = [t for t in active_tasks if t.assigned_to == current_user.id]
+        watching_ids = get_watching_ids(db, current_user.id, "task")
+        watching = [t for t in active_tasks if t.id in watching_ids]
+        ownership_summary = {
+            "user": current_user.full_name or current_user.username,
+            "my_tasks": len(my_tasks),
+            "assigned_to_me": len(assigned),
+            "watching": len(watching),
+        }
+
+    result = {
         "tasks_summary": {
             "total": len(active_tasks),
             "overdue": len(overdue),
@@ -144,6 +160,9 @@ def get_context_data(db: Session) -> dict:
         ],
         "coverage": coverage,
     }
+    if ownership_summary is not None:
+        result["ownership_summary"] = ownership_summary
+    return result
 
 
 _ACTION_RE = re.compile(r'\{[^{}]*"action"[^{}]*"data"\s*:\s*\{.*?\}[^{}]*\}', re.DOTALL)
@@ -165,17 +184,17 @@ def _extract_action(text: str) -> tuple[str, dict | None]:
     return clean_text, action_data
 
 
-async def chat_with_ai(message: str, history: list[dict], db: Session) -> dict:
+async def chat_with_ai(message: str, history: list[dict], db: Session, current_user=None) -> dict:
     """Gửi message đến Gemini kèm context data thực tế.
 
     Returns: { "text": "...", "action": None | {...} }
     """
     if not settings.GEMINI_API_KEY:
         raise AINotConfiguredError(
-            "GEMINI_API_KEY chưa được cấu hình. Thêm vào backend/.env rồi khởi động lại backend."
+            "GEMINI_API_KEY is not configured. Add it to backend/.env and restart the backend."
         )
 
-    context_data = get_context_data(db)
+    context_data = get_context_data(db, current_user=current_user)
     context_prompt = build_context_prompt(context_data)
 
     gemini_history = [

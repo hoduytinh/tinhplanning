@@ -95,10 +95,10 @@ export default function RecoveryRadar({ projects, projectId }) {
 
       {!projectId ? (
         <p className="py-6 text-center text-sm text-slate-400">
-          Chọn dự án ở Regression Pulse để xem kế hoạch phục hồi.
+          Select a project in Regression Pulse to view the recovery plan.
         </p>
       ) : loading || !gap ? (
-        <p className="py-6 text-center text-sm text-slate-400">Đang tải…</p>
+        <p className="py-6 text-center text-sm text-slate-400">Loading…</p>
       ) : (
         <>
           {gap.next_milestone && (
@@ -108,7 +108,7 @@ export default function RecoveryRadar({ projects, projectId }) {
                 {gap.next_milestone.name}
               </span>{" "}
               {gap.next_milestone.weeks_remaining != null &&
-                `còn ${gap.next_milestone.weeks_remaining} tuần`}
+                `${gap.next_milestone.weeks_remaining} weeks remaining`}
               {!gap.next_milestone.weeks_remaining &&
                 gap.next_milestone.due_date &&
                 ` — ${fmtDate(gap.next_milestone.due_date)}`}
@@ -151,7 +151,7 @@ export default function RecoveryRadar({ projects, projectId }) {
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-400">Chưa có phân công.</p>
+                <p className="text-xs text-slate-400">No assignments yet.</p>
               )}
               {plan.estimate_items != null && (
                 <p className="mt-1.5 text-xs text-slate-500">
@@ -187,7 +187,7 @@ export default function RecoveryRadar({ projects, projectId }) {
                 onClick={() => navigate(`/projects/${projectId}`)}
                 className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
               >
-                Xem đầy đủ <ArrowRight size={12} />
+                View full details <ArrowRight size={12} />
               </button>
             </div>
           )}

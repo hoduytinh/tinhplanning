@@ -17,11 +17,11 @@ export default function ShoutoutList({ items = [], editable = true, onAdd, onRem
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-        <Award size={14} className="text-amber-500" /> Ghi nhận / Shoutout
+        <Award size={14} className="text-amber-500" /> Recognition / Shoutout
       </div>
 
       {items.length === 0 && !editable ? (
-        <div className="text-xs text-slate-400">Chưa có ghi nhận nào.</div>
+        <div className="text-xs text-slate-400">No recognitions yet.</div>
       ) : null}
 
       <div className="space-y-1.5">
@@ -42,7 +42,7 @@ export default function ShoutoutList({ items = [], editable = true, onAdd, onRem
                 type="button"
                 onClick={() => onRemove?.(s.id)}
                 className="text-slate-400 hover:text-red-500"
-                aria-label="Xóa"
+                aria-label="Remove"
               >
                 <X size={14} />
               </button>
@@ -56,14 +56,14 @@ export default function ShoutoutList({ items = [], editable = true, onAdd, onRem
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Tên thành viên"
+            placeholder="Member name"
             className="w-32 rounded-md border border-slate-200 px-2 py-1 text-sm focus:border-brand focus:outline-none"
           />
           <input
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && submit()}
-            placeholder="Lý do (tùy chọn)"
+            placeholder="Reason (optional)"
             className="min-w-0 flex-1 rounded-md border border-slate-200 px-2 py-1 text-sm focus:border-brand focus:outline-none"
           />
           <button
@@ -71,7 +71,7 @@ export default function ShoutoutList({ items = [], editable = true, onAdd, onRem
             onClick={submit}
             className="inline-flex items-center gap-1 rounded-md bg-brand px-2 py-1 text-xs font-medium text-white hover:bg-brand-dark"
           >
-            <Plus size={13} /> Thêm
+            <Plus size={13} /> Add
           </button>
         </div>
       ) : null}

@@ -4,6 +4,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
+from core.auth import get_current_user
 from core.database import get_db
 from modules.tasks import service
 from modules.tasks import subtask_service
@@ -44,6 +45,7 @@ def _read(db: Session, task) -> TaskRead:
 @router.get("", response_model=list[TaskRead])
 def list_tasks(
     db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
     priority: Priority | None = None,
     task_status: Status | None = Query(default=None, alias="status"),
     type: TaskType | None = None,
@@ -52,6 +54,11 @@ def list_tasks(
     tag: str | None = Query(default=None, description="Lọc theo auto-tag, vd #tigera0"),
     due_before: datetime | None = None,
     due_after: datetime | None = None,
+    ownership: str = Query(
+        default="all",
+        pattern="^(all|my|assigned|watching|shared)$",
+        description="Filter tab: all/my/assigned/watching/shared",
+    ),
     sort_by: str = Query(default="created_at", pattern="^(priority|due_date|created_at)$"),
     order: str = Query(default="desc", pattern="^(asc|desc)$"),
 ) -> list[TaskRead]:
@@ -65,6 +72,8 @@ def list_tasks(
         due_after=due_after,
         sort_by=sort_by,
         order=order,
+        current_user=current_user,
+        ownership=ownership,
     )
     if subblock_id is not None:
         tasks = [t for t in tasks if t.subblock_id == subblock_id]
@@ -89,8 +98,12 @@ def get_task(task_id: int, db: Session = Depends(get_db)) -> TaskRead:
 
 
 @router.post("", response_model=TaskRead, status_code=status.HTTP_201_CREATED)
-def create_task(payload: TaskCreate, db: Session = Depends(get_db)) -> TaskRead:
-    return _read(db, service.create_task(db, payload))
+def create_task(
+    payload: TaskCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+) -> TaskRead:
+    return _read(db, service.create_task(db, payload, current_user_id=current_user.id))
 
 
 @router.patch("/{task_id}", response_model=TaskRead)

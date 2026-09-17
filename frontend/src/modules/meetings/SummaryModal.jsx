@@ -34,21 +34,21 @@ export default function SummaryModal({ open, meetingId, onClose, onError }) {
     <Modal
       open={open}
       onClose={onClose}
-      title="Tóm tắt cuộc họp"
+      title="Meeting Summary"
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
-            Đóng
+            Close
           </Button>
           <Button onClick={copy} disabled={loading || !text}>
             {copied ? <Check size={15} /> : <Copy size={15} />}
-            {copied ? "Đã copy" : "Copy"}
+            {copied ? "Copied" : "Copy"}
           </Button>
         </>
       }
     >
       {loading ? (
-        <p className="text-sm text-slate-500">Đang tạo tóm tắt...</p>
+        <p className="text-sm text-slate-500">Generating summary...</p>
       ) : (
         <pre className="whitespace-pre-wrap rounded-lg bg-slate-50 p-3 font-sans text-sm text-slate-700">
           {text}

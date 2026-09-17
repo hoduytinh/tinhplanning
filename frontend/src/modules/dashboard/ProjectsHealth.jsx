@@ -98,7 +98,7 @@ export default function ProjectsHealth({ rows }) {
             {data.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-6 text-center text-slate-400">
-                  Chưa có dự án active.
+                  No active projects yet.
                 </td>
               </tr>
             )}

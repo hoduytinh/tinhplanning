@@ -1,7 +1,7 @@
 const ZOOM_OPTIONS = [
-  { key: "week", label: "Tuần" },
-  { key: "month", label: "Tháng" },
-  { key: "quarter", label: "Quý" },
+  { key: "week", label: "Week" },
+  { key: "month", label: "Month" },
+  { key: "quarter", label: "Quarter" },
 ];
 
 // Toolbar: nhãn cột TRACKS + chọn khoảng thời gian hiển thị + zoom + "+ Track".
@@ -23,14 +23,14 @@ export default function TimelineHeader({
           TRACKS
         </span>
         <div className="flex items-center gap-1.5 text-xs text-slate-500">
-          <span>Từ</span>
+          <span>From</span>
           <input
             type="date"
             value={rangeStart || ""}
             onChange={(e) => onRangeStartChange(e.target.value || null)}
             className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
           />
-          <span>đến</span>
+          <span>to</span>
           <input
             type="date"
             value={rangeEnd || ""}
@@ -41,7 +41,7 @@ export default function TimelineHeader({
             type="button"
             onClick={onResetRange}
             className="rounded-md px-2 py-1 text-xs text-slate-500 hover:bg-slate-100"
-            title="Đặt lại khoảng hiển thị theo toàn bộ dữ liệu"
+            title="Reset the visible range to all data"
           >
             Auto
           </button>

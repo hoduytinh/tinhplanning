@@ -19,7 +19,7 @@ function AgendaRow({ meetingId, item, index, onChanged, onError, editable = true
   };
 
   const remove = async () => {
-    if (!window.confirm(`Xóa mục "${item.title}"?`)) return;
+    if (!window.confirm(`Delete item "${item.title}"?`)) return;
     try {
       await deleteAgendaItem(meetingId, item.id);
       onChanged?.();
@@ -93,7 +93,7 @@ export default function AgendaList({ meetingId, items, onChanged, onError, edita
     <div className="space-y-2">
       <ul className="space-y-1.5">
         {items.length === 0 && (
-          <p className="text-sm text-slate-400">Chưa có agenda.</p>
+          <p className="text-sm text-slate-400">No agenda items yet.</p>
         )}
         {items.map((it, i) => (
           <AgendaRow
@@ -113,11 +113,11 @@ export default function AgendaList({ meetingId, items, onChanged, onError, edita
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && add()}
-            placeholder="Thêm mục agenda..."
+            placeholder="Add agenda item..."
             className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/30"
           />
           <Button size="sm" onClick={add} disabled={!title.trim()}>
-            <Plus size={15} /> Thêm
+            <Plus size={15} /> Add
           </Button>
         </div>
       )}

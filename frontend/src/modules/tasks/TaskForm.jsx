@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Tag } from "lucide-react";
+import { Tag, Globe, Lock, X } from "lucide-react";
 import Button from "../../shared/components/Button";
 import Modal from "../../shared/components/Modal";
 import Select from "../../shared/components/Select";
+import UserCombobox from "../../shared/components/UserCombobox";
 import StatusSelect from "./StatusSelect";
 import SubblockDropdown from "./SubblockDropdown";
 import {
@@ -12,6 +13,12 @@ import {
   findSubblockPath,
 } from "./taskConstants";
 import { fetchProjects, fetchSubblocks } from "../projects/projectApi";
+import {
+  addWatcher,
+  fetchUserDirectory,
+  fetchWatchers,
+  removeWatcher,
+} from "../../shared/ownershipApi";
 
 const EMPTY = {
   title: "",
@@ -24,6 +31,8 @@ const EMPTY = {
   project_id: "",
   subblock_id: null,
   tags: "",
+  assigned_to: null,
+  is_shared: false,
 };
 
 // Convert an ISO datetime into the value a <input type="date"> expects.
@@ -48,6 +57,10 @@ export default function TaskForm({
   const [saving, setSaving] = useState(false);
   const [projects, setProjects] = useState([]);
   const [subTree, setSubTree] = useState([]);
+  const [directory, setDirectory] = useState([]);
+  const [watchers, setWatchers] = useState([]);
+  const [pendingViewerIds, setPendingViewerIds] = useState([]);
+  const [viewerError, setViewerError] = useState("");
 
   // Danh sách project để gán task.
   useEffect(() => {
@@ -59,6 +72,31 @@ export default function TaskForm({
       active = false;
     };
   }, []);
+
+  // Danh bạ user để chọn assignee/viewer (mọi user đã đăng nhập đều lấy được).
+  useEffect(() => {
+    let active = true;
+    fetchUserDirectory()
+      .then((data) => active && setDirectory(data))
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Sửa task đã tồn tại -> tải danh sách viewer hiện tại từ server.
+  // Tạo task mới -> viewer được chọn tạm (pending), thêm sau khi tạo xong.
+  useEffect(() => {
+    if (open && initial?.id) {
+      fetchWatchers("task", initial.id)
+        .then((data) => setWatchers(data))
+        .catch(() => setWatchers([]));
+    } else {
+      setWatchers([]);
+    }
+    setPendingViewerIds([]);
+    setViewerError("");
+  }, [open, initial?.id]);
 
   useEffect(() => {
     if (open) {
@@ -79,6 +117,8 @@ export default function TaskForm({
             : "",
           subblock_id: initial.subblock_id ?? null,
           tags: (initial.tags ?? []).join(", "),
+          assigned_to: initial.assigned_to ?? null,
+          is_shared: initial.is_shared ?? false,
         });
       } else {
         setForm({
@@ -116,10 +156,55 @@ export default function TaskForm({
   const subPath = findSubblockPath(subTree, form.subblock_id);
   const preview = computePrefixPreview(selectedProject, subPath);
 
+  // Danh sách viewer hiển thị: task đã tồn tại -> từ server; task đang tạo ->
+  // pending ids resolved qua directory để hiện tên.
+  const viewerList = initial?.id
+    ? watchers
+    : pendingViewerIds.map((id) => {
+        const u = directory.find((d) => d.id === id);
+        return {
+          id: `pending-${id}`,
+          user_id: id,
+          full_name: u?.full_name,
+          username: u?.username,
+        };
+      });
+
+  // Thêm 1 viewer: task đã tồn tại -> gọi API ngay; task đang tạo -> lưu tạm.
+  const handleAddViewer = async (userId) => {
+    if (!userId) return;
+    setViewerError("");
+    if (initial?.id) {
+      try {
+        await addWatcher("task", initial.id, userId);
+        const data = await fetchWatchers("task", initial.id);
+        setWatchers(data);
+      } catch (err) {
+        setViewerError(err.message || "Unable to add viewer.");
+      }
+    } else {
+      setPendingViewerIds((prev) => (prev.includes(userId) ? prev : [...prev, userId]));
+    }
+  };
+
+  const handleRemoveWatcher = async (watcher) => {
+    setViewerError("");
+    if (initial?.id) {
+      try {
+        await removeWatcher(watcher.id);
+        setWatchers((prev) => prev.filter((w) => w.id !== watcher.id));
+      } catch (err) {
+        setViewerError(err.message || "Unable to remove viewer.");
+      }
+    } else {
+      setPendingViewerIds((prev) => prev.filter((id) => id !== watcher.user_id));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim()) {
-      setError("Tiêu đề không được để trống.");
+      setError("Title cannot be empty.");
       return;
     }
     setSaving(true);
@@ -138,10 +223,20 @@ export default function TaskForm({
         tags: form.tags
           ? form.tags.split(",").map((t) => t.trim()).filter(Boolean)
           : [],
+        assigned_to: form.assigned_to,
+        is_shared: form.is_shared,
       };
-      await onSubmit(payload);
+      const saved = await onSubmit(payload);
+      // Task mới tạo -> áp dụng các viewer đã chọn tạm (cần object_id vừa có).
+      if (!initial && saved?.id && pendingViewerIds.length > 0) {
+        await Promise.all(
+          pendingViewerIds.map((uid) =>
+            addWatcher("task", saved.id, uid).catch(() => {})
+          )
+        );
+      }
     } catch (err) {
-      setError(err.message || "Không thể lưu task.");
+      setError(err.message || "Unable to save task.");
     } finally {
       setSaving(false);
     }
@@ -155,14 +250,14 @@ export default function TaskForm({
     <Modal
       open={open}
       onClose={onClose}
-      title={initial ? "Sửa task" : "Tạo task mới"}
+      title={initial ? "Edit task" : "Create new task"}
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={saving}>
-            Hủy
+            Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={saving}>
-            {saving ? "Đang lưu..." : "Lưu"}
+            {saving ? "Saving..." : "Save"}
           </Button>
         </>
       }
@@ -175,7 +270,7 @@ export default function TaskForm({
         )}
 
         <div>
-          <label className={label}>Tiêu đề *</label>
+          <label className={label}>Title *</label>
           <input className={field} value={form.title} onChange={set("title")} />
         </div>
 
@@ -185,17 +280,17 @@ export default function TaskForm({
             className={field}
             value={form.short_description}
             onChange={set("short_description")}
-            placeholder="Một dòng tóm tắt ngắn gọn..."
+            placeholder="A short one-line summary..."
           />
         </div>
 
         {/* Project + Sub-block + preview prefix/tag */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={label}>Dự án</label>
+            <label className={label}>Project</label>
             <div className="mt-1">
               <Select
-                ariaLabel="Dự án"
+                ariaLabel="Project"
                 className="w-full"
                 value={form.project_id}
                 disabled={Boolean(lockProjectId)}
@@ -206,7 +301,7 @@ export default function TaskForm({
                     subblock_id: null,
                   }))
                 }
-                placeholder="Không (Non-Proj)"
+                placeholder="None (Non-Proj)"
                 options={projects.map((p) => ({
                   value: String(p.id),
                   label: p.name,
@@ -236,7 +331,7 @@ export default function TaskForm({
             >
               {preview.prefix_display}
             </span>{" "}
-            <span className="text-slate-400">{form.title || "Tên task"}</span>
+            <span className="text-slate-400">{form.title || "Task name"}</span>
           </p>
           <div className="mt-1.5 flex flex-wrap items-center gap-1">
             {[preview.project_tag, preview.sub_tag]
@@ -265,7 +360,7 @@ export default function TaskForm({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={label}>Độ ưu tiên</label>
+            <label className={label}>Priority</label>
             <select className={field} value={form.priority} onChange={set("priority")}>
               {PRIORITIES.map((p) => (
                 <option key={p.value} value={p.value}>
@@ -275,7 +370,7 @@ export default function TaskForm({
             </select>
           </div>
           <div>
-            <label className={label}>Trạng thái</label>
+            <label className={label}>Status</label>
             <div className="mt-1">
               <StatusSelect
                 value={form.status}
@@ -287,7 +382,7 @@ export default function TaskForm({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={label}>Loại</label>
+            <label className={label}>Type</label>
             <select className={field} value={form.type} onChange={set("type")}>
               {TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -297,7 +392,7 @@ export default function TaskForm({
             </select>
           </div>
           <div>
-            <label className={label}>Hạn chót</label>
+            <label className={label}>Due date</label>
             <input
               type="date"
               className={field}
@@ -308,13 +403,88 @@ export default function TaskForm({
         </div>
 
         <div>
-          <label className={label}>Tags (phân cách bằng dấu phẩy)</label>
+          <label className={label}>Tags (comma-separated)</label>
           <input
             className={field}
             value={form.tags}
             onChange={set("tags")}
             placeholder="backend, review"
           />
+        </div>
+
+        {/* Ownership: Assignee, Shared/Private, Viewers */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={label}>Assignee</label>
+            <div className="mt-1">
+              <UserCombobox
+                className="w-full"
+                users={directory}
+                value={form.assigned_to}
+                onChange={(id) => setForm((f) => ({ ...f, assigned_to: id }))}
+                placeholder="Unassigned"
+              />
+            </div>
+          </div>
+          <div>
+            <label className={label}>Share</label>
+            <div className="mt-1">
+              <button
+                type="button"
+                onClick={() =>
+                  setForm((f) => ({ ...f, is_shared: !f.is_shared }))
+                }
+                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-xs font-medium transition ${
+                  form.is_shared
+                    ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
+              >
+                {form.is_shared ? <Globe size={13} /> : <Lock size={13} />}
+                {form.is_shared ? "Shared" : "Private"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label className={label}>Viewers</label>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {viewerList.length === 0 && (
+              <span className="text-xs text-slate-400">No viewers yet</span>
+            )}
+            {viewerList.map((w) => (
+              <span
+                key={w.id}
+                className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600"
+                title={w.full_name || w.username}
+              >
+                {w.full_name || w.username}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveWatcher(w)}
+                  className="text-slate-400 hover:text-red-500"
+                  aria-label={`Remove ${w.full_name || w.username}`}
+                >
+                  <X size={11} />
+                </button>
+              </span>
+            ))}
+          </div>
+          <div className="mt-2">
+            <UserCombobox
+              className="w-full"
+              users={directory}
+              value={null}
+              excludeIds={viewerList.map((w) => w.user_id)}
+              onChange={(id) => id && handleAddViewer(id)}
+              placeholder="+ Add viewer"
+              allowClear={false}
+            />
+          </div>
+          {viewerError && (
+            <p className="mt-1.5 text-xs text-red-500">{viewerError}</p>
+          )}
         </div>
       </form>
     </Modal>

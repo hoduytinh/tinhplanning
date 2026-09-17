@@ -26,9 +26,19 @@ const DEFAULT_FILTERS = {
   type: "",
   tag: "",
   project_id: "",
+  ownership: "all",
   sort_by: "created_at",
   order: "desc",
 };
+
+// Ownership filter tabs (new feature — English UI).
+const OWNERSHIP_TABS = [
+  { value: "all", label: "All Tasks" },
+  { value: "my", label: "My Tasks" },
+  { value: "assigned", label: "Assigned to Me" },
+  { value: "watching", label: "I'm Watching" },
+  { value: "shared", label: "Shared" },
+];
 
 // Mặc định ẩn task đã "Done" hoặc "Cancelled" khỏi danh sách — lọc trạng
 // thái là client-side (không gửi lên backend) vì đây là multi-select tick
@@ -106,7 +116,7 @@ export default function TaskPage({ fixedProjectId = null, embedded = false }) {
       setTasks(data);
       loadProgress(data);
     } catch (err) {
-      setError(err.message || "Không thể tải danh sách task.");
+      setError(err.message || "Unable to load tasks.");
     } finally {
       setLoading(false);
     }
@@ -130,15 +140,17 @@ export default function TaskPage({ fixedProjectId = null, embedded = false }) {
   };
 
   const handleSubmit = async (payload) => {
+    let result;
     if (editing) {
-      await updateTask(editing.id, payload);
+      result = await updateTask(editing.id, payload);
     } else {
-      await createTask(
+      result = await createTask(
         fixedProjectId ? { ...payload, project_id: fixedProjectId } : payload
       );
     }
     setFormOpen(false);
     await load();
+    return result;
   };
 
   // Cập nhật 1 phần task (từ card status icon hoặc detail panel).
@@ -151,19 +163,19 @@ export default function TaskPage({ fixedProjectId = null, embedded = false }) {
       const updated = await updateTask(task.id, patch);
       setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
     } catch (err) {
-      setError(err.message || "Không thể cập nhật task.");
+      setError(err.message || "Unable to update task.");
       await load(); // rollback bằng cách tải lại
     }
   };
 
   const handleDelete = async (task) => {
-    if (!window.confirm(`Xóa task "${task.title}"?`)) return;
+    if (!window.confirm(`Delete task "${task.title}"?`)) return;
     try {
       await deleteTask(task.id);
       if (selectedId === task.id) setSelectedId(null);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể xóa task.");
+      setError(err.message || "Unable to delete task.");
     }
   };
 
@@ -196,44 +208,63 @@ export default function TaskPage({ fixedProjectId = null, embedded = false }) {
       <div className="flex items-center justify-between">
         <div>
           {!embedded && (
-            <h1 className="text-2xl font-bold text-slate-900">Công việc</h1>
+            <h1 className="text-2xl font-bold text-slate-900">Tasks</h1>
           )}
           <p className={embedded ? "text-sm text-slate-500" : "mt-0.5 text-sm text-slate-500"}>
-            {loading ? "Đang tải..." : `${visibleTasks.length} task`}
+            {loading ? "Loading..." : `${visibleTasks.length} tasks`}
           </p>
         </div>
         <RoleGuard resource="tasks" action="create">
           <Button onClick={openCreate}>
             <Plus size={16} />
-            Task mới
+            New Task
           </Button>
         </RoleGuard>
+      </div>
+
+      {/* Ownership filter tabs (new feature — English UI) */}
+      <div className="flex flex-wrap items-center gap-1 border-b border-slate-200">
+        {OWNERSHIP_TABS.map((tab) => (
+          <button
+            key={tab.value}
+            onClick={() =>
+              setFilters((f) => ({ ...f, ownership: tab.value }))
+            }
+            className={`-mb-px border-b-2 px-4 py-2 text-sm font-medium transition ${
+              filters.ownership === tab.value
+                ? "border-brand text-brand"
+                : "border-transparent text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* Filter bar */}
       <Card className="p-4">
         <div className="flex flex-wrap items-center gap-3">
           <Select
-            ariaLabel="Lọc theo độ ưu tiên"
+            ariaLabel="Filter by priority"
             value={filters.priority}
             onChange={setFilter("priority")}
-            placeholder="Mọi ưu tiên"
+            placeholder="All priorities"
             options={PRIORITIES.map((p) => ({ value: p.value, label: p.label }))}
           />
           <StatusFilterDropdown selected={statusFilter} onChange={setStatusFilter} />
           <Select
-            ariaLabel="Lọc theo loại"
+            ariaLabel="Filter by type"
             value={filters.type}
             onChange={setFilter("type")}
-            placeholder="Mọi loại"
+            placeholder="All types"
             options={TYPES}
           />
           {!fixedProjectId && (
             <Select
-              ariaLabel="Lọc theo dự án"
+              ariaLabel="Filter by project"
               value={filters.project_id}
               onChange={setFilter("project_id")}
-              placeholder="Mọi dự án"
+              placeholder="All projects"
               options={projects.map((p) => ({
                 value: String(p.id),
                 label: p.name,
@@ -243,8 +274,8 @@ export default function TaskPage({ fixedProjectId = null, embedded = false }) {
           <input
             value={filters.tag}
             onChange={setFilter("tag")}
-            placeholder="Lọc auto-tag (vd #tigera0)"
-            aria-label="Lọc theo auto-tag"
+            placeholder="Filter by auto-tag (e.g. #tigera0)"
+            aria-label="Filter by auto-tag"
             className="w-48 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
           />
           <label className="flex items-center gap-1.5 text-sm text-slate-600">
@@ -260,26 +291,26 @@ export default function TaskPage({ fixedProjectId = null, embedded = false }) {
 
           <div className="ml-auto flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-500">Sắp xếp</span>
+              <span className="text-sm text-slate-500">Sort by</span>
               <Select
-                ariaLabel="Sắp xếp theo"
+                ariaLabel="Sort by"
                 value={filters.sort_by}
                 onChange={setFilter("sort_by")}
                 options={SORT_OPTIONS}
               />
               <Select
-                ariaLabel="Thứ tự"
+                ariaLabel="Order"
                 value={filters.order}
                 onChange={setFilter("order")}
                 options={[
-                  { value: "desc", label: "Giảm dần" },
-                  { value: "asc", label: "Tăng dần" },
+                  { value: "desc", label: "Descending" },
+                  { value: "asc", label: "Ascending" },
                 ]}
               />
             </div>
             <div className="flex items-center gap-1 rounded-lg border border-slate-200 p-1">
-              {viewBtn("grid", LayoutGrid, "Dạng lưới")}
-              {viewBtn("list", ListIcon, "Dạng danh sách")}
+              {viewBtn("grid", LayoutGrid, "Grid view")}
+              {viewBtn("list", ListIcon, "List view")}
             </div>
           </div>
         </div>
@@ -300,15 +331,15 @@ export default function TaskPage({ fixedProjectId = null, embedded = false }) {
           </div>
           <div>
             <p className="text-base font-semibold text-slate-900">
-              Chưa có task nào
+              No tasks yet
             </p>
             <p className="mt-1 text-sm text-slate-500">
-              Tạo task mới để bắt đầu quản lý công việc.
+              Create a new task to start managing your work.
             </p>
           </div>
           <Button onClick={openCreate}>
             <Plus size={16} />
-            Tạo task đầu tiên
+            Create your first task
           </Button>
         </Card>
       )}
@@ -337,10 +368,10 @@ export default function TaskPage({ fixedProjectId = null, embedded = false }) {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-500">
-                <th className="px-4 py-3">Trạng thái</th>
-                <th className="px-4 py-3">Tiêu đề</th>
-                <th className="px-4 py-3">Ưu tiên / Trạng thái</th>
-                <th className="hidden px-4 py-3 sm:table-cell">Hạn chót</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Title</th>
+                <th className="px-4 py-3">Priority / Status</th>
+                <th className="hidden px-4 py-3 sm:table-cell">Due date</th>
                 <th className="px-4 py-3 text-right"></th>
               </tr>
             </thead>

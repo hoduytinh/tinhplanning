@@ -62,14 +62,14 @@ function DetailInner() {
       const data = await fetchSummary(id);
       setSummary(data);
     } catch (err) {
-      toast(err.message || "Không tải được tổng hợp", "error");
+      toast(err.message || "Failed to load summary", "error");
     } finally {
       setSummaryLoading(false);
     }
   }, [id, toast]);
 
   useEffect(() => {
-    loadReview().catch((err) => toast(err.message || "Không tải được review", "error"));
+    loadReview().catch((err) => toast(err.message || "Failed to load review", "error"));
     loadSummary();
   }, [loadReview, loadSummary, toast]);
 
@@ -81,7 +81,7 @@ function DetailInner() {
       setReview(updated);
     } catch (err) {
       setReview(prev);
-      toast(err.message || "Không lưu được", "error");
+      toast(err.message || "Failed to save", "error");
     }
   };
 
@@ -98,7 +98,7 @@ function DetailInner() {
       await addShoutout(id, payload);
       await loadReview();
     } catch (err) {
-      toast(err.message || "Không thêm được", "error");
+      toast(err.message || "Failed to add", "error");
     }
   };
 
@@ -107,7 +107,7 @@ function DetailInner() {
       await deleteShoutout(id, sid);
       await loadReview();
     } catch (err) {
-      toast(err.message || "Không xóa được", "error");
+      toast(err.message || "Failed to delete", "error");
     }
   };
 
@@ -116,9 +116,9 @@ function DetailInner() {
     try {
       const updated = await generateCft(id);
       setReview(updated);
-      toast("Đã tạo báo cáo CFT");
+      toast("CFT report generated");
     } catch (err) {
-      toast(err.message || "Không tạo được báo cáo", "error");
+      toast(err.message || "Failed to generate report", "error");
     } finally {
       setCftLoading(false);
     }
@@ -128,9 +128,9 @@ function DetailInner() {
     try {
       const updated = await updateCft(id, content);
       setReview(updated);
-      toast("Đã lưu báo cáo");
+      toast("Report saved");
     } catch (err) {
-      toast(err.message || "Không lưu được", "error");
+      toast(err.message || "Failed to save", "error");
     }
   };
 
@@ -138,7 +138,7 @@ function DetailInner() {
     setCompleting(true);
     try {
       await completeReview(id);
-      toast("Đã hoàn thành review tuần này 🎉");
+      toast("This week's review completed 🎉");
       setCompleteOpen(false);
       // Tạo/nhảy sang review của tuần kế tiếp.
       const nextStart = new Date(review.week_end);
@@ -147,14 +147,14 @@ function DetailInner() {
       const next = await createReview({ week_start: iso });
       navigate(`/weekly-review/${next.id}`);
     } catch (err) {
-      toast(err.message || "Không hoàn thành được", "error");
+      toast(err.message || "Failed to complete", "error");
     } finally {
       setCompleting(false);
     }
   };
 
   if (!review) {
-    return <div className="p-6 text-sm text-slate-400">Đang tải review...</div>;
+    return <div className="p-6 text-sm text-slate-400">Loading review...</div>;
   }
 
   return (
@@ -165,7 +165,7 @@ function DetailInner() {
             type="button"
             onClick={() => navigate("/weekly-review")}
             className="text-slate-400 hover:text-slate-600"
-            aria-label="Quay lại"
+            aria-label="Back"
           >
             <ArrowLeft size={18} />
           </button>
@@ -174,11 +174,11 @@ function DetailInner() {
               Weekly Review — {review.week_label}
               {review.status === "completed" ? (
                 <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                  <CheckCircle2 size={12} /> Hoàn thành
+                  <CheckCircle2 size={12} /> Completed
                 </span>
               ) : (
                 <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-500">
-                  Nháp
+                  Draft
                 </span>
               )}
             </h1>
@@ -190,12 +190,12 @@ function DetailInner() {
         {editable ? (
           <RoleGuard resource="weekly_review" action="update">
             <Button size="sm" onClick={() => setCompleteOpen(true)}>
-              <CheckCircle2 size={15} /> Hoàn thành tuần
+              <CheckCircle2 size={15} /> Complete Week
             </Button>
           </RoleGuard>
         ) : (
           <span className="inline-flex items-center gap-1.5 text-sm text-slate-400">
-            <Lock size={14} /> Đã khóa
+            <Lock size={14} /> Locked
           </span>
         )}
       </div>
@@ -203,8 +203,8 @@ function DetailInner() {
       <Card className="p-4">
         <SectionHeader
           index={1}
-          title="Tổng hợp tự động"
-          desc="Số liệu realtime từ Tasks, Meetings, Bugs, Coverage"
+          title="Automatic Summary"
+          desc="Realtime data from Tasks, Meetings, Bugs, Coverage"
         />
         <AutoSummary
           summary={summary}
@@ -214,7 +214,7 @@ function DetailInner() {
       </Card>
 
       <Card className="p-4">
-        <SectionHeader index={2} title="Nhìn lại tuần qua" desc="Reflection & cảm xúc" />
+        <SectionHeader index={2} title="Weekly Reflection" desc="Reflection & mood" />
         <ReflectionPanel
           review={review}
           editable={editable}
@@ -227,7 +227,7 @@ function DetailInner() {
       </Card>
 
       <Card className="p-4">
-        <SectionHeader index={3} title="Kế hoạch & Báo cáo" desc="Chuẩn bị cho tuần tới" />
+        <SectionHeader index={3} title="Plan & Report" desc="Prepare for next week" />
         <div className="grid gap-5 lg:grid-cols-2">
           <PlanPanel
             review={review}

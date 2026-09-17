@@ -30,7 +30,7 @@ function ActionRow({ meetingId, item, categories, onChanged, onError, onToast, e
   };
 
   const remove = async () => {
-    if (!window.confirm("Xóa action item này?")) return;
+    if (!window.confirm("Delete this action item?")) return;
     try {
       await deleteActionItem(meetingId, item.id);
       onChanged?.();
@@ -43,7 +43,7 @@ function ActionRow({ meetingId, item, categories, onChanged, onError, onToast, e
     setBusy(true);
     try {
       await createTaskFromAction(meetingId, item.id);
-      onToast?.("Đã tạo task từ action item.");
+      onToast?.("Task created from action item.");
       onChanged?.();
     } catch (err) {
       onError?.(err.message);
@@ -59,7 +59,7 @@ function ActionRow({ meetingId, item, categories, onChanged, onError, onToast, e
           onClick={() => patch({ status: isDone ? "open" : "done" })}
           className="shrink-0"
           disabled={busy || !editable}
-          aria-label="Đổi trạng thái"
+          aria-label="Toggle status"
         >
           {isDone ? (
             <CheckCircle2 size={16} className="text-emerald-500" />
@@ -98,14 +98,14 @@ function ActionRow({ meetingId, item, categories, onChanged, onError, onToast, e
           <button
             onClick={makeTask}
             disabled={busy}
-            title="Tạo task"
+            title="Create task"
             className="shrink-0 text-slate-400 hover:text-brand"
           >
             <ListPlus size={14} />
           </button>
         )}
         {editable && (
-          <button onClick={remove} className="shrink-0 text-slate-400 hover:text-red-500" title="Xóa">
+          <button onClick={remove} className="shrink-0 text-slate-400 hover:text-red-500" title="Delete">
             <Trash2 size={14} />
           </button>
         )}
@@ -117,7 +117,7 @@ function ActionRow({ meetingId, item, categories, onChanged, onError, onToast, e
               <input
                 defaultValue={item.assignee || ""}
                 onBlur={(e) => e.target.value !== (item.assignee || "") && patch({ assignee: e.target.value || null })}
-                placeholder="Người phụ trách"
+                placeholder="Assignee"
                 className="w-24 rounded border border-slate-200 px-1.5 py-0.5 text-xs focus:border-brand focus:outline-none"
               />
               <input
@@ -130,8 +130,8 @@ function ActionRow({ meetingId, item, categories, onChanged, onError, onToast, e
                 value={item.priority || ""}
                 onChange={(e) => patch({ priority: e.target.value || null })}
                 options={ACTION_PRIORITIES}
-                placeholder="Mức"
-                ariaLabel="Ưu tiên"
+                placeholder="Level"
+                ariaLabel="Priority"
                 className="w-28 [&_select]:py-1"
                 disabled={!editable}
               />
@@ -140,8 +140,8 @@ function ActionRow({ meetingId, item, categories, onChanged, onError, onToast, e
                   value={item.category || ""}
                   onChange={(e) => patch({ category: e.target.value || null })}
                   options={categories.map((c) => ({ value: c, label: c }))}
-                  placeholder="Nhóm"
-                  ariaLabel="Nhóm"
+                  placeholder="Category"
+                  ariaLabel="Category"
                   className="w-24 [&_select]:py-1"
                   disabled={!editable}
                 />
@@ -190,12 +190,12 @@ export default function ActionItemList({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <span className="text-xs text-slate-500">
-          {items.length} action items · {openCount} đang mở
+          {items.length} action items · {openCount} open
         </span>
       </div>
       <div>
         {items.length === 0 && (
-          <p className="text-sm text-slate-400">Chưa có action item.</p>
+          <p className="text-sm text-slate-400">No action items yet.</p>
         )}
         {items.map((it) => (
           <ActionRow
@@ -216,11 +216,11 @@ export default function ActionItemList({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && add()}
-            placeholder="Thêm action item..."
+            placeholder="Add action item..."
             className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/30"
           />
           <Button size="sm" onClick={add} disabled={!content.trim()}>
-            <Plus size={15} /> Thêm
+            <Plus size={15} /> Add
           </Button>
         </div>
       )}

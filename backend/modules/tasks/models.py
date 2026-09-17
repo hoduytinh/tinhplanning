@@ -5,9 +5,10 @@ from sqlalchemy import DateTime, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from core.database import Base
+from core.ownership import OwnershipMixin
 
 
-class Task(Base):
+class Task(OwnershipMixin, Base):
     __tablename__ = "tasks"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -29,6 +30,9 @@ class Task(Base):
     project_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     # Trỏ tới project_subblocks.id (nullable). Dùng để tính prefix/auto-tag.
     subblock_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    # Người được giao thực hiện task (Ownership layer). Nullable — chưa giao ai.
+    assigned_to: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # Comma-separated tags stored as text for SQLite simplicity.
     tags: Mapped[str | None] = mapped_column(String(512), nullable=True)

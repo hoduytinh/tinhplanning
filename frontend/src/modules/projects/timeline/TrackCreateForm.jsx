@@ -25,7 +25,7 @@ export default function TrackCreateForm({ open, onClose, tracks, onCreate, initi
   }, [initial, open]);
 
   const parentOptions = [
-    { value: "", label: "— Không (track gốc) —" },
+    { value: "", label: "— None (root track) —" },
     ...tracks
       .filter((t) => !t.is_system && (!initial || t.id !== initial.id))
       .map((t) => ({ value: String(t.id), label: t.name })),
@@ -45,19 +45,19 @@ export default function TrackCreateForm({ open, onClose, tracks, onCreate, initi
     <Modal
       open={open}
       onClose={onClose}
-      title={isEdit ? "Sửa track" : "Thêm track mới"}
+      title={isEdit ? "Edit track" : "Add new track"}
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
-            Hủy
+            Cancel
           </Button>
-          <Button onClick={submit}>{isEdit ? "Lưu" : "Tạo"}</Button>
+          <Button onClick={submit}>{isEdit ? "Save" : "Create"}</Button>
         </>
       }
     >
       <div className="space-y-3 text-sm">
         <label className="block">
-          <span className="mb-1 block font-medium text-slate-600">Tên track</span>
+          <span className="mb-1 block font-medium text-slate-600">Track name</span>
           <input
             autoFocus
             className="w-full rounded-lg border border-slate-200 px-3 py-2 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
@@ -66,7 +66,7 @@ export default function TrackCreateForm({ open, onClose, tracks, onCreate, initi
           />
         </label>
         <label className="block">
-          <span className="mb-1 block font-medium text-slate-600">Track cha</span>
+          <span className="mb-1 block font-medium text-slate-600">Parent track</span>
           <Select
             value={form.parent_id}
             onChange={(e) => setForm((f) => ({ ...f, parent_id: e.target.value }))}
@@ -74,7 +74,7 @@ export default function TrackCreateForm({ open, onClose, tracks, onCreate, initi
           />
         </label>
         <label className="block">
-          <span className="mb-1 block font-medium text-slate-600">Màu</span>
+          <span className="mb-1 block font-medium text-slate-600">Color</span>
           <div className="flex gap-1.5">
             {TRACK_COLOR_PRESETS.map((c) => (
               <button

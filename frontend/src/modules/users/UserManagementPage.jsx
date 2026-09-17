@@ -17,10 +17,10 @@ import {
 import * as usersApi from "./usersApi";
 
 const TABS = [
-  { key: "all", label: "Tất cả" },
-  { key: "pending", label: "Chờ duyệt" },
-  { key: "active", label: "Đã duyệt" },
-  { key: "rejected", label: "Đã từ chối" },
+  { key: "all", label: "All" },
+  { key: "pending", label: "Pending" },
+  { key: "active", label: "Approved" },
+  { key: "rejected", label: "Rejected" },
 ];
 
 function UserManagementInner() {
@@ -65,7 +65,7 @@ function UserManagementInner() {
   async function handleApprove(u) {
     try {
       await usersApi.approveUser(u.id);
-      toast(`Đã duyệt ${u.username}`);
+      toast(`Approved ${u.username}`);
       load();
     } catch (err) {
       toast(err.message, "error");
@@ -75,7 +75,7 @@ function UserManagementInner() {
   async function handleReject(reason) {
     try {
       await usersApi.rejectUser(rejectTarget.id, reason);
-      toast(`Đã từ chối ${rejectTarget.username}`);
+      toast(`Rejected ${rejectTarget.username}`);
       setRejectTarget(null);
       load();
     } catch (err) {
@@ -94,12 +94,12 @@ function UserManagementInner() {
 
   async function handleDeactivate(u) {
     if (u.id === me?.id) {
-      toast("Không thể vô hiệu hoá chính bạn", "error");
+      toast("You cannot deactivate yourself", "error");
       return;
     }
     try {
       await usersApi.deactivateUser(u.id);
-      toast(`Đã vô hiệu hoá ${u.username}`);
+      toast(`Deactivated ${u.username}`);
       load();
     } catch (err) {
       toast(err.message, "error");
@@ -111,8 +111,8 @@ function UserManagementInner() {
       await usersApi.setApprovalPermission(u.id, !u.can_approve);
       toast(
         u.can_approve
-          ? `Đã thu hồi quyền duyệt của ${u.username}`
-          : `Đã cấp quyền duyệt cho ${u.username}`
+          ? `Revoked approval permission for ${u.username}`
+          : `Granted approval permission to ${u.username}`
       );
       load();
     } catch (err) {
@@ -124,13 +124,13 @@ function UserManagementInner() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Quản lý người dùng</h1>
+          <h1 className="text-xl font-bold text-slate-900">User Management</h1>
           <p className="text-sm text-slate-500">
-            {counts.total} tài khoản trong danh sách
+            {counts.total} accounts in the list
           </p>
         </div>
         <Button onClick={() => setCreateOpen(true)}>
-          <Plus size={16} /> Tạo user
+          <Plus size={16} /> Create user
         </Button>
       </div>
 
@@ -153,19 +153,19 @@ function UserManagementInner() {
 
       <Card className="overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-sm text-slate-400">Đang tải...</div>
+          <div className="p-8 text-center text-sm text-slate-400">Loading...</div>
         ) : users.length === 0 ? (
           <div className="p-8 text-center text-sm text-slate-400">
-            Không có người dùng nào.
+            No users found.
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 text-left text-xs uppercase text-slate-400">
-                <th className="px-4 py-3 font-medium">Người dùng</th>
-                <th className="px-4 py-3 font-medium">Vai trò</th>
-                <th className="px-4 py-3 font-medium">Trạng thái</th>
-                <th className="px-4 py-3 font-medium">Quyền duyệt</th>
+                <th className="px-4 py-3 font-medium">User</th>
+                <th className="px-4 py-3 font-medium">Role</th>
+                <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Approval Permission</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -218,10 +218,10 @@ function UserManagementInner() {
                           }`}
                         >
                           <ShieldCheck size={12} />
-                          {u.can_approve ? "Có" : "Không"}
+                          {u.can_approve ? "Yes" : "No"}
                         </button>
                       ) : u.role === "admin" ? (
-                        <span className="text-xs text-slate-400">Mặc định</span>
+                        <span className="text-xs text-slate-400">Default</span>
                       ) : (
                         <span className="text-xs text-slate-300">—</span>
                       )}
@@ -234,14 +234,14 @@ function UserManagementInner() {
                               size="sm"
                               onClick={() => handleApprove(u)}
                             >
-                              Duyệt
+                              Approve
                             </Button>
                             <Button
                               size="sm"
                               variant="danger"
                               onClick={() => setRejectTarget(u)}
                             >
-                              Từ chối
+                              Reject
                             </Button>
                           </>
                         )}
@@ -249,17 +249,17 @@ function UserManagementInner() {
                           trigger={<MoreHorizontal size={16} />}
                           items={[
                             {
-                              label: "Sửa vai trò",
+                              label: "Edit role",
                               icon: <ShieldCheck size={14} />,
                               onClick: () => setEditUser(u),
                             },
                             {
-                              label: "Reset mật khẩu",
+                              label: "Reset password",
                               icon: <KeyRound size={14} />,
                               onClick: () => handleReset(u),
                             },
                             {
-                              label: "Vô hiệu hoá",
+                              label: "Deactivate",
                               icon: <UserX size={14} />,
                               danger: true,
                               onClick: () => handleDeactivate(u),
@@ -332,7 +332,7 @@ function CreateUserModal({ onClose, onCreated }) {
 
   async function submit() {
     if (!form.username.trim() || !form.password) {
-      toast("Nhập tên đăng nhập và mật khẩu", "error");
+      toast("Enter username and password", "error");
       return;
     }
     setSaving(true);
@@ -344,7 +344,7 @@ function CreateUserModal({ onClose, onCreated }) {
         password: form.password,
         role: form.role,
       });
-      toast("Đã tạo user");
+      toast("User created");
       onCreated();
     } catch (err) {
       toast(err.message, "error");
@@ -357,26 +357,26 @@ function CreateUserModal({ onClose, onCreated }) {
     <Modal
       open
       onClose={onClose}
-      title="Tạo user mới"
+      title="Create new user"
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
-            Huỷ
+            Cancel
           </Button>
           <Button onClick={submit} disabled={saving}>
-            {saving ? "Đang tạo..." : "Tạo"}
+            {saving ? "Creating..." : "Create"}
           </Button>
         </>
       }
     >
       <div className="space-y-3">
         <LabeledInput
-          label="Họ và tên"
+          label="Full name"
           value={form.full_name}
           onChange={(v) => set("full_name", v)}
         />
         <LabeledInput
-          label="Tên đăng nhập *"
+          label="Username *"
           value={form.username}
           onChange={(v) => set("username", v)}
         />
@@ -387,14 +387,14 @@ function CreateUserModal({ onClose, onCreated }) {
           onChange={(v) => set("email", v)}
         />
         <LabeledInput
-          label="Mật khẩu *"
+          label="Password *"
           type="password"
           value={form.password}
           onChange={(v) => set("password", v)}
         />
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-700">
-            Vai trò
+            Role
           </label>
           <Select
             value={form.role}
@@ -417,7 +417,7 @@ function EditRoleModal({ user, onClose, onSaved }) {
     setSaving(true);
     try {
       await usersApi.updateUser(user.id, { role });
-      toast("Đã cập nhật vai trò");
+      toast("Role updated");
       onSaved();
     } catch (err) {
       toast(err.message, "error");
@@ -430,21 +430,21 @@ function EditRoleModal({ user, onClose, onSaved }) {
     <Modal
       open
       onClose={onClose}
-      title={`Sửa vai trò · ${user.username}`}
+      title={`Edit role · ${user.username}`}
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
-            Huỷ
+            Cancel
           </Button>
           <Button onClick={submit} disabled={saving}>
-            {saving ? "Đang lưu..." : "Lưu"}
+            {saving ? "Saving..." : "Save"}
           </Button>
         </>
       }
     >
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
-          Vai trò
+          Role
         </label>
         <Select
           value={role}
@@ -463,28 +463,28 @@ function RejectModal({ user, onClose, onConfirm }) {
     <Modal
       open
       onClose={onClose}
-      title={`Từ chối · ${user.username}`}
+      title={`Reject · ${user.username}`}
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
-            Huỷ
+            Cancel
           </Button>
           <Button variant="danger" onClick={() => onConfirm(reason.trim() || null)}>
-            Từ chối
+            Reject
           </Button>
         </>
       }
     >
       <div>
         <label className="mb-1 block text-sm font-medium text-slate-700">
-          Lý do từ chối (tuỳ chọn)
+          Reason for rejection (optional)
         </label>
         <textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           rows={3}
           className="w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
-          placeholder="Ghi rõ lý do để người dùng biết..."
+          placeholder="Provide a clear reason so the user understands..."
         />
       </div>
     </Modal>
@@ -497,14 +497,14 @@ function ResetResultModal({ result, onClose }) {
     <Modal
       open
       onClose={onClose}
-      title={`Mật khẩu mới · ${result.username}`}
+      title={`New password · ${result.username}`}
       footer={
-        <Button onClick={onClose}>Đóng</Button>
+        <Button onClick={onClose}>Close</Button>
       }
     >
       <p className="mb-3 text-sm text-slate-600">
-        Mật khẩu mới đã được tạo. Hãy sao chép và gửi cho người dùng — mật khẩu
-        này sẽ không hiển thị lại.
+        A new password has been generated. Copy it and send it to the user —
+        it will not be shown again.
       </p>
       <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
         <code className="font-mono text-sm text-slate-800">
@@ -515,10 +515,10 @@ function ResetResultModal({ result, onClose }) {
           variant="secondary"
           onClick={() => {
             navigator.clipboard?.writeText(result.password);
-            toast("Đã sao chép");
+            toast("Copied");
           }}
         >
-          Sao chép
+          Copy
         </Button>
       </div>
     </Modal>

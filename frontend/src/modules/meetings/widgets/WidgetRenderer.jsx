@@ -6,10 +6,10 @@ const DEFAULT_COLUMNS = {
   coverage_widget: ["Block", "Pass%", "Testplan%", "Statement", "Toggle", "Issues"],
   bug_widget: ["Bug#", "JIRA", "Title", "Severity", "Owner", "Status"],
   blocker_table: ["#", "Item", "Owner", "ETA", "Status"],
-  milestone_widget: ["Milestone", "Ngày", "Trạng thái"],
-  workload_widget: ["Người", "Số task", "Tình trạng"],
-  decision_log: ["Quyết định", "Người", "Ngày"],
-  risk_widget: ["Rủi ro", "Ảnh hưởng", "Giảm thiểu"],
+  milestone_widget: ["Milestone", "Date", "Status"],
+  workload_widget: ["Person", "Task Count", "Status"],
+  decision_log: ["Decision", "Person", "Date"],
+  risk_widget: ["Risk", "Impact", "Mitigation"],
 };
 
 const TABLE_TYPES = new Set(Object.keys(DEFAULT_COLUMNS));
@@ -47,7 +47,7 @@ export default function WidgetRenderer({ section, onSave, readOnly = false }) {
   // action_items được render riêng ở cấp trang.
   return (
     <p className="text-sm text-slate-400">
-      Loại section này được hiển thị ở khu vực riêng.
+      This section type is displayed in a separate area.
     </p>
   );
 }

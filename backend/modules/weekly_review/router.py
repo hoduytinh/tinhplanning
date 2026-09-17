@@ -2,6 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from core.auth import get_current_user
 from core.database import get_db
 
 from . import service
@@ -26,18 +27,26 @@ def _not_found(exc: Exception) -> HTTPException:
 
 # ------------------------------------------------------------- Reviews ---- #
 @router.get("", response_model=list[WeeklyReviewListItem])
-def list_reviews(db: Session = Depends(get_db)):
-    return service.list_reviews(db)
+def list_reviews(
+    db: Session = Depends(get_db), current_user=Depends(get_current_user)
+):
+    return service.list_reviews(db, current_user=current_user)
 
 
 @router.post("", response_model=WeeklyReviewRead, status_code=status.HTTP_201_CREATED)
-def create_review(payload: WeeklyReviewCreate, db: Session = Depends(get_db)):
-    return service.create_review(db, payload)
+def create_review(
+    payload: WeeklyReviewCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    return service.create_review(db, payload, current_user_id=current_user.id)
 
 
 @router.get("/current", response_model=WeeklyReviewRead)
-def get_current(db: Session = Depends(get_db)):
-    return service.get_or_create_current(db)
+def get_current(
+    db: Session = Depends(get_db), current_user=Depends(get_current_user)
+):
+    return service.get_or_create_current(db, current_user_id=current_user.id)
 
 
 @router.get("/{review_id}", response_model=WeeklyReviewRead)

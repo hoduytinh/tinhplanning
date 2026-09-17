@@ -34,12 +34,12 @@ export default function ProjectCard({ project, stats, onOpen, onEdit, onDelete }
               trigger={<MoreHorizontal size={16} />}
               items={[
                 hasPermission(role, "projects", "update") && {
-                  label: "Sửa",
+                  label: "Edit",
                   icon: <Pencil size={14} />,
                   onClick: () => onEdit(project),
                 },
                 hasPermission(role, "projects", "delete") && {
-                  label: "Xóa",
+                  label: "Delete",
                   icon: <Trash2 size={14} />,
                   danger: true,
                   onClick: () => onDelete(project),

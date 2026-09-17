@@ -45,14 +45,14 @@ export default function CloseDialog({ open, meeting, onClose, onDone, onError })
     <Modal
       open={open}
       onClose={onClose}
-      title="Kết thúc cuộc họp"
+      title="End Meeting"
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={busy}>
-            Hủy
+            Cancel
           </Button>
           <Button onClick={confirm} disabled={busy}>
-            {busy ? "Đang xử lý..." : "Kết thúc họp"}
+            {busy ? "Processing..." : "End Meeting"}
           </Button>
         </>
       }
@@ -60,7 +60,7 @@ export default function CloseDialog({ open, meeting, onClose, onDone, onError })
       <div className="space-y-4 text-sm">
         {checklist.length > 0 && (
           <div>
-            <p className="mb-2 font-medium text-slate-700">Checklist trước khi đóng</p>
+            <p className="mb-2 font-medium text-slate-700">Checklist before closing</p>
             <ul className="space-y-1">
               {checklist.map((c) => (
                 <li key={c.id}>
@@ -85,12 +85,12 @@ export default function CloseDialog({ open, meeting, onClose, onDone, onError })
 
         <div className="rounded-lg bg-slate-50 p-3 text-slate-600">
           <p>
-            • <strong>{openCount}</strong> action item đang mở
-            {willRecur ? " sẽ được chuyển sang cuộc họp kế tiếp." : "."}
+            • <strong>{openCount}</strong> open action item(s)
+            {willRecur ? " will be carried over to the next meeting." : "."}
           </p>
           {willRecur && (
             <p className="mt-1">
-              • Một cuộc họp mới (lặp {meeting.recurring}) sẽ được tạo tự động.
+              • A new meeting (recurring {meeting.recurring}) will be created automatically.
             </p>
           )}
         </div>

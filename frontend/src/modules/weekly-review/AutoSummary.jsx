@@ -41,7 +41,7 @@ export default function AutoSummary({ summary, loading, onRefresh }) {
           className="flex items-center gap-2 text-sm font-semibold text-slate-800"
         >
           {open ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-          Tổng hợp tự động (realtime)
+          Automatic Summary (realtime)
         </button>
         <button
           type="button"
@@ -49,7 +49,7 @@ export default function AutoSummary({ summary, loading, onRefresh }) {
           disabled={loading}
           className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
         >
-          <RefreshCw size={13} className={loading ? "animate-spin" : ""} /> Làm mới
+          <RefreshCw size={13} className={loading ? "animate-spin" : ""} /> Refresh
         </button>
       </div>
 
@@ -58,13 +58,13 @@ export default function AutoSummary({ summary, loading, onRefresh }) {
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <StatCard
               icon={CheckCircle2}
-              label="Task hoàn thành"
+              label="Completed Tasks"
               value={t?.completed_count ?? "—"}
               tone="text-emerald-600"
             />
             <StatCard
               icon={ListChecks}
-              label="Task tạo mới"
+              label="New Tasks"
               value={t?.created_count ?? "—"}
             />
             <StatCard
@@ -75,37 +75,37 @@ export default function AutoSummary({ summary, loading, onRefresh }) {
             />
             <StatCard
               icon={Clock}
-              label="Quá hạn"
+              label="Overdue"
               value={t?.overdue_count ?? "—"}
               tone={t?.overdue_count ? "text-amber-600" : "text-slate-700"}
             />
             <StatCard
               icon={CalendarDays}
-              label="Cuộc họp"
+              label="Meetings"
               value={m?.count ?? "—"}
               sub={
-                m ? `${m.action_items_open}/${m.action_items_total} action mở` : ""
+                m ? `${m.action_items_open}/${m.action_items_total} open actions` : ""
               }
             />
             <StatCard
               icon={Bug}
-              label="Bug đóng"
+              label="Bugs Closed"
               value={b?.closed_count ?? "—"}
               tone="text-emerald-600"
-              sub={b ? `${b.new_count} mới · ${b.open_count} mở` : ""}
+              sub={b ? `${b.new_count} new · ${b.open_count} open` : ""}
             />
             <StatCard
               icon={TrendingUp}
               label="Coverage delta"
               value={coverage.length}
-              sub="project có snapshot"
+              sub="projects with snapshot"
             />
           </div>
 
           {coverage.length > 0 ? (
             <div className="rounded-lg border border-slate-100 bg-white px-3 py-2">
               <div className="mb-1.5 text-xs font-medium text-slate-500">
-                Pass-rate theo project
+                Pass rate by project
               </div>
               <div className="space-y-1">
                 {coverage.map((c) => {
@@ -136,7 +136,7 @@ export default function AutoSummary({ summary, loading, onRefresh }) {
           {t?.completed?.length ? (
             <div className="rounded-lg border border-slate-100 bg-white px-3 py-2">
               <div className="mb-1 text-xs font-medium text-slate-500">
-                Task hoàn thành trong tuần
+                Tasks completed this week
               </div>
               <ul className="max-h-40 space-y-0.5 overflow-y-auto text-sm text-slate-600">
                 {t.completed.map((task) => (

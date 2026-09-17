@@ -2,7 +2,14 @@ import { MoreHorizontal, Pencil, Trash2, Calendar } from "lucide-react";
 import Badge from "../../shared/components/Badge";
 import Dropdown from "../../shared/components/Dropdown";
 import StatusIcon from "./StatusIcon";
-import { formatDate, isOverdue, priorityMeta, statusMeta } from "./taskConstants";
+import {
+  formatDate,
+  isOverdue,
+  getUrgency,
+  URGENCY_STYLES,
+  priorityMeta,
+  statusMeta,
+} from "./taskConstants";
 import { useAuth } from "../auth/useAuth";
 import { hasPermission } from "../../shared/permissions";
 
@@ -19,9 +26,15 @@ export default function TaskRow({
   const p = priorityMeta(task.priority);
   const s = statusMeta(task.status);
   const overdue = isOverdue(task);
+  const urgency = getUrgency(task);
+  const urgencyStyle = urgency ? URGENCY_STYLES[urgency] : null;
 
   return (
-    <tr className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50">
+    <tr
+      className={`border-b border-slate-100 transition-colors last:border-0 ${
+        urgencyStyle ? `${urgencyStyle.row} hover:brightness-95` : "hover:bg-slate-50"
+      } ${urgency === "overdue" ? "border-l-[3px] border-l-red-600" : urgency === "critical" ? "border-l-[3px] border-l-rose-500" : urgency === "due_soon" ? "border-l-[3px] border-l-amber-500" : ""}`}
+    >
       <td className="px-4 py-3">
         <StatusIcon
           status={task.status}
@@ -53,7 +66,8 @@ export default function TaskRow({
         <div className="flex flex-wrap items-center gap-1.5">
           <Badge tone={p.tone}>{p.label}</Badge>
           <Badge tone={s.tone}>
-            {s.icon} {s.label}
+            <s.icon size={12} />
+            {s.label}
           </Badge>
         </div>
       </td>
@@ -75,12 +89,12 @@ export default function TaskRow({
               trigger={<MoreHorizontal size={16} />}
               items={[
                 hasPermission(role, "tasks", "update") && {
-                  label: "Sửa",
+                  label: "Edit",
                   icon: <Pencil size={14} />,
                   onClick: () => onEdit(task),
                 },
                 hasPermission(role, "tasks", "delete") && {
-                  label: "Xóa",
+                  label: "Delete",
                   icon: <Trash2 size={14} />,
                   danger: true,
                   onClick: () => onDelete(task),

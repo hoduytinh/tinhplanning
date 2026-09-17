@@ -3,6 +3,7 @@ import { Minimize2, Maximize2 } from "lucide-react";
 import TaskDetailPanel from "../tasks/TaskDetailPanel";
 import { deleteTask, updateTask } from "../tasks/taskApi";
 import { fetchProjects } from "../projects/projectApi";
+import { useAuth } from "../auth/useAuth";
 import ToastProvider, { useToast } from "./Toast";
 import QuickStatsBar from "./QuickStatsBar";
 import TodayFocus from "./TodayFocus";
@@ -18,23 +19,25 @@ import {
 import { formatToday, greeting } from "./dashboardHelpers";
 
 function Header({ summary, focusMode, onToggleFocus }) {
+  const { user } = useAuth();
+  const displayName = user?.full_name || user?.username || "";
   const atRisk = summary?.projects_at_risk?.length || 0;
   const overdue = summary?.overdue_count || 0;
   const blocked = summary?.blocked_count || 0;
   const parts = [];
   if (overdue) parts.push(`${overdue} task overdue`);
-  if (blocked) parts.push(`${blocked} task bị blocked`);
+  if (blocked) parts.push(`${blocked} task blocked`);
   if (atRisk) parts.push(`${atRisk} project At Risk`);
   const context =
     parts.length > 0
-      ? `Bạn có ${parts.join(", ")}`
-      : "Mọi thứ đang trong tầm kiểm soát 👌";
+      ? `You have ${parts.join(", ")}`
+      : "Everything is under control 👌";
 
   return (
     <div className="mb-5 flex items-start justify-between gap-4">
       <div>
         <h1 className="text-xl font-bold text-slate-900">
-          {greeting()}, Duy —{" "}
+          {greeting()}{displayName ? `, ${displayName}` : ""} —{" "}
           <span className="font-semibold text-slate-500">{formatToday()}</span>
         </h1>
         <p className="mt-1 text-sm text-slate-500">{context}</p>
@@ -45,7 +48,7 @@ function Header({ summary, focusMode, onToggleFocus }) {
         className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
       >
         {focusMode ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
-        {focusMode ? "Thoát Focus" : "Focus Mode"}
+        {focusMode ? "Exit Focus" : "Focus Mode"}
       </button>
     </div>
   );
@@ -97,7 +100,7 @@ function DashboardInner() {
         setSelectedTask((t) => ({ ...t, status }));
       await reloadSummaryFocus();
     } catch (err) {
-      toast(err.message || "Không thể đổi trạng thái", "error");
+      toast(err.message || "Unable to change status", "error");
     }
   };
 
@@ -110,18 +113,18 @@ function DashboardInner() {
       setSelectedTask(updated);
       await reloadSummaryFocus();
     } catch (err) {
-      toast(err.message || "Không thể cập nhật task", "error");
+      toast(err.message || "Unable to update task", "error");
     }
   };
 
   const handleTaskDelete = async (task) => {
-    if (!window.confirm(`Xóa task "${task.title}"?`)) return;
+    if (!window.confirm(`Delete task "${task.title}"?`)) return;
     try {
       await deleteTask(task.id);
       setSelectedTask(null);
       await reloadSummaryFocus();
     } catch (err) {
-      toast(err.message || "Không thể xóa task", "error");
+      toast(err.message || "Unable to delete task", "error");
     }
   };
 

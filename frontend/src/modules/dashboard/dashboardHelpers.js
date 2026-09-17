@@ -3,20 +3,20 @@
 // Greeting theo giờ hiện tại.
 export function greeting(now = new Date()) {
   const h = now.getHours();
-  if (h >= 6 && h < 12) return "☀️ Chào buổi sáng";
-  if (h >= 12 && h < 18) return "🌤 Chào buổi chiều";
-  if (h >= 18 && h < 24) return "🌙 Chào buổi tối";
-  return "🌙 Làm muộn vậy";
+  if (h >= 6 && h < 12) return "☀️ Good morning";
+  if (h >= 12 && h < 18) return "🌤 Good afternoon";
+  if (h >= 18 && h < 24) return "🌙 Good evening";
+  return "🌙 Working late?";
 }
 
 const WEEKDAYS = [
-  "Chủ Nhật",
-  "Thứ Hai",
-  "Thứ Ba",
-  "Thứ Tư",
-  "Thứ Năm",
-  "Thứ Sáu",
-  "Thứ Bảy",
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
 ];
 
 export function formatToday(now = new Date()) {

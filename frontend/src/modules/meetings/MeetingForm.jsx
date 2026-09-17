@@ -77,22 +77,22 @@ export default function MeetingForm({
     <Modal
       open={open}
       onClose={onClose}
-      title={initial ? "Sửa cuộc họp" : "Tạo cuộc họp"}
+      title={initial ? "Edit Meeting" : "Create Meeting"}
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={busy}>
-            Hủy
+            Cancel
           </Button>
           <Button onClick={submit} disabled={busy || !form.title.trim()}>
-            {initial ? "Lưu" : "Tạo"}
+            {initial ? "Save" : "Create"}
           </Button>
         </>
       }
     >
       <div className="space-y-3">
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Tiêu đề *</label>
-          <input value={form.title} onChange={set("title")} className={input} placeholder="VD: Weekly DV Sync" />
+          <label className="mb-1 block text-sm font-medium text-slate-700">Title *</label>
+          <input value={form.title} onChange={set("title")} className={input} placeholder="e.g. Weekly DV Sync" />
         </div>
         {!initial && (
           <div>
@@ -104,7 +104,7 @@ export default function MeetingForm({
                 value: String(t.id),
                 label: `${t.icon} ${t.name}`,
               }))}
-              placeholder="Không dùng template"
+              placeholder="No template"
               className="w-full"
               ariaLabel="Template"
             />
@@ -112,36 +112,36 @@ export default function MeetingForm({
         )}
         <div className="grid grid-cols-3 gap-2">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Ngày</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Date</label>
             <input type="date" value={form.date} onChange={set("date")} className={input} />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Bắt đầu</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Start</label>
             <input type="time" value={form.start_time} onChange={set("start_time")} className={input} />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Kết thúc</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">End</label>
             <input type="time" value={form.end_time} onChange={set("end_time")} className={input} />
           </div>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Địa điểm / Link</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Location / Link</label>
           <input value={form.location} onChange={set("location")} className={input} placeholder="Meeting room / Zoom..." />
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Lặp lại</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Recurring</label>
             <Select
               value={form.recurring}
               onChange={set("recurring")}
               options={RECURRING_OPTIONS}
               className="w-full"
-              ariaLabel="Lặp lại"
+              ariaLabel="Recurring"
             />
           </div>
           {form.recurring === "custom" && (
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Số ngày</label>
+              <label className="mb-1 block text-sm font-medium text-slate-700">Number of days</label>
               <input
                 type="number"
                 min="1"

@@ -26,6 +26,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.database import Base
+from core.ownership import OwnershipMixin
 
 
 class MeetingTemplate(Base):
@@ -46,7 +47,7 @@ class MeetingTemplate(Base):
     )
 
 
-class Meeting(Base):
+class Meeting(OwnershipMixin, Base):
     __tablename__ = "meetings"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -160,7 +161,7 @@ class MeetingSection(Base):
     )
 
 
-class MeetingActionItem(Base):
+class MeetingActionItem(OwnershipMixin, Base):
     __tablename__ = "meeting_action_items"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)

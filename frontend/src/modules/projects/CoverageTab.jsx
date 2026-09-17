@@ -72,7 +72,7 @@ export default function CoverageTab({ projectId }) {
       // Backend trả snapshot theo ngày tăng dần → mới nhất ở cuối.
       setSnapshots(await fetchCoverage(projectId));
     } catch (err) {
-      setError(err.message || "Không thể tải coverage.");
+      setError(err.message || "Failed to load coverage.");
     } finally {
       setLoading(false);
     }
@@ -93,12 +93,12 @@ export default function CoverageTab({ projectId }) {
   };
 
   const handleDelete = async (snap) => {
-    if (!window.confirm(`Xóa snapshot "${snap.week_label}"?`)) return;
+    if (!window.confirm(`Delete snapshot "${snap.week_label}"?`)) return;
     try {
       await deleteCoverage(projectId, snap.id);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể xóa snapshot.");
+      setError(err.message || "Failed to delete snapshot.");
     }
   };
 
@@ -117,7 +117,7 @@ export default function CoverageTab({ projectId }) {
         {hasPermission(role, "projects", "update") && (
           <Button size="sm" onClick={() => setFormOpen(true)}>
             <Plus size={15} />
-            Thêm snapshot
+            Add snapshot
           </Button>
         )}
       </div>
@@ -131,7 +131,7 @@ export default function CoverageTab({ projectId }) {
 
       {!loading && !latest && !error && (
         <Card className="p-10 text-center text-sm text-slate-500">
-          Chưa có snapshot coverage nào. Thêm snapshot đầu tiên để theo dõi.
+          No coverage snapshots yet. Add the first snapshot to start tracking.
         </Card>
       )}
 
@@ -257,7 +257,7 @@ export default function CoverageTab({ projectId }) {
                             handleDelete(s);
                           }}
                           className="text-slate-300 transition hover:text-red-500"
-                          aria-label="Xóa snapshot"
+                          aria-label="Delete snapshot"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -385,7 +385,7 @@ function SnapshotDetail({ snap, onClose }) {
       title={`Snapshot — ${snap.week_label}`}
       footer={
         <Button variant="secondary" onClick={onClose}>
-          Đóng
+          Close
         </Button>
       }
     >
@@ -413,7 +413,7 @@ function SnapshotDetail({ snap, onClose }) {
           </table>
         </div>
         <div className="text-slate-500">
-          Ngày: {formatShortDate(snap.snapshot_date)}
+          Date: {formatShortDate(snap.snapshot_date)}
         </div>
         {snap.regression_path && (
           <div className="break-all">
@@ -425,7 +425,7 @@ function SnapshotDetail({ snap, onClose }) {
         )}
         {snap.notes && (
           <div>
-            <span className="font-medium text-slate-600">Ghi chú: </span>
+            <span className="font-medium text-slate-600">Notes: </span>
             <span className="text-slate-600">{snap.notes}</span>
           </div>
         )}
@@ -464,7 +464,7 @@ function CoverageForm({ open, onClose, onSubmit }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.week_label.trim()) {
-      setError("Week label không được để trống.");
+      setError("Week label cannot be empty.");
       return;
     }
     setSaving(true);
@@ -478,7 +478,7 @@ function CoverageForm({ open, onClose, onSubmit }) {
         notes: form.notes.trim() || null,
       });
     } catch (err) {
-      setError(err.message || "Không thể lưu snapshot.");
+      setError(err.message || "Failed to save snapshot.");
     } finally {
       setSaving(false);
     }
@@ -505,14 +505,14 @@ function CoverageForm({ open, onClose, onSubmit }) {
     <Modal
       open={open}
       onClose={onClose}
-      title="Thêm coverage snapshot"
+      title="Add coverage snapshot"
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={saving}>
-            Hủy
+            Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={saving}>
-            {saving ? "Đang lưu..." : "Lưu"}
+            {saving ? "Saving..." : "Save"}
           </Button>
         </>
       }
@@ -535,7 +535,7 @@ function CoverageForm({ open, onClose, onSubmit }) {
             />
           </div>
           <div>
-            <label className={label}>Ngày snapshot</label>
+            <label className={label}>Snapshot date</label>
             <input
               type="date"
               className={field}
@@ -591,7 +591,7 @@ function CoverageForm({ open, onClose, onSubmit }) {
           />
         </div>
         <div>
-          <label className={label}>Ghi chú</label>
+          <label className={label}>Notes</label>
           <textarea
             rows={2}
             className={field}

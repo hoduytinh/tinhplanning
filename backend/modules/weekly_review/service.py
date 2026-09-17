@@ -28,12 +28,15 @@ class ShoutoutNotFoundError(Exception):
 
 
 # ------------------------------------------------------------------ CRUD --- #
-def list_reviews(db: Session) -> list[WeeklyReview]:
-    return (
-        db.execute(select(WeeklyReview).order_by(WeeklyReview.week_start.desc()))
-        .scalars()
-        .all()
-    )
+def list_reviews(db: Session, current_user=None) -> list[WeeklyReview]:
+    stmt = select(WeeklyReview).order_by(WeeklyReview.week_start.desc())
+    if current_user is not None:
+        from core.visibility import weekly_review_visibility_condition
+
+        vis = weekly_review_visibility_condition(db, current_user, WeeklyReview)
+        if vis is not None:
+            stmt = stmt.where(vis)
+    return db.execute(stmt).scalars().all()
 
 
 def get_review(db: Session, review_id: int) -> WeeklyReview:
@@ -49,9 +52,39 @@ def _find_by_week_start(db: Session, week_start: date) -> WeeklyReview | None:
     ).scalar_one_or_none()
 
 
-def create_review(db: Session, payload: WeeklyReviewCreate) -> WeeklyReview:
+def _find_context(
+    db: Session,
+    week_start: date,
+    *,
+    context_type: str,
+    name: str,
+    created_by: int | None,
+) -> WeeklyReview | None:
+    """Tìm review theo (tuần, loại context, tên, người tạo) cho multi-context."""
+    return db.execute(
+        select(WeeklyReview).where(
+            WeeklyReview.week_start == week_start,
+            WeeklyReview.context_type == context_type,
+            WeeklyReview.name == name,
+            WeeklyReview.created_by == created_by,
+        )
+    ).scalar_one_or_none()
+
+
+def create_review(
+    db: Session, payload: WeeklyReviewCreate, current_user_id: int | None = None
+) -> WeeklyReview:
     week_start, week_end = summary_service.week_bounds(payload.week_start)
-    existing = _find_by_week_start(db, week_start)
+    context_type = getattr(payload, "context_type", "personal")
+    name = getattr(payload, "name", "Personal")
+
+    existing = _find_context(
+        db,
+        week_start,
+        context_type=context_type,
+        name=name,
+        created_by=current_user_id,
+    )
     if existing is not None:
         return existing
     review = WeeklyReview(
@@ -59,6 +92,11 @@ def create_review(db: Session, payload: WeeklyReviewCreate) -> WeeklyReview:
         week_start=week_start,
         week_end=week_end,
         status="draft",
+        name=name,
+        context_type=context_type,
+        project_ids=getattr(payload, "project_ids", None),
+        team_members=getattr(payload, "team_members", None),
+        created_by=current_user_id,
     )
     db.add(review)
     db.commit()
@@ -66,12 +104,20 @@ def create_review(db: Session, payload: WeeklyReviewCreate) -> WeeklyReview:
     return review
 
 
-def get_or_create_current(db: Session) -> WeeklyReview:
+def get_or_create_current(db: Session, current_user_id: int | None = None) -> WeeklyReview:
     week_start, _ = summary_service.week_bounds()
-    existing = _find_by_week_start(db, week_start)
+    existing = _find_context(
+        db,
+        week_start,
+        context_type="personal",
+        name="Personal",
+        created_by=current_user_id,
+    )
     if existing is not None:
         return existing
-    return create_review(db, WeeklyReviewCreate(week_start=week_start))
+    return create_review(
+        db, WeeklyReviewCreate(week_start=week_start), current_user_id=current_user_id
+    )
 
 
 def update_review(

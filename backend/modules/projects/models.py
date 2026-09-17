@@ -21,9 +21,10 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.database import Base
+from core.ownership import OwnershipMixin
 
 
-class Project(Base):
+class Project(OwnershipMixin, Base):
     __tablename__ = "projects"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -276,7 +277,7 @@ class ProjectCoverageSnapshot(Base):
     )
 
 
-class ProjectDocument(Base):
+class ProjectDocument(OwnershipMixin, Base):
     __tablename__ = "project_documents"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -297,7 +298,7 @@ class ProjectDocument(Base):
     )
 
 
-class ProjectBug(Base):
+class ProjectBug(OwnershipMixin, Base):
     __tablename__ = "project_bugs"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)

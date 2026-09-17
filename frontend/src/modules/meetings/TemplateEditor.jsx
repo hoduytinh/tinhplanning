@@ -85,7 +85,7 @@ function SectionRow({ section, index, readOnly, onChange, onRemove }) {
         options={SECTION_TYPES.map((s) => ({ value: s.value, label: s.label }))}
         className="w-44"
         disabled={readOnly}
-        ariaLabel="Loại section"
+        ariaLabel="Section type"
       />
       <label className="flex items-center gap-1 text-xs text-slate-500">
         <input
@@ -94,7 +94,7 @@ function SectionRow({ section, index, readOnly, onChange, onRemove }) {
           disabled={readOnly}
           onChange={(e) => onChange({ ...section, is_required: e.target.checked })}
         />
-        Bắt buộc
+        Required
       </label>
       {!readOnly && (
         <button onClick={() => onRemove(section)} className="text-slate-300 hover:text-red-500">
@@ -234,7 +234,7 @@ function EditorInner() {
         {
           _id: `s-${Date.now()}`,
           type: "notes",
-          title: "Section mới",
+          title: "New section",
           order: sections.length + 1,
           is_required: false,
           config: {},
@@ -244,7 +244,7 @@ function EditorInner() {
 
   const save = async () => {
     if (!tpl.name.trim()) {
-      toast("Nhập tên template.", "error");
+      toast("Enter a template name.", "error");
       return;
     }
     setSaving(true);
@@ -268,7 +268,7 @@ function EditorInner() {
     try {
       if (isNew) await createTemplate(payload);
       else await updateTemplate(id, payload);
-      toast("Đã lưu template.");
+      toast("Template saved.");
       navigate("/meeting-templates");
     } catch (err) {
       toast(err.message, "error");
@@ -277,7 +277,7 @@ function EditorInner() {
     }
   };
 
-  if (loading) return <p className="text-slate-500">Đang tải...</p>;
+  if (loading) return <p className="text-slate-500">Loading...</p>;
 
   const input =
     "w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/30 disabled:bg-slate-50";
@@ -294,16 +294,16 @@ function EditorInner() {
 
       <div className="flex items-center justify-between gap-3">
         <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-900">
-          {isNew ? "Tạo template" : readOnly ? "Xem template" : "Sửa template"}
+          {isNew ? "Create Template" : readOnly ? "View Template" : "Edit Template"}
           {readOnly && (
             <Badge tone="bg-slate-100 text-slate-500 border-slate-200">
-              <Lock size={12} /> Hệ thống (chỉ đọc)
+              <Lock size={12} /> System (read-only)
             </Badge>
           )}
         </h1>
         {!readOnly && (
           <Button onClick={save} disabled={saving}>
-            {saving ? "Đang lưu..." : "Lưu"}
+            {saving ? "Saving..." : "Save"}
           </Button>
         )}
       </div>
@@ -311,7 +311,7 @@ function EditorInner() {
       <Card className="space-y-3 p-4">
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Tên *</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Name *</label>
             <input
               value={tpl.name}
               disabled={readOnly}
@@ -320,14 +320,14 @@ function EditorInner() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Loại</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Type</label>
             <Select
               value={tpl.type}
               onChange={(e) => setTpl((t) => ({ ...t, type: e.target.value }))}
               options={TEMPLATE_TYPE_OPTIONS}
               className="w-full"
               disabled={readOnly}
-              ariaLabel="Loại"
+              ariaLabel="Type"
             />
           </div>
         </div>
@@ -350,7 +350,7 @@ function EditorInner() {
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Màu</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Color</label>
             <div className="flex gap-1">
               {TEMPLATE_COLORS.map((c) => (
                 <button
@@ -373,12 +373,12 @@ function EditorInner() {
           <h2 className="text-sm font-semibold text-slate-800">Sections</h2>
           {!readOnly && (
             <Button size="sm" variant="secondary" onClick={addSection}>
-              <Plus size={15} /> Thêm section
+              <Plus size={15} /> Add section
             </Button>
           )}
         </div>
         {sections.length === 0 ? (
-          <p className="text-sm text-slate-400">Chưa có section.</p>
+          <p className="text-sm text-slate-400">No sections yet.</p>
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
             <SortableContext
@@ -410,20 +410,20 @@ function EditorInner() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Card className="p-4">
-          <h2 className="mb-3 text-sm font-semibold text-slate-800">Agenda mặc định</h2>
+          <h2 className="mb-3 text-sm font-semibold text-slate-800">Default agenda</h2>
           <StringList
             items={tpl.config.defaults.agenda_items}
             readOnly={readOnly}
-            placeholder="Thêm mục agenda..."
+            placeholder="Add agenda item..."
             onChange={(items) => setCfg({ defaults: { agenda_items: items } })}
           />
         </Card>
         <Card className="p-4">
-          <h2 className="mb-3 text-sm font-semibold text-slate-800">Checklist kết thúc</h2>
+          <h2 className="mb-3 text-sm font-semibold text-slate-800">Closing checklist</h2>
           <StringList
             items={tpl.config.close_checklist}
             readOnly={readOnly}
-            placeholder="Thêm mục checklist..."
+            placeholder="Add checklist item..."
             onChange={(items) => setCfg({ close_checklist: items })}
           />
         </Card>
@@ -433,10 +433,10 @@ function EditorInner() {
         <h2 className="text-sm font-semibold text-slate-800">Action Items</h2>
         <div className="flex flex-wrap gap-4 text-sm text-slate-600">
           {[
-            ["has_assignee", "Người phụ trách"],
-            ["has_due_date", "Ngày hạn"],
-            ["has_priority", "Ưu tiên"],
-            ["has_category", "Nhóm"],
+            ["has_assignee", "Assignee"],
+            ["has_due_date", "Due date"],
+            ["has_priority", "Priority"],
+            ["has_category", "Category"],
           ].map(([key, label]) => (
             <label key={key} className="flex items-center gap-1.5">
               <input
@@ -453,11 +453,11 @@ function EditorInner() {
         </div>
         {ai.has_category && (
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Danh sách nhóm</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Category list</label>
             <StringList
               items={ai.categories}
               readOnly={readOnly}
-              placeholder="Thêm nhóm (VD: DV, DE)..."
+              placeholder="Add category (e.g. DV, DE)..."
               onChange={(items) => setCfg({ action_items: { ...ai, categories: items } })}
             />
           </div>

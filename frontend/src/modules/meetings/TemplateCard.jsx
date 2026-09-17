@@ -18,7 +18,7 @@ export default function TemplateCard({ template, onEdit, onDelete }) {
         </div>
         {template.is_system && (
           <Badge tone="bg-slate-100 text-slate-500 border-slate-200">
-            <Lock size={11} /> Hệ thống
+            <Lock size={11} /> System
           </Badge>
         )}
       </div>
@@ -32,7 +32,7 @@ export default function TemplateCard({ template, onEdit, onDelete }) {
           onClick={() => onEdit(template)}
           className="flex items-center gap-1 text-sm text-brand hover:text-brand-dark"
         >
-          <Pencil size={14} /> {template.is_system ? "Xem" : "Sửa"}
+          <Pencil size={14} /> {template.is_system ? "View" : "Edit"}
         </button>
         {!template.is_system && (
           <RoleGuard resource="meeting_templates" action="delete">
@@ -40,7 +40,7 @@ export default function TemplateCard({ template, onEdit, onDelete }) {
               onClick={() => onDelete(template)}
               className="flex items-center gap-1 text-sm text-red-500 hover:text-red-600"
             >
-              <Trash2 size={14} /> Xóa
+              <Trash2 size={14} /> Delete
             </button>
           </RoleGuard>
         )}

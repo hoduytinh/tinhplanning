@@ -56,7 +56,7 @@ export default function TimelineTab({ projectId, onNavigate }) {
         prev ? fresh.bars.find((b) => b.id === prev.id) || null : null
       );
     } catch (err) {
-      setError(err.message || "Không thể tải timeline.");
+      setError(err.message || "Failed to load timeline.");
     } finally {
       setLoading(false);
     }
@@ -85,7 +85,7 @@ export default function TimelineTab({ projectId, onNavigate }) {
     syncingRef.current = false;
   };
 
-  if (loading) return <p className="text-sm text-slate-500">Đang tải...</p>;
+  if (loading) return <p className="text-sm text-slate-500">Loading...</p>;
 
   if (error) {
     return (
@@ -119,7 +119,7 @@ export default function TimelineTab({ projectId, onNavigate }) {
     await updateTrack(projectId, editingTrack.id, payload);
     setEditingTrack(null);
     load();
-    showToast("Đã cập nhật track");
+    showToast("Track updated");
   };
 
   const handleBarSave = async (payload) => {
@@ -129,7 +129,7 @@ export default function TimelineTab({ projectId, onNavigate }) {
   };
 
   const handleBarDelete = async (bar) => {
-    if (!window.confirm(`Xóa bar "${bar.name}"?`)) return;
+    if (!window.confirm(`Delete bar "${bar.name}"?`)) return;
     await deleteBar(projectId, bar.id);
     setActiveBar(null);
     load();
@@ -142,7 +142,7 @@ export default function TimelineTab({ projectId, onNavigate }) {
   };
 
   const handleTrackDelete = async (track) => {
-    if (!window.confirm(`Xóa track "${track.name}" và các bar bên trong?`)) return;
+    if (!window.confirm(`Delete track "${track.name}" and all bars inside it?`)) return;
     await deleteTrack(projectId, track.id);
     load();
   };

@@ -76,7 +76,7 @@ export default function SubblockDropdown({
                 type="button"
                 onClick={() => toggleExpand(n.id)}
                 className="flex h-4 w-4 items-center justify-center text-slate-400 hover:text-slate-600"
-                aria-label={isOpen ? "Thu gọn" : "Mở rộng"}
+                aria-label={isOpen ? "Collapse" : "Expand"}
               >
                 {isOpen ? (
                   <ChevronDown size={13} />
@@ -106,7 +106,7 @@ export default function SubblockDropdown({
         type="button"
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
-        title={disabled ? "Chọn project trước" : undefined}
+        title={disabled ? "Select a project first" : undefined}
         className={`flex w-full items-center gap-1 rounded-lg border px-3 py-2 text-sm transition ${
           disabled
             ? "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
@@ -114,7 +114,7 @@ export default function SubblockDropdown({
         }`}
       >
         <span className="flex-1 truncate text-left">
-          {disabled ? "Chọn project trước" : label || "Không có (root)"}
+          {disabled ? "Select a project first" : label || "None (root)"}
         </span>
         {value != null && !disabled && (
           <X
@@ -140,11 +140,11 @@ export default function SubblockDropdown({
                 : "text-slate-500 hover:bg-slate-50"
             }`}
           >
-            Không có (root level)
+            None (root level)
           </button>
           {tree.length === 0 ? (
             <p className="px-2 py-2 text-xs italic text-slate-400">
-              Project chưa có sub-block nào.
+              This project has no sub-blocks yet.
             </p>
           ) : (
             renderNodes(tree)

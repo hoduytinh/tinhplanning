@@ -25,8 +25,8 @@ export default function AlertsBanner({ milestones, today, onSelect }) {
             }`}
           >
             {missed
-              ? `🔴 ${m.name} đã miss ${Math.abs(days)} ngày`
-              : `⚠️ ${m.name} còn ${days} ngày`}
+              ? `🔴 ${m.name} missed by ${Math.abs(days)} days`
+              : `⚠️ ${m.name} in ${days} days`}
           </button>
         );
       })}

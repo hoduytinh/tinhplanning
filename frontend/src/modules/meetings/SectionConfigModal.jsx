@@ -49,21 +49,21 @@ export default function SectionConfigModal({ open, onClose, onSubmit }) {
     <Modal
       open={open}
       onClose={onClose}
-      title="Thêm section"
+      title="Add section"
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={busy}>
-            Hủy
+            Cancel
           </Button>
           <Button onClick={submit} disabled={busy || !title.trim()}>
-            Thêm
+            Add
           </Button>
         </>
       }
     >
       <div className="space-y-3">
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Loại</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Type</label>
           <Select
             value={type}
             onChange={(e) => setType(e.target.value)}
@@ -72,20 +72,20 @@ export default function SectionConfigModal({ open, onClose, onSubmit }) {
               label: `${s.icon} ${s.label}`,
             }))}
             className="w-full"
-            ariaLabel="Loại section"
+            ariaLabel="Section type"
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Tiêu đề</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Title</label>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="VD: Coverage Status"
+            placeholder="e.g. Coverage Status"
             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/30"
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Màu nền</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Background color</label>
           <div className="flex flex-wrap gap-2">
             {SECTION_COLORS.map((c) => (
               <button
@@ -109,7 +109,7 @@ export default function SectionConfigModal({ open, onClose, onSubmit }) {
         {isTable && (
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
-              Cột (phân tách bằng dấu phẩy)
+              Columns (comma-separated)
             </label>
             <input
               value={columns}
@@ -118,7 +118,7 @@ export default function SectionConfigModal({ open, onClose, onSubmit }) {
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/30"
             />
             <p className="mt-1 text-xs text-slate-400">
-              Bỏ trống để dùng cột mặc định của loại widget.
+              Leave blank to use the widget type's default columns.
             </p>
           </div>
         )}

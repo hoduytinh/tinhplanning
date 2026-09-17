@@ -41,11 +41,11 @@ function groupMeetings(meetings) {
 }
 
 const GROUP_LABELS = {
-  today: "Hôm nay",
-  week: "Tuần này",
-  later: "Sắp tới",
-  noDate: "Chưa có ngày",
-  done: "Đã xong / hủy",
+  today: "Today",
+  week: "This week",
+  later: "Upcoming",
+  noDate: "No date",
+  done: "Done / Cancelled",
 };
 
 function MeetingPageInner() {
@@ -82,7 +82,7 @@ function MeetingPageInner() {
   const handleCreate = async (payload) => {
     try {
       const created = await createMeeting(payload);
-      toast("Đã tạo cuộc họp.");
+      toast("Meeting created.");
       navigate(`/meetings/${created.id}`);
     } catch (err) {
       toast(err.message, "error");
@@ -96,8 +96,8 @@ function MeetingPageInner() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Cuộc họp</h1>
-          <p className="text-sm text-slate-500">Quản lý các cuộc họp & action items.</p>
+          <h1 className="text-2xl font-bold text-slate-900">Meetings</h1>
+          <p className="text-sm text-slate-500">Manage meetings & action items.</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="secondary" onClick={() => navigate("/meeting-templates")}>
@@ -105,7 +105,7 @@ function MeetingPageInner() {
           </Button>
           <RoleGuard resource="meetings" action="create">
             <Button onClick={() => setFormOpen(true)}>
-              <Plus size={16} /> Tạo cuộc họp
+              <Plus size={16} /> Create Meeting
             </Button>
           </RoleGuard>
         </div>
@@ -116,15 +116,15 @@ function MeetingPageInner() {
           value={filters.status}
           onChange={setFilter("status")}
           options={MEETING_STATUSES}
-          placeholder="Tất cả trạng thái"
-          ariaLabel="Lọc trạng thái"
+          placeholder="All statuses"
+          ariaLabel="Filter by status"
         />
         <Select
           value={String(filters.template_id)}
           onChange={setFilter("template_id")}
           options={templates.map((t) => ({ value: String(t.id), label: `${t.icon} ${t.name}` }))}
-          placeholder="Tất cả template"
-          ariaLabel="Lọc template"
+          placeholder="All templates"
+          ariaLabel="Filter by template"
         />
       </div>
 
@@ -135,11 +135,11 @@ function MeetingPageInner() {
       )}
 
       {loading ? (
-        <p className="text-slate-500">Đang tải...</p>
+        <p className="text-slate-500">Loading...</p>
       ) : meetings.length === 0 ? (
         <div className="rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center text-slate-500">
           <CalendarDays className="mx-auto mb-3 text-slate-300" size={40} />
-          Chưa có cuộc họp nào. Bấm “Tạo cuộc họp” để bắt đầu.
+          No meetings yet. Click “Create Meeting” to get started.
         </div>
       ) : (
         <div className="space-y-6">

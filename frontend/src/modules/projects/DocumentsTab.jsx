@@ -55,7 +55,7 @@ export default function DocumentsTab({ projectId }) {
     try {
       setDocs(await fetchDocuments(projectId));
     } catch (err) {
-      setError(err.message || "Không thể tải tài liệu.");
+      setError(err.message || "Failed to load documents.");
     } finally {
       setLoading(false);
     }
@@ -77,12 +77,12 @@ export default function DocumentsTab({ projectId }) {
   };
 
   const handleDelete = async (doc) => {
-    if (!window.confirm(`Xóa tài liệu "${doc.title}"?`)) return;
+    if (!window.confirm(`Delete document "${doc.title}"?`)) return;
     try {
       await deleteDocument(projectId, doc.id);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể xóa tài liệu.");
+      setError(err.message || "Failed to delete document.");
     }
   };
 
@@ -126,15 +126,15 @@ export default function DocumentsTab({ projectId }) {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Tìm tài liệu..."
+              placeholder="Search documents..."
               className="w-56 rounded-lg border border-slate-200 py-2 pl-8 pr-3 text-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
             />
           </div>
           <Select
-            ariaLabel="Lọc theo category"
+            ariaLabel="Filter by category"
             value={catFilter}
             onChange={(e) => setCatFilter(e.target.value)}
-            placeholder="Tất cả category"
+            placeholder="All categories"
             options={DOCUMENT_CATEGORIES.map((c) => ({
               value: c.value,
               label: `${c.icon} ${c.label}`,
@@ -144,7 +144,7 @@ export default function DocumentsTab({ projectId }) {
         {hasPermission(role, "projects", "update") && (
           <Button size="sm" onClick={openNew}>
             <Plus size={15} />
-            Thêm Document
+            Add Document
           </Button>
         )}
       </div>
@@ -158,13 +158,13 @@ export default function DocumentsTab({ projectId }) {
 
       {!loading && docs.length === 0 && !error && (
         <Card className="p-10 text-center text-sm text-slate-500">
-          Chưa có tài liệu nào. Thêm document đầu tiên để xây dựng hub tài liệu.
+          No documents yet. Add the first document to build your document hub.
         </Card>
       )}
 
       {!loading && docs.length > 0 && grouped.length === 0 && (
         <Card className="p-8 text-center text-sm text-slate-500">
-          Không có tài liệu khớp bộ lọc.
+          No documents match the filter.
         </Card>
       )}
 
@@ -267,7 +267,7 @@ function DocumentRow({ doc, role, onEdit, onDelete }) {
             target="_blank"
             rel="noopener noreferrer"
             className="rounded p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-brand"
-            aria-label="Mở link"
+            aria-label="Open link"
           >
             <ExternalLink size={15} />
           </a>
@@ -276,7 +276,7 @@ function DocumentRow({ doc, role, onEdit, onDelete }) {
           <button
             onClick={onEdit}
             className="rounded p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-            aria-label="Sửa"
+            aria-label="Edit"
           >
             <Pencil size={15} />
           </button>
@@ -285,7 +285,7 @@ function DocumentRow({ doc, role, onEdit, onDelete }) {
           <button
             onClick={onDelete}
             className="rounded p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-500"
-            aria-label="Xóa"
+            aria-label="Delete"
           >
             <Trash2 size={15} />
           </button>
@@ -322,7 +322,7 @@ function DocumentForm({ open, initial, onClose, onSubmit }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim() || !form.url.trim()) {
-      setError("Title và URL không được để trống.");
+      setError("Title and URL cannot be empty.");
       return;
     }
     setSaving(true);
@@ -336,7 +336,7 @@ function DocumentForm({ open, initial, onClose, onSubmit }) {
         notes: form.notes.trim() || null,
       });
     } catch (err) {
-      setError(err.message || "Không thể lưu tài liệu.");
+      setError(err.message || "Failed to save document.");
     } finally {
       setSaving(false);
     }
@@ -353,16 +353,16 @@ function DocumentForm({ open, initial, onClose, onSubmit }) {
       title={
         <span className="flex items-center gap-2">
           <FolderOpen size={16} />
-          {initial ? "Sửa document" : "Thêm document"}
+          {initial ? "Edit document" : "Add document"}
         </span>
       }
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={saving}>
-            Hủy
+            Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={saving}>
-            {saving ? "Đang lưu..." : "Lưu"}
+            {saving ? "Saving..." : "Save"}
           </Button>
         </>
       }
@@ -388,7 +388,7 @@ function DocumentForm({ open, initial, onClose, onSubmit }) {
             className={field}
             value={form.url}
             onChange={set("url")}
-            placeholder="https://... hoặc /proj/dips10/..."
+            placeholder="https://... or /proj/dips10/..."
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -414,7 +414,7 @@ function DocumentForm({ open, initial, onClose, onSubmit }) {
           </div>
         </div>
         <div>
-          <label className={label}>Ghi chú</label>
+          <label className={label}>Notes</label>
           <textarea
             rows={2}
             className={field}

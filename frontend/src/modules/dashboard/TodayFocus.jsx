@@ -12,10 +12,10 @@ function dueText(task) {
   const diffDays = Math.round(
     (startOfDay(due) - startOfDay(today)) / 86400000
   );
-  if (diffDays < 0) return `Trễ ${Math.abs(diffDays)} ngày`;
-  if (diffDays === 0) return "Due hôm nay";
-  if (diffDays === 1) return "Due ngày mai";
-  return `Còn ${diffDays} ngày`;
+  if (diffDays < 0) return `${Math.abs(diffDays)} days overdue`;
+  if (diffDays === 0) return "Due today";
+  if (diffDays === 1) return "Due tomorrow";
+  return `${diffDays} days left`;
 }
 
 function PrefixBadges({ display, color }) {
@@ -83,7 +83,7 @@ function Section({ icon, title, count, tasks, limit, onOpen, onStatusChange, sho
         {title} ({count})
       </h3>
       {tasks.length === 0 ? (
-        <p className="px-2 py-1 text-xs text-slate-400">Không có</p>
+        <p className="px-2 py-1 text-xs text-slate-400">None</p>
       ) : (
         <div className="space-y-0.5">
           {shown.map((t) => (
@@ -101,7 +101,7 @@ function Section({ icon, title, count, tasks, limit, onOpen, onStatusChange, sho
               onClick={() => setExpanded(true)}
               className="ml-2 mt-0.5 text-xs font-medium text-brand hover:underline"
             >
-              +{rest} more · Xem tất cả
+              +{rest} more · View all
             </button>
           )}
         </div>

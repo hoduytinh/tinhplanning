@@ -82,7 +82,7 @@ export default function RegressionPulse({
           )}
         </h2>
         <div className="flex items-center gap-2 text-sm">
-          <span className="text-slate-500">Xem:</span>
+          <span className="text-slate-500">View:</span>
           <Select
             value={projectId ? String(projectId) : ""}
             onChange={(e) => onProjectChange(Number(e.target.value))}
@@ -90,8 +90,8 @@ export default function RegressionPulse({
               value: String(p.id),
               label: projectLabel(p),
             }))}
-            placeholder="Chọn dự án"
-            ariaLabel="Chọn dự án"
+            placeholder="Select project"
+            ariaLabel="Select project"
             className="w-44"
           />
         </div>
@@ -100,24 +100,24 @@ export default function RegressionPulse({
       {missingCurrent && snaps.length > 0 && (
         <div className="mb-3 flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">
           <span>
-            {`W${String(currentWeekNumber()).padStart(2, "0")}`} chưa được cập
-            nhật
+            {`W${String(currentWeekNumber()).padStart(2, "0")}`} has not been
+            updated yet
           </span>
           <button
             type="button"
             onClick={() => setShowForm(true)}
             className="font-medium underline"
           >
-            + Thêm ngay
+            + Add now
           </button>
         </div>
       )}
 
       {loading ? (
-        <p className="py-6 text-center text-sm text-slate-400">Đang tải…</p>
+        <p className="py-6 text-center text-sm text-slate-400">Loading…</p>
       ) : snaps.length === 0 ? (
         <p className="py-6 text-center text-sm text-slate-400">
-          Chưa có snapshot cho dự án này.
+          No snapshots for this project yet.
         </p>
       ) : (
         <div className="overflow-x-auto">

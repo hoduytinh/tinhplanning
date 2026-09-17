@@ -8,19 +8,19 @@ export default function PendingPage() {
   const isInactive = status === "INACTIVE";
 
   let icon = "⏳";
-  let title = "Tài khoản đang chờ duyệt";
+  let title = "Account pending approval";
   let message =
-    "Yêu cầu đăng ký của bạn đã được gửi. Vui lòng chờ admin phê duyệt trước khi đăng nhập.";
+    "Your registration request has been submitted. Please wait for an admin to approve it before logging in.";
 
   if (isRejected) {
     icon = "❌";
-    title = "Yêu cầu bị từ chối";
+    title = "Request rejected";
     message =
-      "Rất tiếc, yêu cầu đăng ký của bạn đã bị từ chối. Vui lòng liên hệ admin để biết thêm chi tiết.";
+      "Unfortunately, your registration request has been rejected. Please contact an admin for more details.";
   } else if (isInactive) {
     icon = "🔒";
-    title = "Tài khoản bị khoá";
-    message = "Tài khoản của bạn hiện đang bị khoá. Vui lòng liên hệ admin.";
+    title = "Account locked";
+    message = "Your account is currently locked. Please contact an admin.";
   }
 
   return (
@@ -43,7 +43,7 @@ export default function PendingPage() {
             to="/login"
             className="inline-block rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-dark"
           >
-            Về trang đăng nhập
+            Back to login
           </Link>
         </div>
       </div>

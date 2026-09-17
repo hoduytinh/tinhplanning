@@ -6,7 +6,7 @@ export default function MoodTracker({ mood, workload, editable = true, onChange 
     <div className="space-y-3">
       <div>
         <div className="mb-1.5 text-xs font-medium text-slate-500">
-          Cảm xúc tuần này
+          Mood this week
         </div>
         <div className="flex items-center gap-1.5">
           {MOODS.map((m) => {
@@ -37,7 +37,7 @@ export default function MoodTracker({ mood, workload, editable = true, onChange 
       </div>
 
       <div>
-        <div className="mb-1.5 text-xs font-medium text-slate-500">Khối lượng công việc</div>
+        <div className="mb-1.5 text-xs font-medium text-slate-500">Workload</div>
         <div className="flex flex-wrap gap-1.5">
           {WORKLOADS.map((w) => {
             const active = workload === w.value;

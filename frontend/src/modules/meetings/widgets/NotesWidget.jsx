@@ -20,7 +20,7 @@ export default function NotesWidget({ value = "", onChange, readOnly = false }) 
 
   if (readOnly) {
     if (!html) {
-      return <p className="text-sm italic text-slate-400">Chưa có ghi chú.</p>;
+      return <p className="text-sm italic text-slate-400">No notes yet.</p>;
     }
     return <RichTextEditor content={html} editable={false} />;
   }
@@ -33,7 +33,7 @@ export default function NotesWidget({ value = "", onChange, readOnly = false }) 
         clearTimeout(timer.current);
         onChange(html);
       }}
-      placeholder="Nhập ghi chú..."
+      placeholder="Enter notes..."
     />
   );
 }

@@ -7,7 +7,7 @@ export default function MoodTrendChart({ data = [] }) {
   if (points.length === 0) {
     return (
       <div className="flex h-24 items-center justify-center text-xs text-slate-400">
-        Chưa đủ dữ liệu cảm xúc để vẽ biểu đồ.
+        Not enough mood data to draw the chart.
       </div>
     );
   }

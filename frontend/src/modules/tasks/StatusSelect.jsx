@@ -10,7 +10,7 @@ export default function StatusSelect({
   value,
   onChange,
   className = "",
-  ariaLabel = "Trạng thái",
+  ariaLabel = "Status",
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -33,10 +33,9 @@ export default function StatusSelect({
         className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-white py-2 pl-3 pr-9 text-left text-sm text-slate-700 transition hover:border-slate-300 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
       >
         <span
-          style={{ color: meta.color }}
-          className="shrink-0 text-base font-bold leading-none"
+          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${meta.tone}`}
         >
-          {meta.icon}
+          <meta.icon size={12} strokeWidth={2.5} />
         </span>
         <span className="truncate">{meta.label}</span>
       </button>
@@ -67,10 +66,9 @@ export default function StatusSelect({
                 }`}
               >
                 <span
-                  style={{ color: s.color }}
-                  className="w-4 shrink-0 text-center font-bold"
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${s.tone}`}
                 >
-                  {s.icon}
+                  <s.icon size={13} strokeWidth={2.5} />
                 </span>
                 <span className="flex flex-col">
                   <span>{s.label}</span>

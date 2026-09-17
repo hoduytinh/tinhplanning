@@ -78,7 +78,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Tên đăng nhập hoặc mật khẩu không đúng",
+            detail="Incorrect username or password",
         )
     if user.status == "pending":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="PENDING")
@@ -94,11 +94,11 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     if user_service.get_user_by_username(db, payload.username):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Username đã tồn tại"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists"
         )
     if payload.email and user_service.get_user_by_email(db, payload.email):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Email đã tồn tại"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists"
         )
     user_service.register_user(
         db,
@@ -108,7 +108,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
         email=payload.email,
         reason=payload.reason,
     )
-    return MessageResponse(message="Đăng ký thành công. Vui lòng chờ admin duyệt.")
+    return MessageResponse(message="Registration successful. Please wait for admin approval.")
 
 
 @router.post("/refresh", response_model=AccessTokenResponse)
@@ -118,12 +118,12 @@ def refresh(payload: RefreshRequest, db: Session = Depends(get_db)):
         claims = decode_token(token)
         if claims.get("type") != "refresh":
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Token không hợp lệ"
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
             )
         user_id = claims.get("sub")
     except JWTError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token không hợp lệ"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         )
 
     stored = db.execute(
@@ -132,14 +132,14 @@ def refresh(payload: RefreshRequest, db: Session = Depends(get_db)):
     if stored is None or stored.is_revoked or stored.expires_at < _now().replace(tzinfo=None):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Refresh token đã hết hạn hoặc bị thu hồi",
+            detail="Refresh token has expired or been revoked",
         )
 
     user = db.get(User, int(user_id))
     if user is None or not user.is_active or user.status != "active":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Tài khoản không hợp lệ",
+            detail="Invalid account",
         )
 
     access = create_access_token(
@@ -168,11 +168,11 @@ def logout(
             stored.is_revoked = True
             db.commit()
     else:
-        # Không có refresh token cụ thể -> revoke tất cả token của user.
+        # No specific refresh token -> revoke all tokens for this user.
         for tok in current_user.refresh_tokens:
             tok.is_revoked = True
         db.commit()
-    return MessageResponse(message="Đã đăng xuất")
+    return MessageResponse(message="Logged out")
 
 
 @router.get("/me", response_model=UserResponse)
@@ -191,7 +191,7 @@ def update_me(
         existing = user_service.get_user_by_email(db, data["email"])
         if existing and existing.id != current_user.id:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Email đã tồn tại"
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists"
             )
     for field, value in data.items():
         setattr(current_user, field, value)
@@ -209,7 +209,7 @@ def change_my_password(
     if not verify_password(payload.current_password, current_user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Mật khẩu hiện tại không đúng",
+            detail="Current password is incorrect",
         )
     user_service.change_password(db, current_user, payload.new_password)
-    return MessageResponse(message="Đã đổi mật khẩu")
+    return MessageResponse(message="Password changed")

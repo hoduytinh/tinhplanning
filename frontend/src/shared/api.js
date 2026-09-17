@@ -80,7 +80,7 @@ api.interceptors.response.use(
     const detail =
       error.response?.data?.detail ||
       error.message ||
-      "Không thể kết nối tới máy chủ.";
+      "Unable to connect to the server.";
     return Promise.reject(new Error(detail));
   }
 );

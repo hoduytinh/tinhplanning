@@ -49,7 +49,7 @@ function SubtaskRow({ item, onToggle, onDelete, onFieldChange }) {
       <button
         type="button"
         className="cursor-grab touch-none text-slate-300 hover:text-slate-500 active:cursor-grabbing"
-        aria-label="Kéo để sắp xếp"
+        aria-label="Drag to reorder"
         {...attributes}
         {...listeners}
       >
@@ -64,7 +64,7 @@ function SubtaskRow({ item, onToggle, onDelete, onFieldChange }) {
             ? "border-brand bg-brand text-white"
             : "border-slate-300 hover:border-brand"
         }`}
-        aria-label={item.is_done ? "Bỏ đánh dấu" : "Đánh dấu xong"}
+        aria-label={item.is_done ? "Unmark" : "Mark as done"}
       >
         {item.is_done && <Check size={12} strokeWidth={3} />}
       </button>
@@ -102,7 +102,7 @@ function SubtaskRow({ item, onToggle, onDelete, onFieldChange }) {
         className={`text-slate-300 opacity-0 transition hover:text-red-500 group-hover:opacity-100 ${
           hasPermission(role, "tasks", "delete") ? "" : "hidden"
         }`}
-        aria-label="Xóa sub-task"
+        aria-label="Delete subtask"
       >
         <X size={14} />
       </button>
@@ -128,7 +128,7 @@ export default function SubtaskList({ taskId, onChange }) {
       setItems(data);
       onChange?.(data);
     } catch (err) {
-      setError(err.message || "Không thể tải sub-task.");
+      setError(err.message || "Unable to load subtasks.");
     }
   };
 
@@ -146,7 +146,7 @@ export default function SubtaskList({ taskId, onChange }) {
       setNewTitle("");
       await load();
     } catch (err) {
-      setError(err.message || "Không thể thêm sub-task.");
+      setError(err.message || "Unable to add subtask.");
     }
   };
 
@@ -155,7 +155,7 @@ export default function SubtaskList({ taskId, onChange }) {
       await updateSubtask(taskId, item.id, { is_done: !item.is_done });
       await load();
     } catch (err) {
-      setError(err.message || "Không thể cập nhật sub-task.");
+      setError(err.message || "Unable to update subtask.");
     }
   };
 
@@ -164,7 +164,7 @@ export default function SubtaskList({ taskId, onChange }) {
       await deleteSubtask(taskId, item.id);
       await load();
     } catch (err) {
-      setError(err.message || "Không thể xóa sub-task.");
+      setError(err.message || "Unable to delete subtask.");
     }
   };
 
@@ -176,7 +176,7 @@ export default function SubtaskList({ taskId, onChange }) {
     try {
       await updateSubtask(taskId, item.id, patch);
     } catch (err) {
-      setError(err.message || "Không thể cập nhật sub-task.");
+      setError(err.message || "Unable to update subtask.");
       await load();
     }
   };
@@ -195,7 +195,7 @@ export default function SubtaskList({ taskId, onChange }) {
         reordered.map((i) => i.id)
       );
     } catch (err) {
-      setError(err.message || "Không thể sắp xếp sub-task.");
+      setError(err.message || "Unable to reorder subtasks.");
       await load();
     }
   };
@@ -208,7 +208,7 @@ export default function SubtaskList({ taskId, onChange }) {
         <h4 className="text-sm font-semibold text-slate-700">Sub-tasks</h4>
         {items.length > 0 && (
           <span className="text-xs text-slate-500">
-            {doneCount}/{items.length} việc xong
+            {doneCount}/{items.length} done
           </span>
         )}
       </div>
@@ -244,7 +244,7 @@ export default function SubtaskList({ taskId, onChange }) {
           <input
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
-            placeholder="Thêm sub-task..."
+            placeholder="Add subtask..."
             className="flex-1 border-0 bg-transparent p-0 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-0"
           />
         </form>

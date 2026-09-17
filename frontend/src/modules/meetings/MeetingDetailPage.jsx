@@ -107,14 +107,14 @@ function SectionBlock({
               onChange={(e) => onSaveMeta?.(section, { title: e.target.value })}
               onBlur={(e) => onCommitMeta?.(section, { title: e.target.value })}
               className="w-full rounded border border-transparent bg-transparent px-1 py-0.5 text-sm font-semibold text-slate-800 hover:border-slate-200 focus:border-brand focus:bg-white focus:outline-none"
-              placeholder="Tiêu đề section"
+              placeholder="Section title"
             />
           ) : (
             <h3 className="flex items-center gap-2 px-1 text-sm font-semibold text-slate-800">
               {section.title}
               {section.is_required && (
                 <Badge tone="bg-slate-100 text-slate-500 border-slate-200">
-                  bắt buộc
+                  required
                 </Badge>
               )}
             </h3>
@@ -132,7 +132,7 @@ function SectionBlock({
           <button
             onClick={() => onDelete(section)}
             className="mt-1 shrink-0 text-slate-300 hover:text-red-500"
-            title="Xóa section"
+            title="Delete section"
           >
             <Trash2 size={15} />
           </button>
@@ -173,7 +173,7 @@ function SortableSectionBlock({
         {...attributes}
         {...listeners}
         className="mt-4 shrink-0 cursor-grab text-slate-300 hover:text-slate-500"
-        aria-label="Kéo để đổi thứ tự"
+        aria-label="Drag to reorder"
       >
         <GripVertical size={16} />
       </button>
@@ -278,7 +278,7 @@ function DetailInner() {
   };
 
   const removeSection = async (section) => {
-    if (!window.confirm(`Xóa section "${section.title}"?`)) return;
+    if (!window.confirm(`Delete section "${section.title}"?`)) return;
     try {
       await deleteSection(id, section.id);
       load();
@@ -321,7 +321,7 @@ function DetailInner() {
   const handleDuplicate = async () => {
     try {
       const copy = await duplicateMeeting(id);
-      toast("Đã nhân bản cuộc họp.");
+      toast("Meeting duplicated.");
       navigate(`/meetings/${copy.id}`);
     } catch (err) {
       onError(err.message);
@@ -329,7 +329,7 @@ function DetailInner() {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Xóa cuộc họp này?")) return;
+    if (!window.confirm("Delete this meeting?")) return;
     try {
       await deleteMeeting(id);
       navigate("/meetings");
@@ -340,21 +340,21 @@ function DetailInner() {
 
   const handleEdit = async (payload) => {
     await patchMeeting(payload);
-    toast("Đã cập nhật.");
+    toast("Updated.");
   };
 
   const handleClosed = (result) => {
     setCloseOpen(false);
-    let msg = "Đã kết thúc cuộc họp.";
+    let msg = "Meeting ended.";
     if (result.next_meeting_id) {
-      msg += ` Đã tạo cuộc họp kế tiếp (chuyển ${result.carried_over_count} action item).`;
+      msg += ` Next meeting created (carried over ${result.carried_over_count} action item(s)).`;
     }
     toast(msg);
     load();
   };
 
-  if (loading) return <p className="text-slate-500">Đang tải...</p>;
-  if (!meeting) return <p className="text-slate-500">Không tìm thấy cuộc họp.</p>;
+  if (loading) return <p className="text-slate-500">Loading...</p>;
+  if (!meeting) return <p className="text-slate-500">Meeting not found.</p>;
 
   const status = metaFrom(MEETING_STATUSES, meeting.status, MEETING_STATUSES[0]);
   const categories = template?.config?.action_items?.categories || [];
@@ -378,7 +378,7 @@ function DetailInner() {
         onClick={() => navigate("/meetings")}
         className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700"
       >
-        <ArrowLeft size={16} /> Danh sách cuộc họp
+        <ArrowLeft size={16} /> Meetings list
       </button>
 
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -396,17 +396,17 @@ function DetailInner() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="secondary" size="sm" onClick={() => setSummaryOpen(true)}>
-            <FileText size={15} /> Tóm tắt
+            <FileText size={15} /> Summary
           </Button>
           <RoleGuard resource="meetings" action="create">
             <Button variant="secondary" size="sm" onClick={handleDuplicate}>
-              <Copy size={15} /> Nhân bản
+              <Copy size={15} /> Duplicate
             </Button>
           </RoleGuard>
           {!isDone && (
             <RoleGuard resource="meetings" action="update">
               <Button size="sm" onClick={() => setCloseOpen(true)}>
-                <CheckCircle2 size={15} /> Kết thúc
+                <CheckCircle2 size={15} /> End
               </Button>
             </RoleGuard>
           )}
@@ -414,22 +414,22 @@ function DetailInner() {
             <>
               <RoleGuard resource="meetings" action="update">
                 <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
-                  <Pencil size={15} /> Sửa thông tin
+                  <Pencil size={15} /> Edit details
                 </Button>
               </RoleGuard>
               <RoleGuard resource="meetings" action="delete">
                 <Button variant="danger" size="sm" onClick={handleDelete}>
-                  <Trash2 size={15} /> Xóa
+                  <Trash2 size={15} /> Delete
                 </Button>
               </RoleGuard>
               <Button size="sm" onClick={() => setEditMode(false)}>
-                <Check size={15} /> Xong
+                <Check size={15} /> Done
               </Button>
             </>
           ) : (
             <RoleGuard resource="meetings" action="update">
               <Button variant="secondary" size="sm" onClick={() => setEditMode(true)}>
-                <Pencil size={15} /> Chỉnh sửa
+                <Pencil size={15} /> Edit
               </Button>
             </RoleGuard>
           )}
@@ -441,7 +441,7 @@ function DetailInner() {
         <div className="space-y-4">
           {editMode && (
             <Button variant="secondary" size="sm" onClick={() => setSectionOpen(true)}>
-              <Plus size={15} /> Thêm section
+              <Plus size={15} /> Add section
             </Button>
           )}
 
@@ -487,7 +487,7 @@ function DetailInner() {
         {/* Cột phải: metadata */}
         <div className="space-y-4">
           <Card className="p-4">
-            <h3 className="mb-3 text-sm font-semibold text-slate-800">Thông tin</h3>
+            <h3 className="mb-3 text-sm font-semibold text-slate-800">Information</h3>
             <dl className="space-y-2 text-sm">
               <div className="flex items-center gap-2 text-slate-600">
                 <Clock size={15} className="text-slate-400" />
@@ -509,7 +509,7 @@ function DetailInner() {
               )}
               <div className="pt-1">
                 <label className="mb-1 block text-xs font-medium text-slate-500">
-                  Trạng thái
+                  Status
                 </label>
                 {editMode ? (
                   <Select
@@ -517,7 +517,7 @@ function DetailInner() {
                     onChange={(e) => patchMeeting({ status: e.target.value })}
                     options={MEETING_STATUSES}
                     className="w-full"
-                    ariaLabel="Trạng thái"
+                    ariaLabel="Status"
                   />
                 ) : (
                   <Badge tone={status.tone}>{status.label}</Badge>
@@ -527,7 +527,7 @@ function DetailInner() {
           </Card>
 
           <Card className="p-4">
-            <h3 className="mb-3 text-sm font-semibold text-slate-800">Người tham dự</h3>
+            <h3 className="mb-3 text-sm font-semibold text-slate-800">Attendees</h3>
             <AttendeeList
               meetingId={meeting.id}
               attendees={meeting.attendees}

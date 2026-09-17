@@ -21,6 +21,8 @@ from modules.weekly_review.router import router as weekly_review_router
 from modules.auth.router import router as auth_router
 from modules.users.router import router as users_router
 from modules.ai.router import router as ai_router
+from modules.watchers.router import router as watchers_router
+from modules.projects.member_router import router as project_members_router
 
 configure_logging()
 logger = logging.getLogger("leadboard")
@@ -72,7 +74,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     response = JSONResponse(
         status_code=500,
         content={
-            "detail": "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.",
+            "detail": "An unexpected error occurred. Please try again.",
             "request_id": request_id_ctx.get(),
         },
     )
@@ -116,6 +118,8 @@ app.include_router(meetings_router, dependencies=_auth)
 app.include_router(meeting_templates_router, dependencies=_auth)
 app.include_router(weekly_review_router, dependencies=_auth)
 app.include_router(ai_router, dependencies=_auth)
+app.include_router(watchers_router, dependencies=_auth)
+app.include_router(project_members_router, dependencies=_auth)
 
 
 @app.on_event("startup")
