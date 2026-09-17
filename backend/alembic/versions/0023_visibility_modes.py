@@ -49,9 +49,16 @@ def upgrade() -> None:
                 )
             )
         # Backfill: object đang chia sẻ công khai -> visibility='shared'.
-        op.execute(
-            f"UPDATE {table} SET visibility = 'shared' WHERE is_shared = 1"
+        # Dùng SQLAlchemy Core (table/update) thay vì raw SQL string vì
+        # `is_shared` là BOOLEAN thật trên Postgres (Render) nhưng INTEGER
+        # trên SQLite — literal `= 1` gây lỗi "operator does not exist:
+        # boolean = integer" trên Postgres. Core tự sinh literal đúng dialect.
+        t = sa.table(
+            table,
+            sa.column("visibility", sa.String),
+            sa.column("is_shared", sa.Boolean),
         )
+        op.execute(t.update().where(t.c.is_shared.is_(True)).values(visibility="shared"))
 
 
 def downgrade() -> None:
