@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Tag, Globe, Lock, X } from "lucide-react";
+import { Tag, Globe, Lock, Users, X } from "lucide-react";
 import Button from "../../shared/components/Button";
 import Modal from "../../shared/components/Modal";
 import Select from "../../shared/components/Select";
 import UserCombobox from "../../shared/components/UserCombobox";
+import { useAuth } from "../auth/useAuth";
 import StatusSelect from "./StatusSelect";
 import SubblockDropdown from "./SubblockDropdown";
 import {
@@ -32,6 +33,7 @@ const EMPTY = {
   subblock_id: null,
   tags: "",
   assigned_to: null,
+  visibility: "normal",
   is_shared: false,
 };
 
@@ -53,6 +55,7 @@ export default function TaskForm({
   lockProjectId,
 }) {
   const [form, setForm] = useState(EMPTY);
+  const { user, isAdmin } = useAuth();
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [projects, setProjects] = useState([]);
@@ -118,6 +121,9 @@ export default function TaskForm({
           subblock_id: initial.subblock_id ?? null,
           tags: (initial.tags ?? []).join(", "),
           assigned_to: initial.assigned_to ?? null,
+          visibility:
+            initial.visibility ??
+            (initial.is_shared ? "shared" : "normal"),
           is_shared: initial.is_shared ?? false,
         });
       } else {
@@ -224,7 +230,8 @@ export default function TaskForm({
           ? form.tags.split(",").map((t) => t.trim()).filter(Boolean)
           : [],
         assigned_to: form.assigned_to,
-        is_shared: form.is_shared,
+        is_shared: form.visibility === "shared",
+        visibility: form.visibility,
       };
       const saved = await onSubmit(payload);
       // Task mới tạo -> áp dụng các viewer đã chọn tạm (cần object_id vừa có).
@@ -427,22 +434,49 @@ export default function TaskForm({
             </div>
           </div>
           <div>
-            <label className={label}>Share</label>
-            <div className="mt-1">
-              <button
-                type="button"
-                onClick={() =>
-                  setForm((f) => ({ ...f, is_shared: !f.is_shared }))
-                }
-                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-xs font-medium transition ${
-                  form.is_shared
-                    ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                {form.is_shared ? <Globe size={13} /> : <Lock size={13} />}
-                {form.is_shared ? "Shared" : "Private"}
-              </button>
+            <label className={label}>Visibility</label>
+            <div className="mt-1 inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+              {[
+                { id: "normal", label: "Normal", icon: Users },
+                { id: "private", label: "Private", icon: Lock },
+                { id: "shared", label: "Shared", icon: Globe },
+              ].map((m) => {
+                const Icon = m.icon;
+                const isActive = form.visibility === m.id;
+                // Người tạo/admin đặt được mọi mode. Khi EDIT mà không phải
+                // owner/admin thì Private bị khoá (chỉ owner/admin đặt private).
+                const isOwner =
+                  !initial ||
+                  isAdmin ||
+                  (initial.created_by != null &&
+                    initial.created_by === user?.id);
+                const allowed = m.id === "private" ? isOwner : true;
+                return (
+                  <button
+                    key={m.id}
+                    type="button"
+                    disabled={!allowed}
+                    onClick={() =>
+                      setForm((f) => ({ ...f, visibility: m.id }))
+                    }
+                    title={
+                      !allowed
+                        ? "Only the owner or an admin can set Private"
+                        : undefined
+                    }
+                    className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
+                      isActive
+                        ? "bg-emerald-500 text-white shadow-sm"
+                        : allowed
+                        ? "text-slate-600 hover:bg-slate-200"
+                        : "cursor-not-allowed text-slate-300"
+                    }`}
+                  >
+                    <Icon size={13} />
+                    {m.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

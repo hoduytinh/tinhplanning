@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # App metadata
     APP_NAME: str = "LeadBoard API"
     APP_ENV: str = "development"
-    APP_VERSION: str = "1.0.0"
+    APP_VERSION: str = "1.0.1"
     LOG_LEVEL: str = "INFO"
 
     # Auth / JWT

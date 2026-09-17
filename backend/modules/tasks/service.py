@@ -19,6 +19,13 @@ class TaskNotFoundError(Exception):
         self.task_id = task_id
 
 
+class TaskPermissionError(Exception):
+    """Raised when the current user is not allowed to perform the action."""
+
+    def __init__(self, message: str = "You don't have permission for this action") -> None:
+        super().__init__(message)
+
+
 def _tags_to_str(tags: list[str] | None) -> str | None:
     if tags is None:
         return None
@@ -99,6 +106,10 @@ def get_task(db: Session, task_id: int) -> Task:
 
 
 def create_task(db: Session, payload: TaskCreate, current_user_id: int | None = None) -> Task:
+    # visibility là nguồn chân lý; is_shared đồng bộ = (visibility == "shared").
+    vis = payload.visibility.value if payload.visibility else "normal"
+    if vis == "normal" and payload.is_shared:
+        vis = "shared"  # tương thích client cũ chỉ gửi is_shared
     task = Task(
         title=payload.title,
         short_description=payload.short_description,
@@ -112,7 +123,8 @@ def create_task(db: Session, payload: TaskCreate, current_user_id: int | None = 
         tags=_tags_to_str(payload.tags),
         created_by=current_user_id,
         assigned_to=payload.assigned_to,
-        is_shared=payload.is_shared,
+        visibility=vis,
+        is_shared=(vis == "shared"),
     )
     db.add(task)
     db.commit()
@@ -125,11 +137,28 @@ def create_task(db: Session, payload: TaskCreate, current_user_id: int | None = 
     return task
 
 
-def update_task(db: Session, task_id: int, payload: TaskUpdate) -> Task:
+def update_task(db: Session, task_id: int, payload: TaskUpdate, current_user=None) -> Task:
     from modules.tasks.activity_service import log_activity
 
     task = get_task(db, task_id)
     data = payload.model_dump(exclude_unset=True)
+
+    # --- Ownership: đổi visibility cần quyền tương ứng ---
+    # (admin bất kỳ; owner bất kỳ trên item của mình; mod chỉ normal/shared).
+    if current_user is not None:
+        from core.visibility import can_set_visibility
+
+        target_vis = None
+        if data.get("visibility") is not None:
+            v = data["visibility"]
+            target_vis = v.value if hasattr(v, "value") else v
+        elif "is_shared" in data and data["is_shared"] is not None:
+            target_vis = "shared" if data["is_shared"] else "normal"
+        if target_vis is not None and target_vis != task.visibility:
+            if not can_set_visibility(current_user, task, target_vis):
+                raise TaskPermissionError(
+                    "You don't have permission to set this visibility mode"
+                )
 
     # Chụp lại giá trị cũ của các field cần auto-log TRƯỚC khi ghi đè.
     before = {
@@ -142,10 +171,18 @@ def update_task(db: Session, task_id: int, payload: TaskUpdate) -> Task:
     for field, value in data.items():
         if field == "tags":
             task.tags = _tags_to_str(value)
-        elif field in {"priority", "status", "type"} and value is not None:
+        elif field in {"priority", "status", "type", "visibility"} and value is not None:
             setattr(task, field, value.value if hasattr(value, "value") else value)
         else:
             setattr(task, field, value)
+
+    # Đồng bộ is_shared theo visibility (visibility là nguồn chân lý). Nếu
+    # client chỉ gửi is_shared (đường cũ), suy ngược ra visibility.
+    if "visibility" in data and data["visibility"] is not None:
+        task.is_shared = task.visibility == "shared"
+    elif "is_shared" in data and data["is_shared"] is not None:
+        task.visibility = "shared" if data["is_shared"] else "normal"
+        task.is_shared = bool(data["is_shared"])
 
     db.commit()
     db.refresh(task)
@@ -249,7 +286,14 @@ def matches_tag(info: dict, tag: str) -> bool:
     return False
 
 
-def delete_task(db: Session, task_id: int) -> None:
+def delete_task(db: Session, task_id: int, current_user=None) -> None:
     task = get_task(db, task_id)
+    # Ownership: chỉ admin (tất cả) hoặc người tạo (own) được xoá. Mod KHÔNG
+    # còn quyền xoá task của người khác.
+    if current_user is not None:
+        from core.visibility import can_delete
+
+        if not can_delete(current_user, task):
+            raise TaskPermissionError("You don't have permission to delete this task")
     db.delete(task)
     db.commit()

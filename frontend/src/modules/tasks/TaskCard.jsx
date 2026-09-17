@@ -11,7 +11,7 @@ import {
   statusMeta,
 } from "./taskConstants";
 import { useAuth } from "../auth/useAuth";
-import { hasPermission } from "../../shared/permissions";
+import { hasPermission, canOnObject } from "../../shared/permissions";
 
 export default function TaskCard({
   task,
@@ -22,7 +22,7 @@ export default function TaskCard({
   onStatusChange,
   showDescription = false,
 }) {
-  const { role } = useAuth();
+  const { role, user } = useAuth();
   const p = priorityMeta(task.priority);
   const s = statusMeta(task.status);
   const overdue = isOverdue(task);
@@ -85,7 +85,7 @@ export default function TaskCard({
           )}
         </div>
         {(hasPermission(role, "tasks", "update") ||
-          hasPermission(role, "tasks", "delete")) && (
+          canOnObject(role, "tasks", "delete", task, user?.id)) && (
           <Dropdown
             trigger={<MoreHorizontal size={16} />}
             items={[
@@ -94,7 +94,7 @@ export default function TaskCard({
                 icon: <Pencil size={14} />,
                 onClick: () => onEdit(task),
               },
-              hasPermission(role, "tasks", "delete") && {
+              canOnObject(role, "tasks", "delete", task, user?.id) && {
                 label: "Delete",
                 icon: <Trash2 size={14} />,
                 danger: true,

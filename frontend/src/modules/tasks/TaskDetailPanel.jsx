@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Pencil, X, Trash2, Eye, Globe, Lock } from "lucide-react";
+import { Pencil, X, Trash2, Eye, Globe, Lock, Users } from "lucide-react";
 import Select from "../../shared/components/Select";
 import Button from "../../shared/components/Button";
 import UserCombobox from "../../shared/components/UserCombobox";
@@ -11,7 +11,7 @@ import AttachmentList from "./AttachmentList";
 import ActivityFeed from "./ActivityFeed";
 import RichTextEditor from "./RichTextEditor";
 import ErrorBoundary from "../../shared/components/ErrorBoundary";
-import RoleGuard from "../../shared/RoleGuard";
+import { canOnObject } from "../../shared/permissions";
 import { PRIORITIES, TYPES, formatDate } from "./taskConstants";
 import { fetchProjects } from "../projects/projectApi";
 import { useAuth } from "../auth/useAuth";
@@ -90,7 +90,7 @@ export default function TaskDetailPanel({
   }, []);
 
   // --- Ownership & Visibility layer ---
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, role, isAdmin, isModerator } = useAuth();
   const [directory, setDirectory] = useState([]);
   const [watchers, setWatchers] = useState([]);
   const [sharingBusy, setSharingBusy] = useState(false);
@@ -163,11 +163,16 @@ export default function TaskDetailPanel({
     }
   };
 
-  const toggleShare = async () => {
+  const setVisibility = async (mode) => {
     if (!task || sharingBusy) return;
+    const current = task.visibility || (task.is_shared ? "shared" : "normal");
+    if (mode === current) return;
+    setViewerError("");
     setSharingBusy(true);
     try {
-      await onUpdate({ is_shared: !task.is_shared });
+      await onUpdate({ visibility: mode });
+    } catch (err) {
+      setViewerError(err.message || "Could not change visibility.");
     } finally {
       setSharingBusy(false);
     }
@@ -623,26 +628,82 @@ export default function TaskDetailPanel({
               <div className="space-y-3 border-t border-slate-100 py-3">
                 <div>
                   <span className={fieldLabel}>Visibility</span>
-                  <div className="mt-2 flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={toggleShare}
-                      disabled={sharingBusy}
-                      className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition disabled:opacity-50 ${
-                        task.is_shared
-                          ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      }`}
-                    >
-                      {task.is_shared ? <Globe size={13} /> : <Lock size={13} />}
-                      {task.is_shared ? "Shared" : "Private"}
-                    </button>
-                    <span className="text-xs text-slate-400">
-                      {task.is_shared
-                        ? "Visible to everyone"
-                        : "Only you, assignee & project members"}
-                    </span>
-                  </div>
+                  {(() => {
+                    const currentVis =
+                      task.visibility ||
+                      (task.is_shared ? "shared" : "normal");
+                    const isOwner =
+                      task.created_by != null &&
+                      task.created_by === currentUser?.id;
+                    const canManageVis = isAdmin || isModerator || isOwner;
+                    const canPrivate = isAdmin || isOwner;
+                    const MODES = [
+                      {
+                        id: "normal",
+                        label: "Normal",
+                        icon: Users,
+                        active: "bg-emerald-500 text-white shadow-sm",
+                        allowed: canManageVis,
+                        hint: "Default — follows role & project rules",
+                      },
+                      {
+                        id: "private",
+                        label: "Private",
+                        icon: Lock,
+                        active: "bg-emerald-500 text-white shadow-sm",
+                        allowed: canPrivate,
+                        hint: "Only owner, assignee & added viewers",
+                      },
+                      {
+                        id: "shared",
+                        label: "Shared",
+                        icon: Globe,
+                        active: "bg-emerald-500 text-white shadow-sm",
+                        allowed: canManageVis,
+                        hint: "Visible to everyone",
+                      },
+                    ];
+                    const activeMode =
+                      MODES.find((m) => m.id === currentVis) || MODES[0];
+                    return (
+                      <>
+                        <div className="mt-2 inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+                          {MODES.map((m) => {
+                            const Icon = m.icon;
+                            const isActive = m.id === currentVis;
+                            const disabled =
+                              sharingBusy || !m.allowed || isActive;
+                            return (
+                              <button
+                                key={m.id}
+                                type="button"
+                                onClick={() => setVisibility(m.id)}
+                                disabled={disabled}
+                                title={
+                                  !m.allowed
+                                    ? "You don't have permission for this mode"
+                                    : m.hint
+                                }
+                                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition ${
+                                  isActive
+                                    ? m.active
+                                    : m.allowed
+                                    ? "text-slate-600 hover:bg-slate-200"
+                                    : "cursor-not-allowed text-slate-300"
+                                }`}
+                              >
+                                <Icon size={13} />
+                                {m.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <p className="mt-1.5 text-xs text-slate-400">
+                          {activeMode.hint}
+                        </p>
+                      </>
+                    );
+                  })()}
                 </div>
 
                 <div>
@@ -732,8 +793,8 @@ export default function TaskDetailPanel({
               </div>
             </div>
 
-            {/* Delete button */}
-            <RoleGuard resource="tasks" action="delete">
+            {/* Delete button — chỉ admin (tất cả) hoặc người tạo (own) */}
+            {canOnObject(role, "tasks", "delete", task, currentUser?.id) && (
               <Button
                 variant="danger"
                 className="w-full"
@@ -742,7 +803,7 @@ export default function TaskDetailPanel({
                 <Trash2 size={15} />
                 Delete task
               </Button>
-            </RoleGuard>
+            )}
           </div>
         </div>
       </aside>

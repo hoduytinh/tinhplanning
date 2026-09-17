@@ -27,6 +27,12 @@ class TaskType(str, Enum):
     waiting_for = "waiting_for"
 
 
+class Visibility(str, Enum):
+    normal = "normal"
+    private = "private"
+    shared = "shared"
+
+
 class TaskBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=255)
     # Text đơn giản hiển thị rút gọn trong danh sách (bật/tắt bằng toggle
@@ -43,8 +49,10 @@ class TaskBase(BaseModel):
 
 
 class TaskCreate(TaskBase):
-    # Ownership layer — cho phép gán assignee & bật chia sẻ ngay khi tạo task.
+    # Ownership layer — cho phép gán assignee & đặt chế độ visibility ngay khi
+    # tạo task. `visibility` là nguồn chân lý (normal/private/shared).
     assigned_to: int | None = None
+    visibility: Visibility = Visibility.normal
     is_shared: bool = False
 
 
@@ -63,6 +71,7 @@ class TaskUpdate(BaseModel):
     tags: list[str] | None = None
     # Ownership layer
     assigned_to: int | None = None
+    visibility: Visibility | None = None
     is_shared: bool | None = None
 
 
@@ -76,6 +85,7 @@ class TaskRead(TaskBase):
     # Ownership layer
     created_by: int | None = None
     assigned_to: int | None = None
+    visibility: str = "normal"
     is_shared: bool = False
 
     # Computed (không lưu DB) — router enrich sau khi validate.

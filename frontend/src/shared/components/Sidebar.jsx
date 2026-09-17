@@ -28,6 +28,25 @@ const NAV = [
   { to: "/weekly-review", label: "Weekly Review", icon: BarChart3 },
 ];
 
+// CHANGELOG.md được viết dạng hard-wrap (mỗi dòng ~80 ký tự) cho dễ đọc trên
+// GitHub/editor. Khi hiển thị trong modal (có cuộn ngang), ta muốn mỗi bullet
+// nằm trên 1 dòng duy nhất, nên gộp các dòng tiếp nối (không phải heading/
+// bullet mới) vào dòng bullet trước đó.
+function reflowChangelog(text) {
+  if (!text) return text;
+  const lines = text.split(/\r?\n/);
+  const out = [];
+  for (const line of lines) {
+    const isNewBlock = line.trim() === "" || /^\s*(#{1,6}|[-*])\s/.test(line);
+    if (isNewBlock || out.length === 0) {
+      out.push(line);
+    } else {
+      out[out.length - 1] = `${out[out.length - 1]}  ${line.trim()}`;
+    }
+  }
+  return out.join("\n");
+}
+
 export default function Sidebar({ collapsed }) {
   const navigate = useNavigate();
   const { user, logout, isAdmin, canApprove } = useAuth();
@@ -261,6 +280,8 @@ export default function Sidebar({ collapsed }) {
       open={changelogOpen}
       onClose={() => setChangelogOpen(false)}
       title={`Changelog — V${appVersion}`}
+      size="xl"
+      resizable
     >
       {changelogLoading && (
         <p className="text-sm text-slate-500">Loading...</p>
@@ -270,7 +291,7 @@ export default function Sidebar({ collapsed }) {
       )}
       {!changelogLoading && !changelogError && (
         <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-relaxed text-slate-700">
-          {changelogContent}
+          {reflowChangelog(changelogContent)}
         </pre>
       )}
     </Modal>

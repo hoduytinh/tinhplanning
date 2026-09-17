@@ -108,20 +108,33 @@ def create_task(
 
 @router.patch("/{task_id}", response_model=TaskRead)
 def update_task(
-    task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)
+    task_id: int,
+    payload: TaskUpdate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
 ) -> TaskRead:
     try:
-        return _read(db, service.update_task(db, task_id, payload))
+        return _read(
+            db, service.update_task(db, task_id, payload, current_user=current_user)
+        )
     except TaskNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+    except service.TaskPermissionError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_task(task_id: int, db: Session = Depends(get_db)) -> None:
+def delete_task(
+    task_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+) -> None:
     try:
-        service.delete_task(db, task_id)
+        service.delete_task(db, task_id, current_user=current_user)
     except TaskNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+    except service.TaskPermissionError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
 
 
 # ---------------------------------------------------------------------------
