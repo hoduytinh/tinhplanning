@@ -16,6 +16,8 @@ import {
 import { useAuth } from "../../modules/auth/useAuth";
 import { listPending } from "../../modules/users/usersApi";
 import { roleMeta, initials } from "../../modules/users/roleMeta";
+import { fetchAppVersion, fetchChangelog } from "../systemApi";
+import Modal from "./Modal";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -34,6 +36,41 @@ export default function Sidebar({ collapsed }) {
   const menuRef = useRef(null);
 
   const rm = roleMeta(user?.role);
+
+  // Version badge — visible to everyone; the changelog behind it can only be
+  // opened by the actual admin ACCOUNT (username "admin"), not just anyone
+  // with the admin role.
+  const isAdminAccount = user?.username === "admin";
+  const [appVersion, setAppVersion] = useState(null);
+  const [changelogOpen, setChangelogOpen] = useState(false);
+  const [changelogContent, setChangelogContent] = useState("");
+  const [changelogLoading, setChangelogLoading] = useState(false);
+  const [changelogError, setChangelogError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    fetchAppVersion()
+      .then((data) => active && setAppVersion(data.version))
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleVersionClick = async () => {
+    if (!isAdminAccount) return;
+    setChangelogOpen(true);
+    setChangelogLoading(true);
+    setChangelogError("");
+    try {
+      const data = await fetchChangelog();
+      setChangelogContent(data.content);
+    } catch (err) {
+      setChangelogError(err.message || "Could not load changelog.");
+    } finally {
+      setChangelogLoading(false);
+    }
+  };
 
   // Đếm số yêu cầu chờ duyệt (chỉ với người có quyền duyệt).
   useEffect(() => {
@@ -68,6 +105,7 @@ export default function Sidebar({ collapsed }) {
   }
 
   return (
+    <>
     <aside
       className={`flex h-full flex-col bg-sidebar text-slate-300 transition-all duration-200 ${
         collapsed ? "w-16" : "w-60"
@@ -190,7 +228,53 @@ export default function Sidebar({ collapsed }) {
           )}
         </button>
       </div>
+
+      {/* Version badge — visible to all; changelog only opens for the admin
+          account (username "admin"), not just the admin role. */}
+      {appVersion && (
+        <div
+          className={`border-t border-white/5 px-3 py-2 ${
+            collapsed ? "flex justify-center" : ""
+          }`}
+        >
+          <button
+            type="button"
+            onClick={handleVersionClick}
+            title={
+              isAdminAccount
+                ? "View changelog"
+                : `LeadBoard v${appVersion}`
+            }
+            className={`rounded px-1.5 py-0.5 text-[11px] font-medium text-slate-500 transition ${
+              isAdminAccount
+                ? "cursor-pointer hover:bg-sidebarItem hover:text-white"
+                : "cursor-default"
+            }`}
+          >
+            V{appVersion}
+          </button>
+        </div>
+      )}
     </aside>
+
+    <Modal
+      open={changelogOpen}
+      onClose={() => setChangelogOpen(false)}
+      title={`Changelog — V${appVersion}`}
+    >
+      {changelogLoading && (
+        <p className="text-sm text-slate-500">Loading...</p>
+      )}
+      {!changelogLoading && changelogError && (
+        <p className="text-sm text-red-600">{changelogError}</p>
+      )}
+      {!changelogLoading && !changelogError && (
+        <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-relaxed text-slate-700">
+          {changelogContent}
+        </pre>
+      )}
+    </Modal>
+    </>
   );
 }
 

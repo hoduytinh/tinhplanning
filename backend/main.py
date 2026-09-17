@@ -23,6 +23,7 @@ from modules.users.router import router as users_router
 from modules.ai.router import router as ai_router
 from modules.watchers.router import router as watchers_router
 from modules.projects.member_router import router as project_members_router
+from modules.system.router import router as system_router
 
 configure_logging()
 logger = logging.getLogger("leadboard")
@@ -120,6 +121,7 @@ app.include_router(weekly_review_router, dependencies=_auth)
 app.include_router(ai_router, dependencies=_auth)
 app.include_router(watchers_router, dependencies=_auth)
 app.include_router(project_members_router, dependencies=_auth)
+app.include_router(system_router, dependencies=_auth)
 
 
 @app.on_event("startup")
