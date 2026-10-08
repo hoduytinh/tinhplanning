@@ -36,6 +36,10 @@ export default function RegisterPage() {
       });
       setDone(res?.message || "Registration successful. Please wait for admin approval.");
     } catch (err) {
+      if (err?.isTransient) {
+        setError("Server đang khởi động hoặc quá tải. Vui lòng thử lại sau vài giây.");
+        return;
+      }
       setError(err?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);

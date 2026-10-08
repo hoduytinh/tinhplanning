@@ -23,6 +23,7 @@ export function clearTokens() {
 }
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const AUTH_REQUEST_TIMEOUT = 30000;
 
 async function requestWithRetry(requestFn, { retries = 0, delayMs = 800 } = {}) {
   let lastError = null;
@@ -45,7 +46,7 @@ async function requestWithRetry(requestFn, { retries = 0, delayMs = 800 } = {}) 
 
 export async function login(username, password) {
   const { data } = await requestWithRetry(
-    () => api.post("/auth/login", { username, password }),
+    () => api.post("/auth/login", { username, password }, { timeout: AUTH_REQUEST_TIMEOUT }),
     { retries: 2, delayMs: 1000 }
   );
   setTokens(data);
@@ -53,7 +54,10 @@ export async function login(username, password) {
 }
 
 export async function register(payload) {
-  const { data } = await api.post("/auth/register", payload);
+  const { data } = await requestWithRetry(
+    () => api.post("/auth/register", payload, { timeout: AUTH_REQUEST_TIMEOUT }),
+    { retries: 2, delayMs: 1000 }
+  );
   return data;
 }
 
@@ -68,10 +72,13 @@ export async function logout() {
 }
 
 export async function fetchMe() {
-  const { data } = await requestWithRetry(() => api.get("/auth/me"), {
+  const { data } = await requestWithRetry(
+    () => api.get("/auth/me", { timeout: AUTH_REQUEST_TIMEOUT }),
+    {
     retries: 3,
     delayMs: 800,
-  });
+  }
+  );
   return data;
 }
 

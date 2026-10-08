@@ -2,6 +2,16 @@
 
 All notable updates to LeadBoard are recorded here, newest first.
 
+## V1.0.4 — 2026-10-08
+
+Registration cold-start fallback.
+
+- Auth register flow: added transient-error retry and a longer per-request
+  timeout so a Render wake-up or short backend stall does not fail the first
+  signup attempt immediately.
+- Registration UI: shows a clearer message when the backend is temporarily
+  unavailable instead of treating the problem like a normal validation error.
+
 ## V1.0.3 — 2026-10-08
 
 UptimeRobot guidance and auth cold-start fallback.
