@@ -102,8 +102,17 @@ leadboard/
 2. Render tự tạo **persistent disk** mount vào `/var/data` để giữ file SQLite.
 3. Set thủ công (dashboard) các biến đánh dấu `sync: false`: `SECRET_KEY`,
    `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `CORS_ORIGINS` (thêm domain Vercel).
-4. (Free tier) Thêm URL `.../health` vào UptimeRobot (ping mỗi 5 phút) để
-   instance không bị sleep.
+4. (Free tier) Thêm một monitor kiểu `HTTP(s)` trỏ vào `https://<backend-host>/health`.
+  Interval nên là 5 phút, timeout 30 giây, và nếu có option keyword thì dùng `ok`.
+  Ping 15 phút vẫn có ích nhưng không đủ ổn định để tránh cold start trên free tier.
+
+### UptimeRobot chuẩn
+1. Monitor type: `HTTP(s)`.
+2. URL: `https://<ten-app>.onrender.com/health`.
+3. Monitoring interval: `5 minutes`.
+4. Timeout: `30 seconds`.
+5. Optional keyword: `ok`.
+6. Nếu monitor báo down ngắn hạn sau deploy/restart, đợi 1-2 phút rồi kiểm tra lại.
 
 ---
 

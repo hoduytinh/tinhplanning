@@ -22,10 +22,32 @@ export function clearTokens() {
   localStorage.removeItem(REFRESH_TOKEN_KEY);
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function requestWithRetry(requestFn, { retries = 0, delayMs = 800 } = {}) {
+  let lastError = null;
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      return await requestFn();
+    } catch (error) {
+      lastError = error;
+      const transient = Boolean(error?.isTransient);
+      if (!transient || attempt === retries) {
+        throw error;
+      }
+      await sleep(delayMs * (attempt + 1));
+    }
+  }
+  throw lastError;
+}
+
 // ---- API calls ----
 
 export async function login(username, password) {
-  const { data } = await api.post("/auth/login", { username, password });
+  const { data } = await requestWithRetry(
+    () => api.post("/auth/login", { username, password }),
+    { retries: 2, delayMs: 1000 }
+  );
   setTokens(data);
   return data;
 }
@@ -46,7 +68,10 @@ export async function logout() {
 }
 
 export async function fetchMe() {
-  const { data } = await api.get("/auth/me");
+  const { data } = await requestWithRetry(() => api.get("/auth/me"), {
+    retries: 3,
+    delayMs: 800,
+  });
   return data;
 }
 

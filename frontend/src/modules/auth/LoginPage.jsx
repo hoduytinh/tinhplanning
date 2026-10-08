@@ -25,6 +25,10 @@ export default function LoginPage() {
       navigate(from, { replace: true });
     } catch (err) {
       const msg = err?.message || "";
+      if (err?.isTransient) {
+        setError("Server đang khởi động hoặc tạm thời không phản hồi. Vui lòng thử lại sau vài giây.");
+        return;
+      }
       if (msg === "PENDING" || msg === "REJECTED" || msg === "INACTIVE") {
         // Tài khoản chưa được duyệt / bị từ chối / bị khoá.
         navigate("/pending", { replace: true, state: { username, status: msg } });

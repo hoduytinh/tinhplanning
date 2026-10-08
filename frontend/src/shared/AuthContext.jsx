@@ -10,6 +10,8 @@ import * as authApi from "../modules/auth/authApi";
 
 const AuthContext = createContext(null);
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,15 +24,31 @@ export function AuthProvider({ children }) {
         setLoading(false);
         return;
       }
-      try {
-        const me = await authApi.fetchMe();
-        if (active) setUser(me);
-      } catch {
-        authApi.clearTokens();
-        if (active) setUser(null);
-      } finally {
-        if (active) setLoading(false);
+      const retryDelays = [0, 800, 1500, 2500];
+      for (let attempt = 0; active && attempt < retryDelays.length; attempt += 1) {
+        if (retryDelays[attempt] > 0) {
+          await sleep(retryDelays[attempt]);
+        }
+        try {
+          const me = await authApi.fetchMe();
+          if (active) setUser(me);
+          if (active) setLoading(false);
+          return;
+        } catch (error) {
+          if (error?.status === 401 || error?.status === 403) {
+            authApi.clearTokens();
+            if (active) setUser(null);
+            if (active) setLoading(false);
+            return;
+          }
+          if (!error?.isTransient && attempt === retryDelays.length - 1) {
+            if (active) setUser(null);
+            if (active) setLoading(false);
+            return;
+          }
+        }
       }
+      if (active) setLoading(false);
     }
     bootstrap();
     return () => {
@@ -41,8 +59,16 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (username, password) => {
     const data = await authApi.login(username, password);
     // /auth/login trả kèm user rút gọn; lấy đầy đủ qua /auth/me.
-    const me = await authApi.fetchMe();
-    setUser(me);
+    try {
+      const me = await authApi.fetchMe();
+      setUser(me);
+    } catch (error) {
+      if (data?.user) {
+        setUser(data.user);
+      } else {
+        throw error;
+      }
+    }
     return data;
   }, []);
 

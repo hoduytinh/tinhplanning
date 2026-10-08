@@ -2,6 +2,35 @@
 
 All notable updates to LeadBoard are recorded here, newest first.
 
+## V1.0.3 — 2026-10-08
+
+UptimeRobot guidance and auth cold-start fallback.
+
+- Backend monitor docs: standardized the Render health check monitor setup to
+  use `HTTP(s)` on `/health` with a 5-minute interval.
+- Frontend auth bootstrap: added transient-error retry handling so a backend
+  wake-up or cold-start does not immediately clear tokens or force a bad
+  credentials message.
+- Login flow: if `/auth/me` is temporarily unavailable after a successful
+  login, the app now falls back to the user payload returned by `/auth/login`.
+
+## V1.0.2 — 2026-09-17
+
+Changelog viewer polish + production migration fix.
+
+- Changelog modal: now a resizable window (drag the bottom-right corner,
+  both width and height) instead of a fixed small box, with a smaller,
+  more convenient default size.
+- Changelog modal: long entries now scroll inside the window instead of
+  overflowing it; text reflows to the current window width instead of
+  breaking at the original hard-wrapped column.
+- Fixed a production migration bug: `0023_visibility_modes` backfilled
+  `visibility='shared'` using a raw `WHERE is_shared = 1` query, which
+  works on SQLite but fails on PostgreSQL (Render) with
+  `operator does not exist: boolean = integer`. Rewrote the backfill using
+  SQLAlchemy Core so it generates the correct boolean literal per database
+  dialect.
+
 ## V1.0.1 — 2026-09-17
 
 Permissions & visibility overhaul.

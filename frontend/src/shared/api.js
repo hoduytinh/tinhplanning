@@ -9,6 +9,8 @@ const api = axios.create({
   timeout: 15000,
 });
 
+const TRANSIENT_STATUS_CODES = new Set([408, 425, 429, 500, 502, 503, 504]);
+
 const ACCESS_TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
 
@@ -52,6 +54,22 @@ function forceLogout() {
   }
 }
 
+function normalizeError(error) {
+  const status = error.response?.status;
+  const detail =
+    error.response?.data?.detail ||
+    error.message ||
+    "Unable to connect to the server.";
+  const normalized = new Error(detail);
+  normalized.status = status;
+  normalized.response = error.response;
+  normalized.request = error.request;
+  normalized.code = error.code;
+  normalized.isTransient = !error.response || TRANSIENT_STATUS_CODES.has(status);
+  normalized.isAuthError = status === 401 || status === 403;
+  return normalized;
+}
+
 // Xử lý 401: thử refresh 1 lần rồi retry; thất bại thì đăng xuất.
 // Đồng thời chuẩn hoá lỗi thành Error(detail) để UI dùng.
 api.interceptors.response.use(
@@ -77,11 +95,7 @@ api.interceptors.response.use(
       forceLogout();
     }
 
-    const detail =
-      error.response?.data?.detail ||
-      error.message ||
-      "Unable to connect to the server.";
-    return Promise.reject(new Error(detail));
+    return Promise.reject(normalizeError(error));
   }
 );
 
